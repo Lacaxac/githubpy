@@ -1,0 +1,24 @@
+name: Build And Test
+on: [push]
+jobs:
+  Build:
+    runs-on: ubuntu-18.04
+    defaults:
+      run:
+        shell:  bash
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - name: Install virtualenv
+        run: sudo apt install -y python3.8 virtualenv
+      - uses: actions/setup-python@v2
+      - uses: syphar/restore-virtualenv@v1
+      - name: Validate
+        run: which python
+      - name: Upgrade pip
+        run:  pip install --upgrade pip
+      - name: Build
+        run: pip install --use-feature=in-tree-build .
+      - name: Test
+        working-directory: unittests
+        run: python -m unittest
