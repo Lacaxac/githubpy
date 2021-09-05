@@ -450,7 +450,7 @@ You must use a [JWT](https://docs.github.com/apps/building-github-apps/authentic
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -536,7 +536,7 @@ You must use a [JWT](https://docs.github.com/apps/building-github-apps/authentic
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -567,7 +567,7 @@ You must use a [JWT](https://docs.github.com/apps/building-github-apps/authentic
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -597,7 +597,7 @@ Deleting an OAuth application's grant will also delete all OAuth tokens associat
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 422:
             return ValidationError(**r.json())
@@ -631,7 +631,7 @@ Deleting an OAuth application's grant will also delete all OAuth tokens associat
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -728,7 +728,7 @@ Deleting an OAuth application's grant will also delete all OAuth tokens associat
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 422:
             return ValidationError(**r.json())
@@ -877,7 +877,7 @@ OAuth application owners can revoke a single token for an OAuth application. You
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -985,7 +985,7 @@ You must use an [installation access token](https://docs.github.com/apps/buildin
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -1138,7 +1138,7 @@ GitHub Apps must use a [JWT](https://docs.github.com/apps/building-github-apps/a
             return MarketplacePurchase(**r.json())
             
         if r.status_code == 404:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 401:
             return BasicError(**r.json())
@@ -1468,7 +1468,7 @@ You must use a personal access token (which you can create via the [command line
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 403:
             return BasicError(**r.json())
@@ -1506,7 +1506,7 @@ You must use a personal access token (which you can create via the [command line
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 403:
             return BasicError(**r.json())
@@ -1731,7 +1731,7 @@ Deleting an OAuth application's grant will also delete all OAuth tokens associat
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 304:
             return NotModified(**r.json())
@@ -2072,7 +2072,7 @@ You can only send one of these scope keys at a time.
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 304:
             return NotModified(**r.json())
@@ -2261,7 +2261,7 @@ You must authenticate using an access token with the `admin:enterprise` scope to
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
 
         raise UnexpectedResult(r.status_code)
@@ -2328,7 +2328,7 @@ You must authenticate using an access token with the `admin:enterprise` scope to
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
 
         raise UnexpectedResult(r.status_code)
@@ -2360,7 +2360,7 @@ You must authenticate using an access token with the `admin:enterprise` scope to
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
 
         raise UnexpectedResult(r.status_code)
@@ -2389,7 +2389,7 @@ You must authenticate using an access token with the `admin:enterprise` scope to
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -2454,7 +2454,7 @@ You must authenticate using an access token with the `admin:enterprise` scope to
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
 
         raise UnexpectedResult(r.status_code)
@@ -2621,7 +2621,7 @@ You must authenticate using an access token with the `admin:enterprise` scope to
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -2690,7 +2690,7 @@ You must authenticate using an access token with the `admin:enterprise` scope to
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
 
         raise UnexpectedResult(r.status_code)
@@ -2723,7 +2723,7 @@ You must authenticate using an access token with the `admin:enterprise` scope to
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
 
         raise UnexpectedResult(r.status_code)
@@ -2753,7 +2753,7 @@ You must authenticate using an access token with the `admin:enterprise` scope to
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -2822,7 +2822,7 @@ You must authenticate using an access token with the `admin:enterprise` scope to
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
 
         raise UnexpectedResult(r.status_code)
@@ -2856,7 +2856,7 @@ scope to use this endpoint.
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
 
         raise UnexpectedResult(r.status_code)
@@ -2886,7 +2886,7 @@ You must authenticate using an access token with the `admin:enterprise` scope to
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -3085,7 +3085,7 @@ You must authenticate using an access token with the `admin:enterprise` scope to
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -3347,7 +3347,7 @@ Allows you to change a provisioned group’s individual attributes. To change a 
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -3593,7 +3593,7 @@ Allows you to change a provisioned user's individual attributes. To change a use
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -4073,7 +4073,7 @@ Access tokens must have the `user` scope.
             return ActivityMarkNotificationsAsRead202(**r.json())
             
         if r.status_code == 205:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 304:
             return NotModified(**r.json())
@@ -4146,7 +4146,7 @@ Access tokens must have the `user` scope.
                           
         
         if r.status_code == 205:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 304:
             return NotModified(**r.json())
@@ -4259,7 +4259,7 @@ Unsubscribing from a conversation in a repository that you are not watching is f
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 304:
             return NotModified(**r.json())
@@ -4413,7 +4413,7 @@ Unsubscribing from a conversation in a repository that you are not watching is f
             return ActivityMarkRepoNotificationsAsRead202(**r.json())
             
         if r.status_code == 205:
-            return r.json()
+            return HttpResponse(r.status_code)
             
 
         raise UnexpectedResult(r.status_code)
@@ -4514,7 +4514,7 @@ You can also find out _when_ stars were created by passing the following custom 
             return RepositoryInvitation(**r.json())
             
         if r.status_code == 404:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 403:
             return BasicError(**r.json())
@@ -4578,7 +4578,7 @@ You can also find out _when_ stars were created by passing the following custom 
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -4653,7 +4653,7 @@ You can also find out _when_ stars were created by passing the following custom 
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -4695,7 +4695,7 @@ You can also find out _when_ stars were created by passing the following custom 
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 403:
             return BasicError(**r.json())
@@ -4734,7 +4734,7 @@ You can also find out _when_ stars were created by passing the following custom 
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -5295,7 +5295,7 @@ Note: With [pagination](https://docs.github.com/rest/overview/resources-in-the-r
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -5483,7 +5483,7 @@ Note: With [pagination](https://docs.github.com/rest/overview/resources-in-the-r
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 304:
             return NotModified(**r.json())
@@ -5641,7 +5641,7 @@ Note: With [pagination](https://docs.github.com/rest/overview/resources-in-the-r
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return GistsCheckIsStarredNotFound(**r.json())
@@ -5679,7 +5679,7 @@ Note: With [pagination](https://docs.github.com/rest/overview/resources-in-the-r
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -5714,7 +5714,7 @@ Note: With [pagination](https://docs.github.com/rest/overview/resources-in-the-r
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 304:
             return NotModified(**r.json())
@@ -6069,7 +6069,7 @@ Otherwise a `404` status code is returned.
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -6348,7 +6348,7 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -6863,7 +6863,7 @@ request id, use the "[List pull requests](https://docs.github.com/rest/reference
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 410:
             return BasicError(**r.json())
@@ -6940,7 +6940,7 @@ Note that, if you choose not to pass any parameters, you'll need to set `Content
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 403:
             return BasicError(**r.json())
@@ -6980,7 +6980,7 @@ Note that, if you choose not to pass any parameters, you'll need to set `Content
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 403:
             return BasicError(**r.json())
@@ -7203,7 +7203,7 @@ Note that, if you choose not to pass any parameters, you'll need to set `Content
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -7390,7 +7390,7 @@ Note that, if you choose not to pass any parameters, you'll need to set `Content
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -7945,7 +7945,7 @@ The default is `desc`.
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -7978,7 +7978,7 @@ The default is `desc`.
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 422:
             return ValidationError(**r.json())
@@ -8008,7 +8008,7 @@ The default is `desc`.
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -8065,7 +8065,7 @@ An authenticated organization owner with the `admin:org` scope can remove a cred
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -8282,7 +8282,7 @@ An authenticated organization owner with the `admin:org` scope can remove a cred
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -8494,7 +8494,7 @@ Access tokens must have the `admin:org_hook` scope, and GitHub Apps must have th
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -8641,7 +8641,7 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 422:
             return ValidationError(**r.json())
@@ -8729,7 +8729,7 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
             return [ entry and SimpleUser(**entry) for entry in r.json() ]
             
         if r.status_code == 302:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 422:
             return ValidationError(**r.json())
@@ -8759,13 +8759,13 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 302:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -8792,7 +8792,7 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 403:
             return BasicError(**r.json())
@@ -8905,7 +8905,7 @@ If the specified user is an active member of the organization, this will remove 
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 403:
             return BasicError(**r.json())
@@ -8981,10 +8981,10 @@ If the specified user is an active member of the organization, this will remove 
             return OrgsConvertMemberToOutsideCollaborator202(**r.json())
             
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 403:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -9014,7 +9014,7 @@ If the specified user is an active member of the organization, this will remove 
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 422:
             return OrgsRemoveOutsideCollaborator422(**r.json())
@@ -9076,10 +9076,10 @@ If the specified user is an active member of the organization, this will remove 
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -9111,7 +9111,7 @@ Note that you'll need to set `Content-Length` to zero when calling out to this e
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 403:
             return BasicError(**r.json())
@@ -9141,7 +9141,7 @@ Note that you'll need to set `Content-Length` to zero when calling out to this e
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -9402,7 +9402,7 @@ You must authenticate using an access token with the `admin:org` scope to use th
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
 
         raise UnexpectedResult(r.status_code)
@@ -9469,7 +9469,7 @@ You must authenticate using an access token with the `admin:org` scope to use th
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
 
         raise UnexpectedResult(r.status_code)
@@ -9501,7 +9501,7 @@ You must authenticate using an access token with the `admin:org` scope to use th
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
 
         raise UnexpectedResult(r.status_code)
@@ -9530,7 +9530,7 @@ You must authenticate using an access token with the `admin:org` scope to use th
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -9599,7 +9599,7 @@ You must authenticate using an access token with the `admin:org` scope to use th
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
 
         raise UnexpectedResult(r.status_code)
@@ -9776,7 +9776,7 @@ You must authenticate using an access token with the `admin:org` scope to use th
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -9849,7 +9849,7 @@ You must authenticate using an access token with the `admin:org` scope to use th
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
 
         raise UnexpectedResult(r.status_code)
@@ -9886,7 +9886,7 @@ scope to use this endpoint.
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
 
         raise UnexpectedResult(r.status_code)
@@ -9919,7 +9919,7 @@ You must authenticate using an access token with the `admin:org` scope to use th
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -9992,7 +9992,7 @@ You must authenticate using an access token with the `admin:org` scope to use th
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
 
         raise UnexpectedResult(r.status_code)
@@ -10029,7 +10029,7 @@ scope to use this endpoint.
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
 
         raise UnexpectedResult(r.status_code)
@@ -10062,7 +10062,7 @@ You must authenticate using an access token with the `admin:org` scope to use th
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -10261,7 +10261,7 @@ You must authenticate using an access token with the `admin:org` scope to use th
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -10464,7 +10464,7 @@ puts Base64.strict_encode64(encrypted_secret)
             return EmptyObject(**r.json())
             
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
 
         raise UnexpectedResult(r.status_code)
@@ -10491,7 +10491,7 @@ puts Base64.strict_encode64(encrypted_secret)
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -10556,7 +10556,7 @@ puts Base64.strict_encode64(encrypted_secret)
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
 
         raise UnexpectedResult(r.status_code)
@@ -10587,10 +10587,10 @@ puts Base64.strict_encode64(encrypted_secret)
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 409:
-            return r.json()
+            return HttpResponse(r.status_code)
             
 
         raise UnexpectedResult(r.status_code)
@@ -10618,10 +10618,10 @@ puts Base64.strict_encode64(encrypted_secret)
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 409:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -10710,7 +10710,7 @@ puts Base64.strict_encode64(encrypted_secret)
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -10742,7 +10742,7 @@ GitHub Apps must have the `actions:read` permission to use this endpoint.
     
         
         if r.status_code == 302:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -10801,7 +10801,7 @@ have the `actions:read` permission to use this endpoint.
     
         
         if r.status_code == 302:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -10869,7 +10869,7 @@ You must authenticate using an access token with the `repo` scope to use this en
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
 
         raise UnexpectedResult(r.status_code)
@@ -10940,7 +10940,7 @@ You must authenticate using an access token with the `repo` scope to use this en
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
 
         raise UnexpectedResult(r.status_code)
@@ -11142,7 +11142,7 @@ scope to use this endpoint.
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -11250,7 +11250,7 @@ this endpoint.
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -11452,7 +11452,7 @@ the `actions:read` permission to use this endpoint.
     
         
         if r.status_code == 302:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -11480,7 +11480,7 @@ the `actions:read` permission to use this endpoint.
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -11810,7 +11810,7 @@ puts Base64.strict_encode64(encrypted_secret)
             return ActionsCreateOrUpdateRepoSecretSuccess(**r.json())
             
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
 
         raise UnexpectedResult(r.status_code)
@@ -11838,7 +11838,7 @@ puts Base64.strict_encode64(encrypted_secret)
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -11932,7 +11932,7 @@ You must authenticate using an access token with the `repo` scope to use this en
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
 
         raise UnexpectedResult(r.status_code)
@@ -11971,7 +11971,7 @@ You must authenticate using an access token with the `repo` scope to use this en
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
 
         raise UnexpectedResult(r.status_code)
@@ -12004,7 +12004,7 @@ You must authenticate using an access token with the `repo` scope to use this en
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
 
         raise UnexpectedResult(r.status_code)
@@ -12285,7 +12285,7 @@ puts Base64.strict_encode64(encrypted_secret)
             return EmptyObject(**r.json())
             
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
 
         raise UnexpectedResult(r.status_code)
@@ -12313,7 +12313,7 @@ puts Base64.strict_encode64(encrypted_secret)
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -12401,7 +12401,7 @@ puts Base64.strict_encode64(encrypted_secret)
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -12465,7 +12465,7 @@ puts Base64.strict_encode64(encrypted_secret)
             return InteractionLimits(**r.json())
             
         if r.status_code == 409:
-            return r.json()
+            return HttpResponse(r.status_code)
             
 
         raise UnexpectedResult(r.status_code)
@@ -12492,10 +12492,10 @@ puts Base64.strict_encode64(encrypted_secret)
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 409:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -12523,7 +12523,7 @@ puts Base64.strict_encode64(encrypted_secret)
             return r.json()
             
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -12583,7 +12583,7 @@ puts Base64.strict_encode64(encrypted_secret)
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -12728,7 +12728,7 @@ The `state` of a migration can be one of the following values:
     
         
         if r.status_code == 302:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -12758,7 +12758,7 @@ The `state` of a migration can be one of the following values:
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -12789,7 +12789,7 @@ The `state` of a migration can be one of the following values:
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -13003,7 +13003,7 @@ request. If no parameters are provided, the import will be restarted.
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -13323,7 +13323,7 @@ The archive will also contain an `attachments` directory that includes all attac
     
         
         if r.status_code == 302:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 304:
             return NotModified(**r.json())
@@ -13358,7 +13358,7 @@ The archive will also contain an `attachments` directory that includes all attac
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -13397,7 +13397,7 @@ The archive will also contain an `attachments` directory that includes all attac
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 304:
             return NotModified(**r.json())
@@ -13507,7 +13507,7 @@ To use this endpoint, you must have admin permissions in the organization and au
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -13556,7 +13556,7 @@ To use this endpoint, you must have admin permissions in the organization and au
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -13679,7 +13679,7 @@ To use this endpoint, you must have admin permissions in the organization and au
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -13728,7 +13728,7 @@ To use this endpoint, you must have admin permissions in the organization and au
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -13797,7 +13797,7 @@ If `package_type` is not `container`, your token must also include the `repo` sc
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -13843,7 +13843,7 @@ To use this endpoint, you must authenticate using an access token with the `pack
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -13962,7 +13962,7 @@ If `package_type` is not `container`, your token must also include the `repo` sc
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -14008,7 +14008,7 @@ To use this endpoint, you must authenticate using an access token with the `pack
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -14318,7 +14318,7 @@ If `package_type` is not `container`, your token must also include the `repo` sc
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 304:
             return NotModified(**r.json())
@@ -14482,7 +14482,7 @@ If `package_type` is not `container`, your token must also include the `repo` sc
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 304:
             return NotModified(**r.json())
@@ -14701,7 +14701,7 @@ If `package_type` is not `container`, your token must also include the `repo` sc
             return Project(**r.json())
             
         if r.status_code == 404:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 304:
             return NotModified(**r.json())
@@ -14742,7 +14742,7 @@ If `package_type` is not `container`, your token must also include the `repo` sc
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 304:
             return NotModified(**r.json())
@@ -14845,7 +14845,7 @@ If `package_type` is not `container`, your token must also include the `repo` sc
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -14890,7 +14890,7 @@ If `package_type` is not `container`, your token must also include the `repo` sc
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 304:
             return NotModified(**r.json())
@@ -15490,7 +15490,7 @@ repositories, you will get a `403 Forbidden` response.
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 403:
             return ReposDeleteForbidden(**r.json())
@@ -15631,7 +15631,7 @@ Information about autolinks are only available to repository administrators.
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -15664,7 +15664,7 @@ Information about autolinks are only available to repository administrators.
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
 
         raise UnexpectedResult(r.status_code)
@@ -15691,7 +15691,7 @@ Information about autolinks are only available to repository administrators.
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -15891,7 +15891,7 @@ Protecting a branch requires admin or owner permissions to the repository.
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 403:
             return BasicError(**r.json())
@@ -15985,7 +15985,7 @@ Removing admin enforcement requires admin or owner permissions to the repository
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -16090,7 +16090,7 @@ Updating pull request review enforcement requires admin or owner permissions to 
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -16194,7 +16194,7 @@ When authenticated with admin or owner permissions to the repository, you can us
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -16299,7 +16299,7 @@ Updating required status checks requires admin or owner permissions to the repos
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -16510,7 +16510,7 @@ Disables the ability to restrict who can push to this branch.
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -17102,10 +17102,10 @@ Team members will include the members of child teams.
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -17158,7 +17158,7 @@ You are limited to sending 50 invitations to a repository per 24 hour period. No
             return RepositoryInvitation(**r.json())
             
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 422:
             return ValidationError(**r.json())
@@ -17192,7 +17192,7 @@ You are limited to sending 50 invitations to a repository per 24 hour period. No
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -17353,7 +17353,7 @@ Comments are ordered by ascending ID.
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -18089,7 +18089,7 @@ GitHub identifies contributors by author email address. This endpoint groups con
             return [ entry and Contributor(**entry) for entry in r.json() ]
             
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 403:
             return BasicError(**r.json())
@@ -18240,7 +18240,7 @@ status for the commit to be deployed, but one or more of the required contexts d
             return ReposCreateDeployment202(**r.json())
             
         if r.status_code == 409:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 422:
             return ValidationError(**r.json())
@@ -18309,7 +18309,7 @@ For more information, see "[Create a deployment](https://docs.github.com/rest/re
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -18484,7 +18484,7 @@ This input example shows how you can use the `client_payload` as a test to debug
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 422:
             return ValidationError(**r.json())
@@ -18618,7 +18618,7 @@ You must authenticate using an access token with the repo scope to use this endp
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -18893,7 +18893,7 @@ share the same `config` as long as those webhooks do not have any `events` that 
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -19111,7 +19111,7 @@ Access tokens must have the `write:repo_hook` or `repo` scope, and GitHub Apps m
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -19147,7 +19147,7 @@ Access tokens must have the `write:repo_hook` or `repo` scope, and GitHub Apps m
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -19244,7 +19244,7 @@ Access tokens must have the `write:repo_hook` or `repo` scope, and GitHub Apps m
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -19377,7 +19377,7 @@ Deploy keys with write access can perform the same actions as an organization me
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -19443,13 +19443,13 @@ Deploy keys with write access can perform the same actions as an organization me
             return Commit(**r.json())
             
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 409:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 403:
             return BasicError(**r.json())
@@ -19564,7 +19564,7 @@ Deploy keys with write access can perform the same actions as an organization me
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 422:
             return ValidationError(**r.json())
@@ -19597,7 +19597,7 @@ Deploy keys with write access can perform the same actions as an organization me
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 422:
             return ValidationError(**r.json())
@@ -19763,10 +19763,10 @@ Users must have admin or owner permissions. GitHub Apps must have the `pages:wri
             return EmptyObject(**r.json())
             
         if r.status_code == 400:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 422:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -20038,7 +20038,7 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -20205,7 +20205,7 @@ The latest release is the most recent non-prerelease, non-draft release, sorted 
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -20567,7 +20567,7 @@ the `Location` header to make a second `GET` request.
     
         
         if r.status_code == 302:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -20867,10 +20867,10 @@ the `Location` header to make a second `GET` request.
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -20900,7 +20900,7 @@ the `Location` header to make a second `GET` request.
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
 
         raise UnexpectedResult(r.status_code)
@@ -20927,7 +20927,7 @@ the `Location` header to make a second `GET` request.
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -20958,7 +20958,7 @@ the `Location` header to make a second `GET` request.
     
         
         if r.status_code == 302:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -21275,7 +21275,7 @@ When using [OAuth](https://docs.github.com/apps/building-oauth-apps/understandin
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 403:
             return BasicError(**r.json())
@@ -21313,7 +21313,7 @@ When using [OAuth](https://docs.github.com/apps/building-oauth-apps/understandin
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 409:
             return BasicError(**r.json())
@@ -21611,7 +21611,7 @@ If you are an organization owner, deleting a parent team will delete all of its 
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -21789,7 +21789,7 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -21963,7 +21963,7 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -22079,7 +22079,7 @@ The `role` for organization owners is set to `maintainer`. For more information 
             return TeamMembership(**r.json())
             
         if r.status_code == 404:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -22127,10 +22127,10 @@ If the user is already a member of the team, this endpoint will update the role 
             return TeamMembership(**r.json())
             
         if r.status_code == 403:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 422:
-            return r.json()
+            return HttpResponse(r.status_code)
             
 
         raise UnexpectedResult(r.status_code)
@@ -22164,10 +22164,10 @@ To remove a membership between a user and a team, the authenticated user must ha
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 403:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -22235,7 +22235,7 @@ To remove a membership between a user and a team, the authenticated user must ha
             return TeamProject(**r.json())
             
         if r.status_code == 404:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -22274,7 +22274,7 @@ Default: the team's `permission` attribute will be used to determine what permis
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 403:
             return TeamsAddOrUpdateProjectPermissionsInOrgForbidden(**r.json())
@@ -22307,7 +22307,7 @@ Default: the team's `permission` attribute will be used to determine what permis
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -22380,10 +22380,10 @@ If a team doesn't have permission for the repository, you will receive a `404 No
             return TeamRepository(**r.json())
             
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -22428,7 +22428,7 @@ If no permission is specified, the team's `permission` attribute will be used to
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
 
         raise UnexpectedResult(r.status_code)
@@ -22459,7 +22459,7 @@ If no permission is specified, the team's `permission` attribute will be used to
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -22683,7 +22683,7 @@ If you are an organization owner, deleting a parent team will delete all of its 
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -22859,7 +22859,7 @@ Delete a discussion from a team's page. OAuth access tokens require the `write:d
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -23028,7 +23028,7 @@ Deletes a comment on a team discussion. OAuth access tokens require the `write:d
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -23136,10 +23136,10 @@ To list members in a team, the team must be visible to the authenticated user.
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -23179,13 +23179,13 @@ Note that you'll need to set `Content-Length` to zero when calling out to this e
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 422:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 403:
             return BasicError(**r.json())
@@ -23223,10 +23223,10 @@ To remove a team member, the authenticated user must have 'admin' permissions to
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -23312,10 +23312,10 @@ If the user is already a member of the team, this endpoint will update the role 
             return TeamMembership(**r.json())
             
         if r.status_code == 403:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 422:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -23351,10 +23351,10 @@ To remove a membership between a user and a team, the authenticated user must ha
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 403:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -23426,7 +23426,7 @@ Checks whether a team has `read`, `write`, or `admin` permissions for an organiz
             return TeamProject(**r.json())
             
         if r.status_code == 404:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 415:
             return Preview_header_missing(**r.json())
@@ -23467,7 +23467,7 @@ Default: the team's `permission` attribute will be used to determine what permis
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 403:
             return TeamsAddOrUpdateProjectPermissionsLegacyForbidden(**r.json())
@@ -23508,7 +23508,7 @@ Removes an organization project from a team. An organization owner or a team mai
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -23587,10 +23587,10 @@ You can also get information about the specified repository, including what perm
             return TeamRepository(**r.json())
             
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -23632,7 +23632,7 @@ If no permission is specified, the team's `permission` attribute will be used to
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 403:
             return BasicError(**r.json())
@@ -23668,7 +23668,7 @@ If the authenticated user is an organization owner or a team maintainer, they ca
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -23939,7 +23939,7 @@ Delete a reaction to a [team discussion comment](https://docs.github.com/rest/re
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -24047,7 +24047,7 @@ Delete a reaction to a [team discussion](https://docs.github.com/rest/reference/
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -24075,7 +24075,7 @@ OAuth access tokens require the `write:discussion` [scope](https://docs.github.c
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 304:
             return NotModified(**r.json())
@@ -24206,7 +24206,7 @@ Delete a reaction to a [commit comment](https://docs.github.com/rest/reference/r
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -24322,7 +24322,7 @@ Delete a reaction to an [issue comment](https://docs.github.com/rest/reference/i
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -24441,7 +24441,7 @@ Delete a reaction to an [issue](https://docs.github.com/rest/reference/issues/).
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -24557,7 +24557,7 @@ Delete a reaction to a [pull request review comment](https://docs.github.com/res
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -25702,7 +25702,7 @@ This property is used to convert file paths from absolute to relative, so that a
             return CodeScanningSarifsReceipt(**r.json())
             
         if r.status_code == 400:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 403:
             return BasicError(**r.json())
@@ -25711,7 +25711,7 @@ This property is used to convert file paths from absolute to relative, so that a
             return BasicError(**r.json())
             
         if r.status_code == 413:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 503:
             return Service_unavailable(**r.json())
@@ -25748,7 +25748,7 @@ This property is used to convert file paths from absolute to relative, so that a
             return BasicError(**r.json())
             
         if r.status_code == 404:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 503:
             return Service_unavailable(**r.json())
@@ -26151,7 +26151,7 @@ If you request matching references for a branch named `feature` but the branch `
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 422:
             return ValidationError(**r.json())
@@ -26614,7 +26614,7 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -26963,10 +26963,10 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)
@@ -27092,7 +27092,7 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
             return PullRequestSimple(**r.json())
             
         if r.status_code == 422:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 403:
             return BasicError(**r.json())
@@ -27526,7 +27526,7 @@ GitHub Apps must have the `secret_scanning_alerts` read permission to use this e
             return [ entry and SecretScanningAlert(**entry) for entry in r.json() ]
             
         if r.status_code == 404:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 503:
             return Service_unavailable(**r.json())
@@ -27562,7 +27562,7 @@ GitHub Apps must have the `secret_scanning_alerts` read permission to use this e
             return SecretScanningAlert(**r.json())
             
         if r.status_code == 404:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 503:
             return Service_unavailable(**r.json())
@@ -27605,10 +27605,10 @@ GitHub Apps must have the `secret_scanning_alerts` write permission to use this 
             return SecretScanningAlert(**r.json())
             
         if r.status_code == 404:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 422:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 503:
             return Service_unavailable(**r.json())
@@ -27928,7 +27928,7 @@ You must at least provide the required values for the user: `userName`, `name`, 
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return ScimError(**r.json())
@@ -28512,7 +28512,7 @@ If the authenticated user is authenticated through OAuth without the `user` scop
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -28553,7 +28553,7 @@ If the authenticated user is authenticated through OAuth without the `user` scop
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 304:
             return NotModified(**r.json())
@@ -28594,7 +28594,7 @@ If the authenticated user is authenticated through OAuth without the `user` scop
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 304:
             return NotModified(**r.json())
@@ -28764,7 +28764,7 @@ If the authenticated user is authenticated through OAuth without the `user` scop
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 304:
             return NotModified(**r.json())
@@ -28885,7 +28885,7 @@ If the authenticated user is authenticated through OAuth without the `user` scop
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -28928,7 +28928,7 @@ Following a user requires the user to be logged in and authenticated with basic 
                           
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 304:
             return NotModified(**r.json())
@@ -28966,7 +28966,7 @@ Following a user requires the user to be logged in and authenticated with basic 
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 304:
             return NotModified(**r.json())
@@ -29130,7 +29130,7 @@ Following a user requires the user to be logged in and authenticated with basic 
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
             return BasicError(**r.json())
@@ -29299,7 +29299,7 @@ Following a user requires the user to be logged in and authenticated with basic 
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 304:
             return NotModified(**r.json())
@@ -29519,10 +29519,10 @@ The Emails API enables you to list all of your email addresses, and toggle a pri
     
         
         if r.status_code == 204:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         if r.status_code == 404:
-            return r.json()
+            return HttpResponse(r.status_code)
             
         
         raise UnexpectedResult(r.status_code)

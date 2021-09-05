@@ -1,5 +1,6 @@
 name: Build And Test
 on: [push]
+# ${{ secrets.GITHUBPYTEST_ACCT_TOKEN }}
 jobs:
   Build:
     runs-on: ubuntu-18.04
@@ -21,4 +22,6 @@ jobs:
         run: pip install --use-feature=in-tree-build .
       - name: Test
         working-directory: unittests
-        run: python -m unittest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUBPYTEST_ACCT_TOKEN }}
+        run: python -m unittest -v

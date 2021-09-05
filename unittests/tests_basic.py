@@ -1,4 +1,5 @@
 
+import sys, os
 import unittest
 import random
 
@@ -29,3 +30,26 @@ class BasicTests(unittest.TestCase):
         
         
         return
+    
+    def test_create_delete_repo(self):
+        reponame = 'foobar'
+        ghc = GitHubClient(os.environ['GITHUB_TOKEN'])
+        
+        result = ghc.ReposDelete("GitHubPyTest", "foobar")
+        self.assertTrue((isinstance(result, HttpResponse) and result.result_code == 204) or result.message == 'Not Found')
+        
+        
+        result = ghc.ReposCreateForAuthenticatedUser(reponame, description="test repo")
+        self.assertIsInstance(result, Repository)
+    
+        result = ghc.ReposListForAuthenticatedUser(type=None)
+        found = False
+        for repo in result:
+            found = found or repo.name==reponame
+            
+        self.assertTrue(found)
+            
+        result = ghc.ReposDelete("GitHubPyTest", "foobar")
+        
+        return
+        
