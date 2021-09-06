@@ -2,11 +2,46 @@ name: Build And Test
 on: [push]
 
 jobs:
-  BuildAndTest:
-    runs-on: ubuntu-18.04
-    defaults:
-      run:
-        shell:  bash
+  Ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.6
+      - uses: syphar/restore-virtualenv@v1
+      - name: Build
+        run: |
+          pip install --upgrade pip
+          pip install --use-feature=in-tree-build .
+      - name: Test
+        working-directory: unittests
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUBPYTEST_ACCT_TOKEN }}
+        run: python -m unittest -v
+  MacOSX:
+    runs-on: macos-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.6
+      - uses: syphar/restore-virtualenv@v1
+      - name: Build
+        run: |
+          pip install --upgrade pip
+          pip install --use-feature=in-tree-build .
+      - name: Test
+        working-directory: unittests
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUBPYTEST_ACCT_TOKEN }}
+        run: python -m unittest -v
+  Windows:
+    runs-on: windows-latest
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
