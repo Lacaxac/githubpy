@@ -66,4 +66,19 @@ class BasicTests(unittest.TestCase):
         self.assertEqual(len(commits), count, "didn't get expected count")
                 
         
+    def test_generation(self):
+        
+        ghc = GitHubClient(token=os.environ['GITHUB_TOKEN'])
+        
+        count = 7
+        
+        n = 0 
+        for c in GitHubClient.paginateGenerate(ghc.ReposListCommits, 
+                                        "geodynamics", 
+                                        "aspect", per_page=5, pagination_limit=count):
+            n += 1
+        
+        
+        self.assertEqual(n, count, "didn't get expected count")
+                
         
