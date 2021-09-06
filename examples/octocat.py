@@ -14,7 +14,7 @@ def main():
     
     options = parser.parse_args()
     
-    ghc = GitHubClient(options.token)
+    ghc = GitHubClient(token=options.token)
 
     ascii_art = ghc.MetaGetOctocat(options.text).data.decode('utf-8')
     

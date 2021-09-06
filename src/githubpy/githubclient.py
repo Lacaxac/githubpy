@@ -5,8 +5,11 @@ from .githubclientbase import GitHubClientBase
 from .githubclientclasses import *
 from .githubclientexceptions import UnexpectedResult
 class GitHubClient(GitHubClientBase):
-    def __init__(self, token):
-        GitHubClientBase.__init__(self, token)
+    def __init__(self, username=None, password=None, token=None, usesession=False):
+        GitHubClientBase.__init__(self, username=username, 
+        password=password, 
+        token=token, 
+        usesession=usesession)
 
 
     def MetaRoot(self, ):
@@ -22,9 +25,9 @@ class GitHubClient(GitHubClientBase):
         data = {}
         
         
-        r = requests.get(f"{self._url}/", 
+        r = self._session.get(f"{self._url}/", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -49,9 +52,9 @@ class GitHubClient(GitHubClientBase):
         data = {}
         
         
-        r = requests.get(f"{self._url}/meta", 
+        r = self._session.get(f"{self._url}/meta", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -80,9 +83,9 @@ class GitHubClient(GitHubClientBase):
             data['s'] = s
         
         
-        r = requests.get(f"{self._url}/octocat", 
+        r = self._session.get(f"{self._url}/octocat", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -103,9 +106,9 @@ class GitHubClient(GitHubClientBase):
         data = {}
         
         
-        r = requests.get(f"{self._url}/zen", 
+        r = self._session.get(f"{self._url}/zen", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -130,9 +133,9 @@ You must use a [JWT](https://docs.github.com/apps/building-github-apps/authentic
         data = {}
         
         
-        r = requests.get(f"{self._url}/app", 
+        r = self._session.get(f"{self._url}/app", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -161,9 +164,9 @@ You must use a [JWT](https://docs.github.com/apps/building-github-apps/authentic
         }
         
         
-        r = requests.post(f"{self._url}/app-manifests/{code}/conversions", 
+        r = self._session.post(f"{self._url}/app-manifests/{code}/conversions", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -194,9 +197,9 @@ You must use a [JWT](https://docs.github.com/apps/building-github-apps/authentic
         data = {}
         
         
-        r = requests.get(f"{self._url}/app/hook/config", 
+        r = self._session.get(f"{self._url}/app/hook/config", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -232,9 +235,9 @@ You must use a [JWT](https://docs.github.com/apps/building-github-apps/authentic
         }
         
         
-        r = requests.patch(f"{self._url}/app/hook/config", 
+        r = self._session.patch(f"{self._url}/app/hook/config", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -265,9 +268,9 @@ You must use a [JWT](https://docs.github.com/apps/building-github-apps/authentic
             data['cursor'] = cursor
         
         
-        r = requests.get(f"{self._url}/app/hook/deliveries", 
+        r = self._session.get(f"{self._url}/app/hook/deliveries", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -299,9 +302,9 @@ You must use a [JWT](https://docs.github.com/apps/building-github-apps/authentic
         data = {}
         
         
-        r = requests.get(f"{self._url}/app/hook/deliveries/{delivery_id}", 
+        r = self._session.get(f"{self._url}/app/hook/deliveries/{delivery_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -336,9 +339,9 @@ You must use a [JWT](https://docs.github.com/apps/building-github-apps/authentic
         }
         
         
-        r = requests.post(f"{self._url}/app/hook/deliveries/{delivery_id}/attempts", 
+        r = self._session.post(f"{self._url}/app/hook/deliveries/{delivery_id}/attempts", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -381,9 +384,9 @@ The permissions the installation has are included under the `permissions` key.
             data['outdated'] = outdated
         
         
-        r = requests.get(f"{self._url}/app/installations", 
+        r = self._session.get(f"{self._url}/app/installations", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -409,9 +412,9 @@ You must use a [JWT](https://docs.github.com/apps/building-github-apps/authentic
         data = {}
         
         
-        r = requests.get(f"{self._url}/app/installations/{installation_id}", 
+        r = self._session.get(f"{self._url}/app/installations/{installation_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -443,9 +446,9 @@ You must use a [JWT](https://docs.github.com/apps/building-github-apps/authentic
         data = {}
         
         
-        r = requests.delete(f"{self._url}/app/installations/{installation_id}", 
+        r = self._session.delete(f"{self._url}/app/installations/{installation_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -483,9 +486,9 @@ You must use a [JWT](https://docs.github.com/apps/building-github-apps/authentic
         }
         
         
-        r = requests.post(f"{self._url}/app/installations/{installation_id}/access_tokens", 
+        r = self._session.post(f"{self._url}/app/installations/{installation_id}/access_tokens", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -529,9 +532,9 @@ You must use a [JWT](https://docs.github.com/apps/building-github-apps/authentic
         }
         
         
-        r = requests.put(f"{self._url}/app/installations/{installation_id}/suspended", 
+        r = self._session.put(f"{self._url}/app/installations/{installation_id}/suspended", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -560,9 +563,9 @@ You must use a [JWT](https://docs.github.com/apps/building-github-apps/authentic
         data = {}
         
         
-        r = requests.delete(f"{self._url}/app/installations/{installation_id}/suspended", 
+        r = self._session.delete(f"{self._url}/app/installations/{installation_id}/suspended", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -590,9 +593,9 @@ Deleting an OAuth application's grant will also delete all OAuth tokens associat
         data = {}
         
         
-        r = requests.delete(f"{self._url}/applications/{client_id}/grant", 
+        r = self._session.delete(f"{self._url}/applications/{client_id}/grant", 
                            params=data,
-                           headers=self._headers({'Content-Type':  'application/json'}))
+                           **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
     
         
@@ -624,9 +627,9 @@ Deleting an OAuth application's grant will also delete all OAuth tokens associat
         data = {}
         
         
-        r = requests.delete(f"{self._url}/applications/{client_id}/grants/{access_token}", 
+        r = self._session.delete(f"{self._url}/applications/{client_id}/grants/{access_token}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -655,9 +658,9 @@ Deleting an OAuth application's grant will also delete all OAuth tokens associat
         }
         
         
-        r = requests.post(f"{self._url}/applications/{client_id}/token", 
+        r = self._session.post(f"{self._url}/applications/{client_id}/token", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -692,9 +695,9 @@ Deleting an OAuth application's grant will also delete all OAuth tokens associat
         }
         
         
-        r = requests.patch(f"{self._url}/applications/{client_id}/token", 
+        r = self._session.patch(f"{self._url}/applications/{client_id}/token", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -721,9 +724,9 @@ Deleting an OAuth application's grant will also delete all OAuth tokens associat
         data = {}
         
         
-        r = requests.delete(f"{self._url}/applications/{client_id}/token", 
+        r = self._session.delete(f"{self._url}/applications/{client_id}/token", 
                            params=data,
-                           headers=self._headers({'Content-Type':  'application/json'}))
+                           **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
     
         
@@ -765,9 +768,9 @@ Deleting an OAuth application's grant will also delete all OAuth tokens associat
         }
         
         
-        r = requests.post(f"{self._url}/applications/{client_id}/token/scoped", 
+        r = self._session.post(f"{self._url}/applications/{client_id}/token/scoped", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -806,9 +809,9 @@ OAuth applications can use a special API method for checking OAuth token validit
         data = {}
         
         
-        r = requests.get(f"{self._url}/applications/{client_id}/tokens/{access_token}", 
+        r = self._session.get(f"{self._url}/applications/{client_id}/tokens/{access_token}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -841,9 +844,9 @@ OAuth applications can use this API method to reset a valid OAuth token without 
         }
         
         
-        r = requests.post(f"{self._url}/applications/{client_id}/tokens/{access_token}", 
+        r = self._session.post(f"{self._url}/applications/{client_id}/tokens/{access_token}", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -870,9 +873,9 @@ OAuth application owners can revoke a single token for an OAuth application. You
         data = {}
         
         
-        r = requests.delete(f"{self._url}/applications/{client_id}/tokens/{access_token}", 
+        r = self._session.delete(f"{self._url}/applications/{client_id}/tokens/{access_token}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -898,9 +901,9 @@ If the GitHub App you specify is public, you can access this endpoint without au
         data = {}
         
         
-        r = requests.get(f"{self._url}/apps/{app_slug}", 
+        r = self._session.get(f"{self._url}/apps/{app_slug}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -940,9 +943,9 @@ You must use an [installation access token](https://docs.github.com/apps/buildin
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/installation/repositories", 
+        r = self._session.get(f"{self._url}/installation/repositories", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -978,9 +981,9 @@ You must use an [installation access token](https://docs.github.com/apps/buildin
         data = {}
         
         
-        r = requests.delete(f"{self._url}/installation/token", 
+        r = self._session.delete(f"{self._url}/installation/token", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -1006,9 +1009,9 @@ GitHub Apps must use a [JWT](https://docs.github.com/apps/building-github-apps/a
         data = {}
         
         
-        r = requests.get(f"{self._url}/marketplace_listing/accounts/{account_id}", 
+        r = self._session.get(f"{self._url}/marketplace_listing/accounts/{account_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -1045,9 +1048,9 @@ GitHub Apps must use a [JWT](https://docs.github.com/apps/building-github-apps/a
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/marketplace_listing/plans", 
+        r = self._session.get(f"{self._url}/marketplace_listing/plans", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -1091,9 +1094,9 @@ GitHub Apps must use a [JWT](https://docs.github.com/apps/building-github-apps/a
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/marketplace_listing/plans/{plan_id}/accounts", 
+        r = self._session.get(f"{self._url}/marketplace_listing/plans/{plan_id}/accounts", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -1128,9 +1131,9 @@ GitHub Apps must use a [JWT](https://docs.github.com/apps/building-github-apps/a
         data = {}
         
         
-        r = requests.get(f"{self._url}/marketplace_listing/stubbed/accounts/{account_id}", 
+        r = self._session.get(f"{self._url}/marketplace_listing/stubbed/accounts/{account_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -1167,9 +1170,9 @@ GitHub Apps must use a [JWT](https://docs.github.com/apps/building-github-apps/a
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/marketplace_listing/stubbed/plans", 
+        r = self._session.get(f"{self._url}/marketplace_listing/stubbed/plans", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -1210,9 +1213,9 @@ GitHub Apps must use a [JWT](https://docs.github.com/apps/building-github-apps/a
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/marketplace_listing/stubbed/plans/{plan_id}/accounts", 
+        r = self._session.get(f"{self._url}/marketplace_listing/stubbed/plans/{plan_id}/accounts", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -1241,9 +1244,9 @@ You must use a [JWT](https://docs.github.com/apps/building-github-apps/authentic
         data = {}
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/installation", 
+        r = self._session.get(f"{self._url}/orgs/{org}/installation", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -1280,9 +1283,9 @@ You must use an [installation access token](https://docs.github.com/apps/buildin
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/content_references/{content_reference_id}/attachments", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/content_references/{content_reference_id}/attachments", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -1327,9 +1330,9 @@ You must use a [JWT](https://docs.github.com/apps/building-github-apps/authentic
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/installation", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/installation", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -1370,9 +1373,9 @@ You can find the permissions for the installation under the `permissions` key.
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/user/installations", 
+        r = self._session.get(f"{self._url}/user/installations", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -1420,9 +1423,9 @@ The access the user has to each repository is included in the hash under the `pe
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/user/installations/{installation_id}/repositories", 
+        r = self._session.get(f"{self._url}/user/installations/{installation_id}/repositories", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -1461,9 +1464,9 @@ You must use a personal access token (which you can create via the [command line
         }
         
         
-        r = requests.put(f"{self._url}/user/installations/{installation_id}/repositories/{repository_id}", 
+        r = self._session.put(f"{self._url}/user/installations/{installation_id}/repositories/{repository_id}", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -1499,9 +1502,9 @@ You must use a personal access token (which you can create via the [command line
         data = {}
         
         
-        r = requests.delete(f"{self._url}/user/installations/{installation_id}/repositories/{repository_id}", 
+        r = self._session.delete(f"{self._url}/user/installations/{installation_id}/repositories/{repository_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -1539,9 +1542,9 @@ You must use a personal access token (which you can create via the [command line
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/user/marketplace_purchases", 
+        r = self._session.get(f"{self._url}/user/marketplace_purchases", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -1579,9 +1582,9 @@ You must use a personal access token (which you can create via the [command line
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/user/marketplace_purchases/stubbed", 
+        r = self._session.get(f"{self._url}/user/marketplace_purchases/stubbed", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -1613,9 +1616,9 @@ You must use a [JWT](https://docs.github.com/apps/building-github-apps/authentic
         data = {}
         
         
-        r = requests.get(f"{self._url}/users/{username}/installation", 
+        r = self._session.get(f"{self._url}/users/{username}/installation", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -1649,9 +1652,9 @@ You can use this API to list the set of OAuth applications that have been grante
             data['client_id'] = client_id
         
         
-        r = requests.get(f"{self._url}/applications/grants", 
+        r = self._session.get(f"{self._url}/applications/grants", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -1687,9 +1690,9 @@ You can use this API to list the set of OAuth applications that have been grante
         data = {}
         
         
-        r = requests.get(f"{self._url}/applications/grants/{grant_id}", 
+        r = self._session.get(f"{self._url}/applications/grants/{grant_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -1724,9 +1727,9 @@ Deleting an OAuth application's grant will also delete all OAuth tokens associat
         data = {}
         
         
-        r = requests.delete(f"{self._url}/applications/grants/{grant_id}", 
+        r = self._session.delete(f"{self._url}/applications/grants/{grant_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -1767,9 +1770,9 @@ Deleting an OAuth application's grant will also delete all OAuth tokens associat
             data['client_id'] = client_id
         
         
-        r = requests.get(f"{self._url}/authorizations", 
+        r = self._session.get(f"{self._url}/authorizations", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -1829,9 +1832,9 @@ Organizations that enforce SAML SSO require personal access tokens to be allowed
         }
         
         
-        r = requests.post(f"{self._url}/authorizations", 
+        r = self._session.post(f"{self._url}/authorizations", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -1891,9 +1894,9 @@ If you have two-factor authentication setup, Basic Authentication for this endpo
         }
         
         
-        r = requests.put(f"{self._url}/authorizations/clients/{client_id}", 
+        r = self._session.put(f"{self._url}/authorizations/clients/{client_id}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -1950,9 +1953,9 @@ If you have two-factor authentication setup, Basic Authentication for this endpo
         }
         
         
-        r = requests.put(f"{self._url}/authorizations/clients/{client_id}/{fingerprint}", 
+        r = self._session.put(f"{self._url}/authorizations/clients/{client_id}/{fingerprint}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -1982,9 +1985,9 @@ If you have two-factor authentication setup, Basic Authentication for this endpo
         data = {}
         
         
-        r = requests.get(f"{self._url}/authorizations/{authorization_id}", 
+        r = self._session.get(f"{self._url}/authorizations/{authorization_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -2036,9 +2039,9 @@ You can only send one of these scope keys at a time.
         }
         
         
-        r = requests.patch(f"{self._url}/authorizations/{authorization_id}", 
+        r = self._session.patch(f"{self._url}/authorizations/{authorization_id}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -2065,9 +2068,9 @@ You can only send one of these scope keys at a time.
         data = {}
         
         
-        r = requests.delete(f"{self._url}/authorizations/{authorization_id}", 
+        r = self._session.delete(f"{self._url}/authorizations/{authorization_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -2099,9 +2102,9 @@ You can only send one of these scope keys at a time.
         data = {}
         
         
-        r = requests.get(f"{self._url}/codes_of_conduct", 
+        r = self._session.get(f"{self._url}/codes_of_conduct", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -2128,9 +2131,9 @@ You can only send one of these scope keys at a time.
         data = {}
         
         
-        r = requests.get(f"{self._url}/codes_of_conduct/{key}", 
+        r = self._session.get(f"{self._url}/codes_of_conduct/{key}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -2163,9 +2166,9 @@ A code of conduct is detected if there is a file named `CODE_OF_CONDUCT` in the 
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/community/code_of_conduct", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/community/code_of_conduct", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -2188,9 +2191,9 @@ A code of conduct is detected if there is a file named `CODE_OF_CONDUCT` in the 
         data = {}
         
         
-        r = requests.get(f"{self._url}/emojis", 
+        r = self._session.get(f"{self._url}/emojis", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -2219,9 +2222,9 @@ You must authenticate using an access token with the `admin:enterprise` scope to
         data = {}
         
         
-        r = requests.get(f"{self._url}/enterprises/{enterprise}/actions/permissions", 
+        r = self._session.get(f"{self._url}/enterprises/{enterprise}/actions/permissions", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -2254,9 +2257,9 @@ You must authenticate using an access token with the `admin:enterprise` scope to
         }
         
         
-        r = requests.put(f"{self._url}/enterprises/{enterprise}/actions/permissions", 
+        r = self._session.put(f"{self._url}/enterprises/{enterprise}/actions/permissions", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -2288,9 +2291,9 @@ You must authenticate using an access token with the `admin:enterprise` scope to
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/enterprises/{enterprise}/actions/permissions/organizations", 
+        r = self._session.get(f"{self._url}/enterprises/{enterprise}/actions/permissions/organizations", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -2321,9 +2324,9 @@ You must authenticate using an access token with the `admin:enterprise` scope to
         }
         
         
-        r = requests.put(f"{self._url}/enterprises/{enterprise}/actions/permissions/organizations", 
+        r = self._session.put(f"{self._url}/enterprises/{enterprise}/actions/permissions/organizations", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -2353,9 +2356,9 @@ You must authenticate using an access token with the `admin:enterprise` scope to
         }
         
         
-        r = requests.put(f"{self._url}/enterprises/{enterprise}/actions/permissions/organizations/{org_id}", 
+        r = self._session.put(f"{self._url}/enterprises/{enterprise}/actions/permissions/organizations/{org_id}", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -2382,9 +2385,9 @@ You must authenticate using an access token with the `admin:enterprise` scope to
         data = {}
         
         
-        r = requests.delete(f"{self._url}/enterprises/{enterprise}/actions/permissions/organizations/{org_id}", 
+        r = self._session.delete(f"{self._url}/enterprises/{enterprise}/actions/permissions/organizations/{org_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -2410,9 +2413,9 @@ You must authenticate using an access token with the `admin:enterprise` scope to
         data = {}
         
         
-        r = requests.get(f"{self._url}/enterprises/{enterprise}/actions/permissions/selected-actions", 
+        r = self._session.get(f"{self._url}/enterprises/{enterprise}/actions/permissions/selected-actions", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -2447,9 +2450,9 @@ You must authenticate using an access token with the `admin:enterprise` scope to
         }
         
         
-        r = requests.put(f"{self._url}/enterprises/{enterprise}/actions/permissions/selected-actions", 
+        r = self._session.put(f"{self._url}/enterprises/{enterprise}/actions/permissions/selected-actions", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -2481,9 +2484,9 @@ You must authenticate using an access token with the `admin:enterprise` scope to
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/enterprises/{enterprise}/actions/runner-groups", 
+        r = self._session.get(f"{self._url}/enterprises/{enterprise}/actions/runner-groups", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -2520,9 +2523,9 @@ You must authenticate using an access token with the `admin:enterprise` scope to
         }
         
         
-        r = requests.post(f"{self._url}/enterprises/{enterprise}/actions/runner-groups", 
+        r = self._session.post(f"{self._url}/enterprises/{enterprise}/actions/runner-groups", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -2549,9 +2552,9 @@ You must authenticate using an access token with the `admin:enterprise` scope to
         data = {}
         
         
-        r = requests.get(f"{self._url}/enterprises/{enterprise}/actions/runner-groups/{runner_group_id}", 
+        r = self._session.get(f"{self._url}/enterprises/{enterprise}/actions/runner-groups/{runner_group_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -2585,9 +2588,9 @@ You must authenticate using an access token with the `admin:enterprise` scope to
         }
         
         
-        r = requests.patch(f"{self._url}/enterprises/{enterprise}/actions/runner-groups/{runner_group_id}", 
+        r = self._session.patch(f"{self._url}/enterprises/{enterprise}/actions/runner-groups/{runner_group_id}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -2614,9 +2617,9 @@ You must authenticate using an access token with the `admin:enterprise` scope to
         data = {}
         
         
-        r = requests.delete(f"{self._url}/enterprises/{enterprise}/actions/runner-groups/{runner_group_id}", 
+        r = self._session.delete(f"{self._url}/enterprises/{enterprise}/actions/runner-groups/{runner_group_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -2649,9 +2652,9 @@ You must authenticate using an access token with the `admin:enterprise` scope to
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/enterprises/{enterprise}/actions/runner-groups/{runner_group_id}/organizations", 
+        r = self._session.get(f"{self._url}/enterprises/{enterprise}/actions/runner-groups/{runner_group_id}/organizations", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -2683,9 +2686,9 @@ You must authenticate using an access token with the `admin:enterprise` scope to
         }
         
         
-        r = requests.put(f"{self._url}/enterprises/{enterprise}/actions/runner-groups/{runner_group_id}/organizations", 
+        r = self._session.put(f"{self._url}/enterprises/{enterprise}/actions/runner-groups/{runner_group_id}/organizations", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -2716,9 +2719,9 @@ You must authenticate using an access token with the `admin:enterprise` scope to
         }
         
         
-        r = requests.put(f"{self._url}/enterprises/{enterprise}/actions/runner-groups/{runner_group_id}/organizations/{org_id}", 
+        r = self._session.put(f"{self._url}/enterprises/{enterprise}/actions/runner-groups/{runner_group_id}/organizations/{org_id}", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -2746,9 +2749,9 @@ You must authenticate using an access token with the `admin:enterprise` scope to
         data = {}
         
         
-        r = requests.delete(f"{self._url}/enterprises/{enterprise}/actions/runner-groups/{runner_group_id}/organizations/{org_id}", 
+        r = self._session.delete(f"{self._url}/enterprises/{enterprise}/actions/runner-groups/{runner_group_id}/organizations/{org_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -2781,9 +2784,9 @@ You must authenticate using an access token with the `admin:enterprise` scope to
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/enterprises/{enterprise}/actions/runner-groups/{runner_group_id}/runners", 
+        r = self._session.get(f"{self._url}/enterprises/{enterprise}/actions/runner-groups/{runner_group_id}/runners", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -2815,9 +2818,9 @@ You must authenticate using an access token with the `admin:enterprise` scope to
         }
         
         
-        r = requests.put(f"{self._url}/enterprises/{enterprise}/actions/runner-groups/{runner_group_id}/runners", 
+        r = self._session.put(f"{self._url}/enterprises/{enterprise}/actions/runner-groups/{runner_group_id}/runners", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -2849,9 +2852,9 @@ scope to use this endpoint.
         }
         
         
-        r = requests.put(f"{self._url}/enterprises/{enterprise}/actions/runner-groups/{runner_group_id}/runners/{runner_id}", 
+        r = self._session.put(f"{self._url}/enterprises/{enterprise}/actions/runner-groups/{runner_group_id}/runners/{runner_id}", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -2879,9 +2882,9 @@ You must authenticate using an access token with the `admin:enterprise` scope to
         data = {}
         
         
-        r = requests.delete(f"{self._url}/enterprises/{enterprise}/actions/runner-groups/{runner_group_id}/runners/{runner_id}", 
+        r = self._session.delete(f"{self._url}/enterprises/{enterprise}/actions/runner-groups/{runner_group_id}/runners/{runner_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -2913,9 +2916,9 @@ You must authenticate using an access token with the `admin:enterprise` scope to
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/enterprises/{enterprise}/actions/runners", 
+        r = self._session.get(f"{self._url}/enterprises/{enterprise}/actions/runners", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -2941,9 +2944,9 @@ You must authenticate using an access token with the `admin:enterprise` scope to
         data = {}
         
         
-        r = requests.get(f"{self._url}/enterprises/{enterprise}/actions/runners/downloads", 
+        r = self._session.get(f"{self._url}/enterprises/{enterprise}/actions/runners/downloads", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -2980,9 +2983,9 @@ Configure your self-hosted runner, replacing `TOKEN` with the registration token
         }
         
         
-        r = requests.post(f"{self._url}/enterprises/{enterprise}/actions/runners/registration-token", 
+        r = self._session.post(f"{self._url}/enterprises/{enterprise}/actions/runners/registration-token", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -3020,9 +3023,9 @@ endpoint.
         }
         
         
-        r = requests.post(f"{self._url}/enterprises/{enterprise}/actions/runners/remove-token", 
+        r = self._session.post(f"{self._url}/enterprises/{enterprise}/actions/runners/remove-token", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -3049,9 +3052,9 @@ You must authenticate using an access token with the `admin:enterprise` scope to
         data = {}
         
         
-        r = requests.get(f"{self._url}/enterprises/{enterprise}/actions/runners/{runner_id}", 
+        r = self._session.get(f"{self._url}/enterprises/{enterprise}/actions/runners/{runner_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -3078,9 +3081,9 @@ You must authenticate using an access token with the `admin:enterprise` scope to
         data = {}
         
         
-        r = requests.delete(f"{self._url}/enterprises/{enterprise}/actions/runners/{runner_id}", 
+        r = self._session.delete(f"{self._url}/enterprises/{enterprise}/actions/runners/{runner_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -3133,9 +3136,9 @@ The default is `desc`.
             data['per_page'] = per_page
         
         
-        r = requests.get(f"{self._url}/enterprises/{enterprise}/audit-log", 
+        r = self._session.get(f"{self._url}/enterprises/{enterprise}/audit-log", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -3172,9 +3175,9 @@ The default is `desc`.
             data['excludedAttributes'] = excludedAttributes
         
         
-        r = requests.get(f"{self._url}/scim/v2/enterprises/{enterprise}/Groups", 
+        r = self._session.get(f"{self._url}/scim/v2/enterprises/{enterprise}/Groups", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -3209,9 +3212,9 @@ Provision an enterprise group, and invite users to the group. This sends invitat
         }
         
         
-        r = requests.post(f"{self._url}/scim/v2/enterprises/{enterprise}/Groups", 
+        r = self._session.post(f"{self._url}/scim/v2/enterprises/{enterprise}/Groups", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -3239,9 +3242,9 @@ Provision an enterprise group, and invite users to the group. This sends invitat
             data['excludedAttributes'] = excludedAttributes
         
         
-        r = requests.get(f"{self._url}/scim/v2/enterprises/{enterprise}/Groups/{scim_group_id}", 
+        r = self._session.get(f"{self._url}/scim/v2/enterprises/{enterprise}/Groups/{scim_group_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -3277,9 +3280,9 @@ Replaces an existing provisioned group’s information. You must provide all the
         }
         
         
-        r = requests.put(f"{self._url}/scim/v2/enterprises/{enterprise}/Groups/{scim_group_id}", 
+        r = self._session.put(f"{self._url}/scim/v2/enterprises/{enterprise}/Groups/{scim_group_id}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -3313,9 +3316,9 @@ Allows you to change a provisioned group’s individual attributes. To change a 
         }
         
         
-        r = requests.patch(f"{self._url}/scim/v2/enterprises/{enterprise}/Groups/{scim_group_id}", 
+        r = self._session.patch(f"{self._url}/scim/v2/enterprises/{enterprise}/Groups/{scim_group_id}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -3340,9 +3343,9 @@ Allows you to change a provisioned group’s individual attributes. To change a 
         data = {}
         
         
-        r = requests.delete(f"{self._url}/scim/v2/enterprises/{enterprise}/Groups/{scim_group_id}", 
+        r = self._session.delete(f"{self._url}/scim/v2/enterprises/{enterprise}/Groups/{scim_group_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -3392,9 +3395,9 @@ The returned list of external identities can include an entry for a `null` user.
             data['filter'] = filter
         
         
-        r = requests.get(f"{self._url}/scim/v2/enterprises/{enterprise}/Users", 
+        r = self._session.get(f"{self._url}/scim/v2/enterprises/{enterprise}/Users", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -3435,9 +3438,9 @@ You can optionally include the groups a user will be invited to join. If you do 
         }
         
         
-        r = requests.post(f"{self._url}/scim/v2/enterprises/{enterprise}/Users", 
+        r = self._session.post(f"{self._url}/scim/v2/enterprises/{enterprise}/Users", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -3462,9 +3465,9 @@ You can optionally include the groups a user will be invited to join. If you do 
         data = {}
         
         
-        r = requests.get(f"{self._url}/scim/v2/enterprises/{enterprise}/Users/{scim_user_id}", 
+        r = self._session.get(f"{self._url}/scim/v2/enterprises/{enterprise}/Users/{scim_user_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -3508,9 +3511,9 @@ You must at least provide the required values for the user: `userName`, `name`, 
         }
         
         
-        r = requests.put(f"{self._url}/scim/v2/enterprises/{enterprise}/Users/{scim_user_id}", 
+        r = self._session.put(f"{self._url}/scim/v2/enterprises/{enterprise}/Users/{scim_user_id}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -3559,9 +3562,9 @@ Allows you to change a provisioned user's individual attributes. To change a use
         }
         
         
-        r = requests.patch(f"{self._url}/scim/v2/enterprises/{enterprise}/Users/{scim_user_id}", 
+        r = self._session.patch(f"{self._url}/scim/v2/enterprises/{enterprise}/Users/{scim_user_id}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -3586,9 +3589,9 @@ Allows you to change a provisioned user's individual attributes. To change a use
         data = {}
         
         
-        r = requests.delete(f"{self._url}/scim/v2/enterprises/{enterprise}/Users/{scim_user_id}", 
+        r = self._session.delete(f"{self._url}/scim/v2/enterprises/{enterprise}/Users/{scim_user_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -3616,9 +3619,9 @@ The authenticated user must be an enterprise admin.
         data = {}
         
         
-        r = requests.get(f"{self._url}/enterprises/{enterprise}/settings/billing/actions", 
+        r = self._session.get(f"{self._url}/enterprises/{enterprise}/settings/billing/actions", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -3646,9 +3649,9 @@ The authenticated user must be an enterprise admin.
         data = {}
         
         
-        r = requests.get(f"{self._url}/enterprises/{enterprise}/settings/billing/packages", 
+        r = self._session.get(f"{self._url}/enterprises/{enterprise}/settings/billing/packages", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -3676,9 +3679,9 @@ The authenticated user must be an enterprise admin.
         data = {}
         
         
-        r = requests.get(f"{self._url}/enterprises/{enterprise}/settings/billing/shared-storage", 
+        r = self._session.get(f"{self._url}/enterprises/{enterprise}/settings/billing/shared-storage", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -3706,9 +3709,9 @@ Access tokens must have the `repo` or `admin:org` scope.
         data = {}
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/settings/billing/actions", 
+        r = self._session.get(f"{self._url}/orgs/{org}/settings/billing/actions", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -3736,9 +3739,9 @@ Access tokens must have the `repo` or `admin:org` scope.
         data = {}
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/settings/billing/packages", 
+        r = self._session.get(f"{self._url}/orgs/{org}/settings/billing/packages", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -3766,9 +3769,9 @@ Access tokens must have the `repo` or `admin:org` scope.
         data = {}
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/settings/billing/shared-storage", 
+        r = self._session.get(f"{self._url}/orgs/{org}/settings/billing/shared-storage", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -3796,9 +3799,9 @@ Access tokens must have the `user` scope.
         data = {}
         
         
-        r = requests.get(f"{self._url}/users/{username}/settings/billing/actions", 
+        r = self._session.get(f"{self._url}/users/{username}/settings/billing/actions", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -3826,9 +3829,9 @@ Access tokens must have the `user` scope.
         data = {}
         
         
-        r = requests.get(f"{self._url}/users/{username}/settings/billing/packages", 
+        r = self._session.get(f"{self._url}/users/{username}/settings/billing/packages", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -3856,9 +3859,9 @@ Access tokens must have the `user` scope.
         data = {}
         
         
-        r = requests.get(f"{self._url}/users/{username}/settings/billing/shared-storage", 
+        r = self._session.get(f"{self._url}/users/{username}/settings/billing/shared-storage", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -3887,9 +3890,9 @@ Access tokens must have the `user` scope.
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/events", 
+        r = self._session.get(f"{self._url}/events", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -3931,9 +3934,9 @@ Access tokens must have the `user` scope.
         data = {}
         
         
-        r = requests.get(f"{self._url}/feeds", 
+        r = self._session.get(f"{self._url}/feeds", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -3964,9 +3967,9 @@ Access tokens must have the `user` scope.
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/networks/{owner}/{repo}/events", 
+        r = self._session.get(f"{self._url}/networks/{owner}/{repo}/events", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -4019,9 +4022,9 @@ Access tokens must have the `user` scope.
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/notifications", 
+        r = self._session.get(f"{self._url}/notifications", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -4063,9 +4066,9 @@ Access tokens must have the `user` scope.
         }
         
         
-        r = requests.put(f"{self._url}/notifications", 
+        r = self._session.put(f"{self._url}/notifications", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -4101,9 +4104,9 @@ Access tokens must have the `user` scope.
         data = {}
         
         
-        r = requests.get(f"{self._url}/notifications/threads/{thread_id}", 
+        r = self._session.get(f"{self._url}/notifications/threads/{thread_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -4139,9 +4142,9 @@ Access tokens must have the `user` scope.
         }
         
         
-        r = requests.patch(f"{self._url}/notifications/threads/{thread_id}", 
+        r = self._session.patch(f"{self._url}/notifications/threads/{thread_id}", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -4173,9 +4176,9 @@ Note that subscriptions are only generated if a user is participating in a conve
         data = {}
         
         
-        r = requests.get(f"{self._url}/notifications/threads/{thread_id}/subscription", 
+        r = self._session.get(f"{self._url}/notifications/threads/{thread_id}/subscription", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -4217,9 +4220,9 @@ Unsubscribing from a conversation in a repository that you are not watching is f
         }
         
         
-        r = requests.put(f"{self._url}/notifications/threads/{thread_id}/subscription", 
+        r = self._session.put(f"{self._url}/notifications/threads/{thread_id}/subscription", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -4252,9 +4255,9 @@ Unsubscribing from a conversation in a repository that you are not watching is f
         data = {}
         
         
-        r = requests.delete(f"{self._url}/notifications/threads/{thread_id}/subscription", 
+        r = self._session.delete(f"{self._url}/notifications/threads/{thread_id}/subscription", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -4293,9 +4296,9 @@ Unsubscribing from a conversation in a repository that you are not watching is f
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/events", 
+        r = self._session.get(f"{self._url}/orgs/{org}/events", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -4326,9 +4329,9 @@ Unsubscribing from a conversation in a repository that you are not watching is f
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/events", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/events", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -4371,9 +4374,9 @@ Unsubscribing from a conversation in a repository that you are not watching is f
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/notifications", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/notifications", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -4403,9 +4406,9 @@ Unsubscribing from a conversation in a repository that you are not watching is f
         }
         
         
-        r = requests.put(f"{self._url}/repos/{owner}/{repo}/notifications", 
+        r = self._session.put(f"{self._url}/repos/{owner}/{repo}/notifications", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -4441,9 +4444,9 @@ You can also find out _when_ stars were created by passing the following custom 
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/stargazers", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/stargazers", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -4477,9 +4480,9 @@ You can also find out _when_ stars were created by passing the following custom 
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/subscribers", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/subscribers", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -4504,9 +4507,9 @@ You can also find out _when_ stars were created by passing the following custom 
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/subscription", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/subscription", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -4544,9 +4547,9 @@ You can also find out _when_ stars were created by passing the following custom 
         }
         
         
-        r = requests.put(f"{self._url}/repos/{owner}/{repo}/subscription", 
+        r = self._session.put(f"{self._url}/repos/{owner}/{repo}/subscription", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -4571,9 +4574,9 @@ You can also find out _when_ stars were created by passing the following custom 
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/subscription", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/subscription", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -4610,9 +4613,9 @@ You can also find out _when_ stars were created by passing the following custom 
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/user/starred", 
+        r = self._session.get(f"{self._url}/user/starred", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -4646,9 +4649,9 @@ You can also find out _when_ stars were created by passing the following custom 
         data = {}
         
         
-        r = requests.get(f"{self._url}/user/starred/{owner}/{repo}", 
+        r = self._session.get(f"{self._url}/user/starred/{owner}/{repo}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -4688,9 +4691,9 @@ You can also find out _when_ stars were created by passing the following custom 
         }
         
         
-        r = requests.put(f"{self._url}/user/starred/{owner}/{repo}", 
+        r = self._session.put(f"{self._url}/user/starred/{owner}/{repo}", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -4727,9 +4730,9 @@ You can also find out _when_ stars were created by passing the following custom 
         data = {}
         
         
-        r = requests.delete(f"{self._url}/user/starred/{owner}/{repo}", 
+        r = self._session.delete(f"{self._url}/user/starred/{owner}/{repo}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -4770,9 +4773,9 @@ You can also find out _when_ stars were created by passing the following custom 
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/user/subscriptions", 
+        r = self._session.get(f"{self._url}/user/subscriptions", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -4811,9 +4814,9 @@ You can also find out _when_ stars were created by passing the following custom 
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/users/{username}/events", 
+        r = self._session.get(f"{self._url}/users/{username}/events", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -4844,9 +4847,9 @@ You can also find out _when_ stars were created by passing the following custom 
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/users/{username}/events/orgs/{org}", 
+        r = self._session.get(f"{self._url}/users/{username}/events/orgs/{org}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -4876,9 +4879,9 @@ You can also find out _when_ stars were created by passing the following custom 
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/users/{username}/events/public", 
+        r = self._session.get(f"{self._url}/users/{username}/events/public", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -4908,9 +4911,9 @@ You can also find out _when_ stars were created by passing the following custom 
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/users/{username}/received_events", 
+        r = self._session.get(f"{self._url}/users/{username}/received_events", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -4940,9 +4943,9 @@ You can also find out _when_ stars were created by passing the following custom 
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/users/{username}/received_events/public", 
+        r = self._session.get(f"{self._url}/users/{username}/received_events/public", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -4980,9 +4983,9 @@ You can also find out _when_ stars were created by passing the following custom 
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/users/{username}/starred", 
+        r = self._session.get(f"{self._url}/users/{username}/starred", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -5012,9 +5015,9 @@ You can also find out _when_ stars were created by passing the following custom 
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/users/{username}/subscriptions", 
+        r = self._session.get(f"{self._url}/users/{username}/subscriptions", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -5046,9 +5049,9 @@ You can also find out _when_ stars were created by passing the following custom 
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/gists", 
+        r = self._session.get(f"{self._url}/gists", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -5088,9 +5091,9 @@ You can also find out _when_ stars were created by passing the following custom 
         }
         
         
-        r = requests.post(f"{self._url}/gists", 
+        r = self._session.post(f"{self._url}/gists", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -5136,9 +5139,9 @@ Note: With [pagination](https://docs.github.com/rest/overview/resources-in-the-r
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/gists/public", 
+        r = self._session.get(f"{self._url}/gists/public", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -5179,9 +5182,9 @@ Note: With [pagination](https://docs.github.com/rest/overview/resources-in-the-r
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/gists/starred", 
+        r = self._session.get(f"{self._url}/gists/starred", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -5214,9 +5217,9 @@ Note: With [pagination](https://docs.github.com/rest/overview/resources-in-the-r
         data = {}
         
         
-        r = requests.get(f"{self._url}/gists/{gist_id}", 
+        r = self._session.get(f"{self._url}/gists/{gist_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -5256,9 +5259,9 @@ Note: With [pagination](https://docs.github.com/rest/overview/resources-in-the-r
         }
         
         
-        r = requests.patch(f"{self._url}/gists/{gist_id}", 
+        r = self._session.patch(f"{self._url}/gists/{gist_id}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -5288,9 +5291,9 @@ Note: With [pagination](https://docs.github.com/rest/overview/resources-in-the-r
         data = {}
         
         
-        r = requests.delete(f"{self._url}/gists/{gist_id}", 
+        r = self._session.delete(f"{self._url}/gists/{gist_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -5329,9 +5332,9 @@ Note: With [pagination](https://docs.github.com/rest/overview/resources-in-the-r
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/gists/{gist_id}/comments", 
+        r = self._session.get(f"{self._url}/gists/{gist_id}/comments", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -5369,9 +5372,9 @@ Note: With [pagination](https://docs.github.com/rest/overview/resources-in-the-r
         }
         
         
-        r = requests.post(f"{self._url}/gists/{gist_id}/comments", 
+        r = self._session.post(f"{self._url}/gists/{gist_id}/comments", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -5405,9 +5408,9 @@ Note: With [pagination](https://docs.github.com/rest/overview/resources-in-the-r
         data = {}
         
         
-        r = requests.get(f"{self._url}/gists/{gist_id}/comments/{comment_id}", 
+        r = self._session.get(f"{self._url}/gists/{gist_id}/comments/{comment_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -5446,9 +5449,9 @@ Note: With [pagination](https://docs.github.com/rest/overview/resources-in-the-r
         }
         
         
-        r = requests.patch(f"{self._url}/gists/{gist_id}/comments/{comment_id}", 
+        r = self._session.patch(f"{self._url}/gists/{gist_id}/comments/{comment_id}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -5476,9 +5479,9 @@ Note: With [pagination](https://docs.github.com/rest/overview/resources-in-the-r
         data = {}
         
         
-        r = requests.delete(f"{self._url}/gists/{gist_id}/comments/{comment_id}", 
+        r = self._session.delete(f"{self._url}/gists/{gist_id}/comments/{comment_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -5517,9 +5520,9 @@ Note: With [pagination](https://docs.github.com/rest/overview/resources-in-the-r
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/gists/{gist_id}/commits", 
+        r = self._session.get(f"{self._url}/gists/{gist_id}/commits", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -5558,9 +5561,9 @@ Note: With [pagination](https://docs.github.com/rest/overview/resources-in-the-r
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/gists/{gist_id}/forks", 
+        r = self._session.get(f"{self._url}/gists/{gist_id}/forks", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -5596,9 +5599,9 @@ Note: With [pagination](https://docs.github.com/rest/overview/resources-in-the-r
         }
         
         
-        r = requests.post(f"{self._url}/gists/{gist_id}/forks", 
+        r = self._session.post(f"{self._url}/gists/{gist_id}/forks", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -5634,9 +5637,9 @@ Note: With [pagination](https://docs.github.com/rest/overview/resources-in-the-r
         data = {}
         
         
-        r = requests.get(f"{self._url}/gists/{gist_id}/star", 
+        r = self._session.get(f"{self._url}/gists/{gist_id}/star", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -5672,9 +5675,9 @@ Note: With [pagination](https://docs.github.com/rest/overview/resources-in-the-r
         }
         
         
-        r = requests.put(f"{self._url}/gists/{gist_id}/star", 
+        r = self._session.put(f"{self._url}/gists/{gist_id}/star", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -5707,9 +5710,9 @@ Note: With [pagination](https://docs.github.com/rest/overview/resources-in-the-r
         data = {}
         
         
-        r = requests.delete(f"{self._url}/gists/{gist_id}/star", 
+        r = self._session.delete(f"{self._url}/gists/{gist_id}/star", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -5743,9 +5746,9 @@ Note: With [pagination](https://docs.github.com/rest/overview/resources-in-the-r
         data = {}
         
         
-        r = requests.get(f"{self._url}/gists/{gist_id}/{sha}", 
+        r = self._session.get(f"{self._url}/gists/{gist_id}/{sha}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -5787,9 +5790,9 @@ Note: With [pagination](https://docs.github.com/rest/overview/resources-in-the-r
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/users/{username}/gists", 
+        r = self._session.get(f"{self._url}/users/{username}/gists", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -5815,9 +5818,9 @@ Note: With [pagination](https://docs.github.com/rest/overview/resources-in-the-r
         data = {}
         
         
-        r = requests.get(f"{self._url}/gitignore/templates", 
+        r = self._session.get(f"{self._url}/gitignore/templates", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -5845,9 +5848,9 @@ Use the raw [media type](https://docs.github.com/rest/overview/media-types/) to 
         data = {}
         
         
-        r = requests.get(f"{self._url}/gitignore/templates/{name}", 
+        r = self._session.get(f"{self._url}/gitignore/templates/{name}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -5922,9 +5925,9 @@ request id, use the "[List pull requests](https://docs.github.com/rest/reference
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/issues", 
+        r = self._session.get(f"{self._url}/issues", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -5991,9 +5994,9 @@ request id, use the "[List pull requests](https://docs.github.com/rest/reference
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/issues", 
+        r = self._session.get(f"{self._url}/orgs/{org}/issues", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -6027,9 +6030,9 @@ request id, use the "[List pull requests](https://docs.github.com/rest/reference
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/assignees", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/assignees", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -6062,9 +6065,9 @@ Otherwise a `404` status code is returned.
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/assignees/{assignee}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/assignees/{assignee}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -6130,9 +6133,9 @@ request id, use the "[List pull requests](https://docs.github.com/rest/reference
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/issues", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/issues", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -6183,9 +6186,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/issues", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/issues", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -6240,9 +6243,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/issues/comments", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/issues/comments", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -6274,9 +6277,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/issues/comments/{comment_id}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/issues/comments/{comment_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -6310,9 +6313,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
         }
         
         
-        r = requests.patch(f"{self._url}/repos/{owner}/{repo}/issues/comments/{comment_id}", 
+        r = self._session.patch(f"{self._url}/repos/{owner}/{repo}/issues/comments/{comment_id}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -6341,9 +6344,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/issues/comments/{comment_id}", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/issues/comments/{comment_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -6374,9 +6377,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/issues/events", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/issues/events", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -6405,9 +6408,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/issues/events/{event_id}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/issues/events/{event_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -6452,9 +6455,9 @@ request id, use the "[List pull requests](https://docs.github.com/rest/reference
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/issues/{issue_number}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/issues/{issue_number}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -6509,9 +6512,9 @@ request id, use the "[List pull requests](https://docs.github.com/rest/reference
         }
         
         
-        r = requests.patch(f"{self._url}/repos/{owner}/{repo}/issues/{issue_number}", 
+        r = self._session.patch(f"{self._url}/repos/{owner}/{repo}/issues/{issue_number}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -6560,9 +6563,9 @@ request id, use the "[List pull requests](https://docs.github.com/rest/reference
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/issues/{issue_number}/assignees", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/issues/{issue_number}/assignees", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -6588,9 +6591,9 @@ request id, use the "[List pull requests](https://docs.github.com/rest/reference
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/issues/{issue_number}/assignees", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/issues/{issue_number}/assignees", 
                            params=data,
-                           headers=self._headers({'Content-Type':  'application/json'}))
+                           **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
     
         
@@ -6625,9 +6628,9 @@ request id, use the "[List pull requests](https://docs.github.com/rest/reference
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/issues/{issue_number}/comments", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/issues/{issue_number}/comments", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -6664,9 +6667,9 @@ request id, use the "[List pull requests](https://docs.github.com/rest/reference
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/issues/{issue_number}/comments", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/issues/{issue_number}/comments", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -6710,9 +6713,9 @@ request id, use the "[List pull requests](https://docs.github.com/rest/reference
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/issues/{issue_number}/events", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/issues/{issue_number}/events", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -6747,9 +6750,9 @@ request id, use the "[List pull requests](https://docs.github.com/rest/reference
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/issues/{issue_number}/labels", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/issues/{issue_number}/labels", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -6783,9 +6786,9 @@ request id, use the "[List pull requests](https://docs.github.com/rest/reference
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/issues/{issue_number}/labels", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/issues/{issue_number}/labels", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -6822,9 +6825,9 @@ request id, use the "[List pull requests](https://docs.github.com/rest/reference
         }
         
         
-        r = requests.put(f"{self._url}/repos/{owner}/{repo}/issues/{issue_number}/labels", 
+        r = self._session.put(f"{self._url}/repos/{owner}/{repo}/issues/{issue_number}/labels", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -6856,9 +6859,9 @@ request id, use the "[List pull requests](https://docs.github.com/rest/reference
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/issues/{issue_number}/labels", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/issues/{issue_number}/labels", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -6888,9 +6891,9 @@ request id, use the "[List pull requests](https://docs.github.com/rest/reference
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/issues/{issue_number}/labels/{name}", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/issues/{issue_number}/labels/{name}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -6933,9 +6936,9 @@ Note that, if you choose not to pass any parameters, you'll need to set `Content
         }
         
         
-        r = requests.put(f"{self._url}/repos/{owner}/{repo}/issues/{issue_number}/lock", 
+        r = self._session.put(f"{self._url}/repos/{owner}/{repo}/issues/{issue_number}/lock", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -6973,9 +6976,9 @@ Note that, if you choose not to pass any parameters, you'll need to set `Content
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/issues/{issue_number}/lock", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/issues/{issue_number}/lock", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -7013,9 +7016,9 @@ Note that, if you choose not to pass any parameters, you'll need to set `Content
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/issues/{issue_number}/timeline", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/issues/{issue_number}/timeline", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -7055,9 +7058,9 @@ Note that, if you choose not to pass any parameters, you'll need to set `Content
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/labels", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/labels", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -7094,9 +7097,9 @@ Note that, if you choose not to pass any parameters, you'll need to set `Content
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/labels", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/labels", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -7128,9 +7131,9 @@ Note that, if you choose not to pass any parameters, you'll need to set `Content
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/labels/{name}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/labels/{name}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -7168,9 +7171,9 @@ Note that, if you choose not to pass any parameters, you'll need to set `Content
         }
         
         
-        r = requests.patch(f"{self._url}/repos/{owner}/{repo}/labels/{name}", 
+        r = self._session.patch(f"{self._url}/repos/{owner}/{repo}/labels/{name}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -7196,9 +7199,9 @@ Note that, if you choose not to pass any parameters, you'll need to set `Content
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/labels/{name}", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/labels/{name}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -7238,9 +7241,9 @@ Note that, if you choose not to pass any parameters, you'll need to set `Content
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/milestones", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/milestones", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -7279,9 +7282,9 @@ Note that, if you choose not to pass any parameters, you'll need to set `Content
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/milestones", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/milestones", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -7313,9 +7316,9 @@ Note that, if you choose not to pass any parameters, you'll need to set `Content
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/milestones/{milestone_number}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/milestones/{milestone_number}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -7355,9 +7358,9 @@ Note that, if you choose not to pass any parameters, you'll need to set `Content
         }
         
         
-        r = requests.patch(f"{self._url}/repos/{owner}/{repo}/milestones/{milestone_number}", 
+        r = self._session.patch(f"{self._url}/repos/{owner}/{repo}/milestones/{milestone_number}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -7383,9 +7386,9 @@ Note that, if you choose not to pass any parameters, you'll need to set `Content
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/milestones/{milestone_number}", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/milestones/{milestone_number}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -7420,9 +7423,9 @@ Note that, if you choose not to pass any parameters, you'll need to set `Content
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/milestones/{milestone_number}/labels", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/milestones/{milestone_number}/labels", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -7479,9 +7482,9 @@ request id, use the "[List pull requests](https://docs.github.com/rest/reference
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/user/issues", 
+        r = self._session.get(f"{self._url}/user/issues", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -7519,9 +7522,9 @@ request id, use the "[List pull requests](https://docs.github.com/rest/reference
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/licenses", 
+        r = self._session.get(f"{self._url}/licenses", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -7548,9 +7551,9 @@ request id, use the "[List pull requests](https://docs.github.com/rest/reference
         data = {}
         
         
-        r = requests.get(f"{self._url}/licenses/{license}", 
+        r = self._session.get(f"{self._url}/licenses/{license}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -7586,9 +7589,9 @@ Similar to [Get repository content](https://docs.github.com/rest/reference/repos
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/license", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/license", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -7620,9 +7623,9 @@ Similar to [Get repository content](https://docs.github.com/rest/reference/repos
         }
         
         
-        r = requests.post(f"{self._url}/markdown", 
+        r = self._session.post(f"{self._url}/markdown", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -7649,9 +7652,9 @@ Similar to [Get repository content](https://docs.github.com/rest/reference/repos
     
         
         
-        r = requests.post(f"{self._url}/markdown/raw", 
+        r = self._session.post(f"{self._url}/markdown/raw", 
                           data=text,
-                          headers=self._headers({'Content-Type':  'text/x-markdown'}))
+                          **self._requests_kwargs({'Content-Type':  'text/x-markdown'}))
         self._updateStats(r.headers)
                           
         
@@ -7685,9 +7688,9 @@ Similar to [Get repository content](https://docs.github.com/rest/reference/repos
             data['per_page'] = per_page
         
         
-        r = requests.get(f"{self._url}/organizations", 
+        r = self._session.get(f"{self._url}/organizations", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -7716,9 +7719,9 @@ GitHub Apps with the `Organization plan` permission can use this endpoint to ret
         data = {}
         
         
-        r = requests.get(f"{self._url}/orgs/{org}", 
+        r = self._session.get(f"{self._url}/orgs/{org}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -7815,9 +7818,9 @@ Default: `true`. For more information, see "[Restricting repository creation in 
         }
         
         
-        r = requests.patch(f"{self._url}/orgs/{org}", 
+        r = self._session.patch(f"{self._url}/orgs/{org}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -7881,9 +7884,9 @@ The default is `desc`.
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/audit-log", 
+        r = self._session.get(f"{self._url}/orgs/{org}/audit-log", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -7908,9 +7911,9 @@ The default is `desc`.
         data = {}
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/blocks", 
+        r = self._session.get(f"{self._url}/orgs/{org}/blocks", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -7938,9 +7941,9 @@ The default is `desc`.
         data = {}
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/blocks/{username}", 
+        r = self._session.get(f"{self._url}/orgs/{org}/blocks/{username}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -7971,9 +7974,9 @@ The default is `desc`.
         }
         
         
-        r = requests.put(f"{self._url}/orgs/{org}/blocks/{username}", 
+        r = self._session.put(f"{self._url}/orgs/{org}/blocks/{username}", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -8001,9 +8004,9 @@ The default is `desc`.
         data = {}
         
         
-        r = requests.delete(f"{self._url}/orgs/{org}/blocks/{username}", 
+        r = self._session.delete(f"{self._url}/orgs/{org}/blocks/{username}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -8029,9 +8032,9 @@ An authenticated organization owner with the `read:org` scope can list all crede
         data = {}
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/credential-authorizations", 
+        r = self._session.get(f"{self._url}/orgs/{org}/credential-authorizations", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -8058,9 +8061,9 @@ An authenticated organization owner with the `admin:org` scope can remove a cred
         data = {}
         
         
-        r = requests.delete(f"{self._url}/orgs/{org}/credential-authorizations/{credential_id}", 
+        r = self._session.delete(f"{self._url}/orgs/{org}/credential-authorizations/{credential_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -8093,9 +8096,9 @@ An authenticated organization owner with the `admin:org` scope can remove a cred
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/failed_invitations", 
+        r = self._session.get(f"{self._url}/orgs/{org}/failed_invitations", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -8128,9 +8131,9 @@ An authenticated organization owner with the `admin:org` scope can remove a cred
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/hooks", 
+        r = self._session.get(f"{self._url}/orgs/{org}/hooks", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -8168,9 +8171,9 @@ An authenticated organization owner with the `admin:org` scope can remove a cred
         }
         
         
-        r = requests.post(f"{self._url}/orgs/{org}/hooks", 
+        r = self._session.post(f"{self._url}/orgs/{org}/hooks", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -8201,9 +8204,9 @@ An authenticated organization owner with the `admin:org` scope can remove a cred
         data = {}
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/hooks/{hook_id}", 
+        r = self._session.get(f"{self._url}/orgs/{org}/hooks/{hook_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -8242,9 +8245,9 @@ An authenticated organization owner with the `admin:org` scope can remove a cred
         }
         
         
-        r = requests.patch(f"{self._url}/orgs/{org}/hooks/{hook_id}", 
+        r = self._session.patch(f"{self._url}/orgs/{org}/hooks/{hook_id}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -8275,9 +8278,9 @@ An authenticated organization owner with the `admin:org` scope can remove a cred
         data = {}
         
         
-        r = requests.delete(f"{self._url}/orgs/{org}/hooks/{hook_id}", 
+        r = self._session.delete(f"{self._url}/orgs/{org}/hooks/{hook_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -8307,9 +8310,9 @@ Access tokens must have the `admin:org_hook` scope, and GitHub Apps must have th
         data = {}
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/hooks/{hook_id}/config", 
+        r = self._session.get(f"{self._url}/orgs/{org}/hooks/{hook_id}/config", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -8347,9 +8350,9 @@ Access tokens must have the `admin:org_hook` scope, and GitHub Apps must have th
         }
         
         
-        r = requests.patch(f"{self._url}/orgs/{org}/hooks/{hook_id}/config", 
+        r = self._session.patch(f"{self._url}/orgs/{org}/hooks/{hook_id}/config", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -8380,9 +8383,9 @@ Access tokens must have the `admin:org_hook` scope, and GitHub Apps must have th
             data['cursor'] = cursor
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/hooks/{hook_id}/deliveries", 
+        r = self._session.get(f"{self._url}/orgs/{org}/hooks/{hook_id}/deliveries", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -8414,9 +8417,9 @@ Access tokens must have the `admin:org_hook` scope, and GitHub Apps must have th
         data = {}
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/hooks/{hook_id}/deliveries/{delivery_id}", 
+        r = self._session.get(f"{self._url}/orgs/{org}/hooks/{hook_id}/deliveries/{delivery_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -8451,9 +8454,9 @@ Access tokens must have the `admin:org_hook` scope, and GitHub Apps must have th
         }
         
         
-        r = requests.post(f"{self._url}/orgs/{org}/hooks/{hook_id}/deliveries/{delivery_id}/attempts", 
+        r = self._session.post(f"{self._url}/orgs/{org}/hooks/{hook_id}/deliveries/{delivery_id}/attempts", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -8487,9 +8490,9 @@ Access tokens must have the `admin:org_hook` scope, and GitHub Apps must have th
         }
         
         
-        r = requests.post(f"{self._url}/orgs/{org}/hooks/{hook_id}/pings", 
+        r = self._session.post(f"{self._url}/orgs/{org}/hooks/{hook_id}/pings", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -8522,9 +8525,9 @@ Access tokens must have the `admin:org_hook` scope, and GitHub Apps must have th
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/installations", 
+        r = self._session.get(f"{self._url}/orgs/{org}/installations", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -8554,9 +8557,9 @@ Access tokens must have the `admin:org_hook` scope, and GitHub Apps must have th
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/invitations", 
+        r = self._session.get(f"{self._url}/orgs/{org}/invitations", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -8599,9 +8602,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
         }
         
         
-        r = requests.post(f"{self._url}/orgs/{org}/invitations", 
+        r = self._session.post(f"{self._url}/orgs/{org}/invitations", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -8634,9 +8637,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
         data = {}
         
         
-        r = requests.delete(f"{self._url}/orgs/{org}/invitations/{invitation_id}", 
+        r = self._session.delete(f"{self._url}/orgs/{org}/invitations/{invitation_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -8673,9 +8676,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/invitations/{invitation_id}/teams", 
+        r = self._session.get(f"{self._url}/orgs/{org}/invitations/{invitation_id}/teams", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -8719,9 +8722,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/members", 
+        r = self._session.get(f"{self._url}/orgs/{org}/members", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -8752,9 +8755,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
         data = {}
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/members/{username}", 
+        r = self._session.get(f"{self._url}/orgs/{org}/members/{username}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -8785,9 +8788,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
         data = {}
         
         
-        r = requests.delete(f"{self._url}/orgs/{org}/members/{username}", 
+        r = self._session.delete(f"{self._url}/orgs/{org}/members/{username}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -8815,9 +8818,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
         data = {}
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/memberships/{username}", 
+        r = self._session.get(f"{self._url}/orgs/{org}/memberships/{username}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -8863,9 +8866,9 @@ To prevent abuse, the authenticated user is limited to 50 organization invitatio
         }
         
         
-        r = requests.put(f"{self._url}/orgs/{org}/memberships/{username}", 
+        r = self._session.put(f"{self._url}/orgs/{org}/memberships/{username}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -8898,9 +8901,9 @@ If the specified user is an active member of the organization, this will remove 
         data = {}
         
         
-        r = requests.delete(f"{self._url}/orgs/{org}/memberships/{username}", 
+        r = self._session.delete(f"{self._url}/orgs/{org}/memberships/{username}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -8941,9 +8944,9 @@ If the specified user is an active member of the organization, this will remove 
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/outside_collaborators", 
+        r = self._session.get(f"{self._url}/orgs/{org}/outside_collaborators", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -8971,9 +8974,9 @@ If the specified user is an active member of the organization, this will remove 
         }
         
         
-        r = requests.put(f"{self._url}/orgs/{org}/outside_collaborators/{username}", 
+        r = self._session.put(f"{self._url}/orgs/{org}/outside_collaborators/{username}", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -9007,9 +9010,9 @@ If the specified user is an active member of the organization, this will remove 
         data = {}
         
         
-        r = requests.delete(f"{self._url}/orgs/{org}/outside_collaborators/{username}", 
+        r = self._session.delete(f"{self._url}/orgs/{org}/outside_collaborators/{username}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -9042,9 +9045,9 @@ If the specified user is an active member of the organization, this will remove 
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/public_members", 
+        r = self._session.get(f"{self._url}/orgs/{org}/public_members", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -9069,9 +9072,9 @@ If the specified user is an active member of the organization, this will remove 
         data = {}
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/public_members/{username}", 
+        r = self._session.get(f"{self._url}/orgs/{org}/public_members/{username}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -9104,9 +9107,9 @@ Note that you'll need to set `Content-Length` to zero when calling out to this e
         }
         
         
-        r = requests.put(f"{self._url}/orgs/{org}/public_members/{username}", 
+        r = self._session.put(f"{self._url}/orgs/{org}/public_members/{username}", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -9134,9 +9137,9 @@ Note that you'll need to set `Content-Length` to zero when calling out to this e
         data = {}
         
         
-        r = requests.delete(f"{self._url}/orgs/{org}/public_members/{username}", 
+        r = self._session.delete(f"{self._url}/orgs/{org}/public_members/{username}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -9168,9 +9171,9 @@ Note that you'll need to set `Content-Length` to zero when calling out to this e
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/user/memberships/orgs", 
+        r = self._session.get(f"{self._url}/user/memberships/orgs", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -9206,9 +9209,9 @@ Note that you'll need to set `Content-Length` to zero when calling out to this e
         data = {}
         
         
-        r = requests.get(f"{self._url}/user/memberships/orgs/{org}", 
+        r = self._session.get(f"{self._url}/user/memberships/orgs/{org}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -9243,9 +9246,9 @@ Note that you'll need to set `Content-Length` to zero when calling out to this e
         }
         
         
-        r = requests.patch(f"{self._url}/user/memberships/orgs/{org}", 
+        r = self._session.patch(f"{self._url}/user/memberships/orgs/{org}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -9287,9 +9290,9 @@ This only lists organizations that your authorization allows you to operate on i
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/user/orgs", 
+        r = self._session.get(f"{self._url}/user/orgs", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -9330,9 +9333,9 @@ This method only lists _public_ memberships, regardless of authentication. If yo
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/users/{username}/orgs", 
+        r = self._session.get(f"{self._url}/users/{username}/orgs", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -9358,9 +9361,9 @@ You must authenticate using an access token with the `admin:org` scope to use th
         data = {}
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/actions/permissions", 
+        r = self._session.get(f"{self._url}/orgs/{org}/actions/permissions", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -9395,9 +9398,9 @@ You must authenticate using an access token with the `admin:org` scope to use th
         }
         
         
-        r = requests.put(f"{self._url}/orgs/{org}/actions/permissions", 
+        r = self._session.put(f"{self._url}/orgs/{org}/actions/permissions", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -9429,9 +9432,9 @@ You must authenticate using an access token with the `admin:org` scope to use th
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/actions/permissions/repositories", 
+        r = self._session.get(f"{self._url}/orgs/{org}/actions/permissions/repositories", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -9462,9 +9465,9 @@ You must authenticate using an access token with the `admin:org` scope to use th
         }
         
         
-        r = requests.put(f"{self._url}/orgs/{org}/actions/permissions/repositories", 
+        r = self._session.put(f"{self._url}/orgs/{org}/actions/permissions/repositories", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -9494,9 +9497,9 @@ You must authenticate using an access token with the `admin:org` scope to use th
         }
         
         
-        r = requests.put(f"{self._url}/orgs/{org}/actions/permissions/repositories/{repository_id}", 
+        r = self._session.put(f"{self._url}/orgs/{org}/actions/permissions/repositories/{repository_id}", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -9523,9 +9526,9 @@ You must authenticate using an access token with the `admin:org` scope to use th
         data = {}
         
         
-        r = requests.delete(f"{self._url}/orgs/{org}/actions/permissions/repositories/{repository_id}", 
+        r = self._session.delete(f"{self._url}/orgs/{org}/actions/permissions/repositories/{repository_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -9551,9 +9554,9 @@ You must authenticate using an access token with the `admin:org` scope to use th
         data = {}
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/actions/permissions/selected-actions", 
+        r = self._session.get(f"{self._url}/orgs/{org}/actions/permissions/selected-actions", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -9592,9 +9595,9 @@ You must authenticate using an access token with the `admin:org` scope to use th
         }
         
         
-        r = requests.put(f"{self._url}/orgs/{org}/actions/permissions/selected-actions", 
+        r = self._session.put(f"{self._url}/orgs/{org}/actions/permissions/selected-actions", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -9628,9 +9631,9 @@ You must authenticate using an access token with the `admin:org` scope to use th
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/actions/runner-groups", 
+        r = self._session.get(f"{self._url}/orgs/{org}/actions/runner-groups", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -9669,9 +9672,9 @@ You must authenticate using an access token with the `admin:org` scope to use th
         }
         
         
-        r = requests.post(f"{self._url}/orgs/{org}/actions/runner-groups", 
+        r = self._session.post(f"{self._url}/orgs/{org}/actions/runner-groups", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -9700,9 +9703,9 @@ You must authenticate using an access token with the `admin:org` scope to use th
         data = {}
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/actions/runner-groups/{runner_group_id}", 
+        r = self._session.get(f"{self._url}/orgs/{org}/actions/runner-groups/{runner_group_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -9738,9 +9741,9 @@ You must authenticate using an access token with the `admin:org` scope to use th
         }
         
         
-        r = requests.patch(f"{self._url}/orgs/{org}/actions/runner-groups/{runner_group_id}", 
+        r = self._session.patch(f"{self._url}/orgs/{org}/actions/runner-groups/{runner_group_id}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -9769,9 +9772,9 @@ You must authenticate using an access token with the `admin:org` scope to use th
         data = {}
         
         
-        r = requests.delete(f"{self._url}/orgs/{org}/actions/runner-groups/{runner_group_id}", 
+        r = self._session.delete(f"{self._url}/orgs/{org}/actions/runner-groups/{runner_group_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -9806,9 +9809,9 @@ You must authenticate using an access token with the `admin:org` scope to use th
             data['per_page'] = per_page
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/actions/runner-groups/{runner_group_id}/repositories", 
+        r = self._session.get(f"{self._url}/orgs/{org}/actions/runner-groups/{runner_group_id}/repositories", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -9842,9 +9845,9 @@ You must authenticate using an access token with the `admin:org` scope to use th
         }
         
         
-        r = requests.put(f"{self._url}/orgs/{org}/actions/runner-groups/{runner_group_id}/repositories", 
+        r = self._session.put(f"{self._url}/orgs/{org}/actions/runner-groups/{runner_group_id}/repositories", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -9879,9 +9882,9 @@ scope to use this endpoint.
         }
         
         
-        r = requests.put(f"{self._url}/orgs/{org}/actions/runner-groups/{runner_group_id}/repositories/{repository_id}", 
+        r = self._session.put(f"{self._url}/orgs/{org}/actions/runner-groups/{runner_group_id}/repositories/{repository_id}", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -9912,9 +9915,9 @@ You must authenticate using an access token with the `admin:org` scope to use th
         data = {}
         
         
-        r = requests.delete(f"{self._url}/orgs/{org}/actions/runner-groups/{runner_group_id}/repositories/{repository_id}", 
+        r = self._session.delete(f"{self._url}/orgs/{org}/actions/runner-groups/{runner_group_id}/repositories/{repository_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -9949,9 +9952,9 @@ You must authenticate using an access token with the `admin:org` scope to use th
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/actions/runner-groups/{runner_group_id}/runners", 
+        r = self._session.get(f"{self._url}/orgs/{org}/actions/runner-groups/{runner_group_id}/runners", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -9985,9 +9988,9 @@ You must authenticate using an access token with the `admin:org` scope to use th
         }
         
         
-        r = requests.put(f"{self._url}/orgs/{org}/actions/runner-groups/{runner_group_id}/runners", 
+        r = self._session.put(f"{self._url}/orgs/{org}/actions/runner-groups/{runner_group_id}/runners", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -10022,9 +10025,9 @@ scope to use this endpoint.
         }
         
         
-        r = requests.put(f"{self._url}/orgs/{org}/actions/runner-groups/{runner_group_id}/runners/{runner_id}", 
+        r = self._session.put(f"{self._url}/orgs/{org}/actions/runner-groups/{runner_group_id}/runners/{runner_id}", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -10055,9 +10058,9 @@ You must authenticate using an access token with the `admin:org` scope to use th
         data = {}
         
         
-        r = requests.delete(f"{self._url}/orgs/{org}/actions/runner-groups/{runner_group_id}/runners/{runner_id}", 
+        r = self._session.delete(f"{self._url}/orgs/{org}/actions/runner-groups/{runner_group_id}/runners/{runner_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -10089,9 +10092,9 @@ You must authenticate using an access token with the `admin:org` scope to use th
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/actions/runners", 
+        r = self._session.get(f"{self._url}/orgs/{org}/actions/runners", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -10117,9 +10120,9 @@ You must authenticate using an access token with the `admin:org` scope to use th
         data = {}
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/actions/runners/downloads", 
+        r = self._session.get(f"{self._url}/orgs/{org}/actions/runners/downloads", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -10156,9 +10159,9 @@ Configure your self-hosted runner, replacing `TOKEN` with the registration token
         }
         
         
-        r = requests.post(f"{self._url}/orgs/{org}/actions/runners/registration-token", 
+        r = self._session.post(f"{self._url}/orgs/{org}/actions/runners/registration-token", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -10196,9 +10199,9 @@ endpoint.
         }
         
         
-        r = requests.post(f"{self._url}/orgs/{org}/actions/runners/remove-token", 
+        r = self._session.post(f"{self._url}/orgs/{org}/actions/runners/remove-token", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -10225,9 +10228,9 @@ You must authenticate using an access token with the `admin:org` scope to use th
         data = {}
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/actions/runners/{runner_id}", 
+        r = self._session.get(f"{self._url}/orgs/{org}/actions/runners/{runner_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -10254,9 +10257,9 @@ You must authenticate using an access token with the `admin:org` scope to use th
         data = {}
         
         
-        r = requests.delete(f"{self._url}/orgs/{org}/actions/runners/{runner_id}", 
+        r = self._session.delete(f"{self._url}/orgs/{org}/actions/runners/{runner_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -10286,9 +10289,9 @@ You must authenticate using an access token with the `admin:org` scope to use th
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/actions/secrets", 
+        r = self._session.get(f"{self._url}/orgs/{org}/actions/secrets", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -10312,9 +10315,9 @@ You must authenticate using an access token with the `admin:org` scope to use th
         data = {}
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/actions/secrets/public-key", 
+        r = self._session.get(f"{self._url}/orgs/{org}/actions/secrets/public-key", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -10339,9 +10342,9 @@ You must authenticate using an access token with the `admin:org` scope to use th
         data = {}
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/actions/secrets/{secret_name}", 
+        r = self._session.get(f"{self._url}/orgs/{org}/actions/secrets/{secret_name}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -10454,9 +10457,9 @@ puts Base64.strict_encode64(encrypted_secret)
         }
         
         
-        r = requests.put(f"{self._url}/orgs/{org}/actions/secrets/{secret_name}", 
+        r = self._session.put(f"{self._url}/orgs/{org}/actions/secrets/{secret_name}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -10484,9 +10487,9 @@ puts Base64.strict_encode64(encrypted_secret)
         data = {}
         
         
-        r = requests.delete(f"{self._url}/orgs/{org}/actions/secrets/{secret_name}", 
+        r = self._session.delete(f"{self._url}/orgs/{org}/actions/secrets/{secret_name}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -10517,9 +10520,9 @@ puts Base64.strict_encode64(encrypted_secret)
             data['per_page'] = per_page
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/actions/secrets/{secret_name}/repositories", 
+        r = self._session.get(f"{self._url}/orgs/{org}/actions/secrets/{secret_name}/repositories", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -10549,9 +10552,9 @@ puts Base64.strict_encode64(encrypted_secret)
         }
         
         
-        r = requests.put(f"{self._url}/orgs/{org}/actions/secrets/{secret_name}/repositories", 
+        r = self._session.put(f"{self._url}/orgs/{org}/actions/secrets/{secret_name}/repositories", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -10580,9 +10583,9 @@ puts Base64.strict_encode64(encrypted_secret)
         }
         
         
-        r = requests.put(f"{self._url}/orgs/{org}/actions/secrets/{secret_name}/repositories/{repository_id}", 
+        r = self._session.put(f"{self._url}/orgs/{org}/actions/secrets/{secret_name}/repositories/{repository_id}", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -10611,9 +10614,9 @@ puts Base64.strict_encode64(encrypted_secret)
         data = {}
         
         
-        r = requests.delete(f"{self._url}/orgs/{org}/actions/secrets/{secret_name}/repositories/{repository_id}", 
+        r = self._session.delete(f"{self._url}/orgs/{org}/actions/secrets/{secret_name}/repositories/{repository_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -10647,9 +10650,9 @@ puts Base64.strict_encode64(encrypted_secret)
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/actions/artifacts", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/actions/artifacts", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -10675,9 +10678,9 @@ puts Base64.strict_encode64(encrypted_secret)
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/actions/artifacts/{artifact_id}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/actions/artifacts/{artifact_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -10703,9 +10706,9 @@ puts Base64.strict_encode64(encrypted_secret)
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/actions/artifacts/{artifact_id}", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/actions/artifacts/{artifact_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -10735,9 +10738,9 @@ GitHub Apps must have the `actions:read` permission to use this endpoint.
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/actions/artifacts/{artifact_id}/{archive_format}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/actions/artifacts/{artifact_id}/{archive_format}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -10763,9 +10766,9 @@ GitHub Apps must have the `actions:read` permission to use this endpoint.
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/actions/jobs/{job_id}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/actions/jobs/{job_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -10794,9 +10797,9 @@ have the `actions:read` permission to use this endpoint.
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/actions/jobs/{job_id}/logs", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/actions/jobs/{job_id}/logs", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -10824,9 +10827,9 @@ endpoint. GitHub Apps must have the `administration` repository permission to us
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/actions/permissions", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/actions/permissions", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -10862,9 +10865,9 @@ You must authenticate using an access token with the `repo` scope to use this en
         }
         
         
-        r = requests.put(f"{self._url}/repos/{owner}/{repo}/actions/permissions", 
+        r = self._session.put(f"{self._url}/repos/{owner}/{repo}/actions/permissions", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -10891,9 +10894,9 @@ You must authenticate using an access token with the `repo` scope to use this en
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/actions/permissions/selected-actions", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/actions/permissions/selected-actions", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -10933,9 +10936,9 @@ You must authenticate using an access token with the `repo` scope to use this en
         }
         
         
-        r = requests.put(f"{self._url}/repos/{owner}/{repo}/actions/permissions/selected-actions", 
+        r = self._session.put(f"{self._url}/repos/{owner}/{repo}/actions/permissions/selected-actions", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -10966,9 +10969,9 @@ You must authenticate using an access token with the `repo` scope to use this en
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/actions/runners", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/actions/runners", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -10995,9 +10998,9 @@ You must authenticate using an access token with the `repo` scope to use this en
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/actions/runners/downloads", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/actions/runners/downloads", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -11034,9 +11037,9 @@ Configure your self-hosted runner, replacing `TOKEN` with the registration token
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/actions/runners/registration-token", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/actions/runners/registration-token", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -11073,9 +11076,9 @@ To remove your self-hosted runner from a repository, replace TOKEN with the remo
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/actions/runners/remove-token", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/actions/runners/remove-token", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -11104,9 +11107,9 @@ endpoint.
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/actions/runners/{runner_id}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/actions/runners/{runner_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -11135,9 +11138,9 @@ scope to use this endpoint.
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/actions/runners/{runner_id}", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/actions/runners/{runner_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -11185,9 +11188,9 @@ Anyone with read access to the repository can use this endpoint. If the reposito
             data['created'] = created
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/actions/runs", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/actions/runs", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -11213,9 +11216,9 @@ Anyone with read access to the repository can use this endpoint. If the reposito
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/actions/runs/{run_id}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/actions/runs/{run_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -11243,9 +11246,9 @@ this endpoint.
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/actions/runs/{run_id}", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/actions/runs/{run_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -11271,9 +11274,9 @@ this endpoint.
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/actions/runs/{run_id}/approvals", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/actions/runs/{run_id}/approvals", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -11304,9 +11307,9 @@ You must authenticate using an access token with the `repo` scope to use this en
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/actions/runs/{run_id}/approve", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/actions/runs/{run_id}/approve", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -11344,9 +11347,9 @@ You must authenticate using an access token with the `repo` scope to use this en
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/actions/runs/{run_id}/artifacts", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/actions/runs/{run_id}/artifacts", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -11375,9 +11378,9 @@ You must authenticate using an access token with the `repo` scope to use this en
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/actions/runs/{run_id}/cancel", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/actions/runs/{run_id}/cancel", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -11414,9 +11417,9 @@ You must authenticate using an access token with the `repo` scope to use this en
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/actions/runs/{run_id}/jobs", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/actions/runs/{run_id}/jobs", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -11445,9 +11448,9 @@ the `actions:read` permission to use this endpoint.
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/actions/runs/{run_id}/logs", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/actions/runs/{run_id}/logs", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -11473,9 +11476,9 @@ the `actions:read` permission to use this endpoint.
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/actions/runs/{run_id}/logs", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/actions/runs/{run_id}/logs", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -11503,9 +11506,9 @@ Anyone with read access to the repository can use this endpoint. If the reposito
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/actions/runs/{run_id}/pending_deployments", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/actions/runs/{run_id}/pending_deployments", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -11542,9 +11545,9 @@ Anyone with read access to the repository contents and deployments can use this 
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/actions/runs/{run_id}/pending_deployments", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/actions/runs/{run_id}/pending_deployments", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -11573,9 +11576,9 @@ Anyone with read access to the repository contents and deployments can use this 
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/actions/runs/{run_id}/rerun", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/actions/runs/{run_id}/rerun", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -11603,9 +11606,9 @@ Anyone with read access to the repository can use this endpoint. If the reposito
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/actions/runs/{run_id}/timing", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/actions/runs/{run_id}/timing", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -11636,9 +11639,9 @@ Anyone with read access to the repository can use this endpoint. If the reposito
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/actions/secrets", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/actions/secrets", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -11663,9 +11666,9 @@ Anyone with read access to the repository can use this endpoint. If the reposito
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/actions/secrets/public-key", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/actions/secrets/public-key", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -11691,9 +11694,9 @@ Anyone with read access to the repository can use this endpoint. If the reposito
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/actions/secrets/{secret_name}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/actions/secrets/{secret_name}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -11800,9 +11803,9 @@ puts Base64.strict_encode64(encrypted_secret)
         }
         
         
-        r = requests.put(f"{self._url}/repos/{owner}/{repo}/actions/secrets/{secret_name}", 
+        r = self._session.put(f"{self._url}/repos/{owner}/{repo}/actions/secrets/{secret_name}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -11831,9 +11834,9 @@ puts Base64.strict_encode64(encrypted_secret)
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/actions/secrets/{secret_name}", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/actions/secrets/{secret_name}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -11864,9 +11867,9 @@ puts Base64.strict_encode64(encrypted_secret)
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/actions/workflows", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/actions/workflows", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -11892,9 +11895,9 @@ puts Base64.strict_encode64(encrypted_secret)
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/actions/workflows/{workflow_id}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/actions/workflows/{workflow_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -11925,9 +11928,9 @@ You must authenticate using an access token with the `repo` scope to use this en
         }
         
         
-        r = requests.put(f"{self._url}/repos/{owner}/{repo}/actions/workflows/{workflow_id}/disable", 
+        r = self._session.put(f"{self._url}/repos/{owner}/{repo}/actions/workflows/{workflow_id}/disable", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -11964,9 +11967,9 @@ You must authenticate using an access token with the `repo` scope to use this en
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -11997,9 +12000,9 @@ You must authenticate using an access token with the `repo` scope to use this en
         }
         
         
-        r = requests.put(f"{self._url}/repos/{owner}/{repo}/actions/workflows/{workflow_id}/enable", 
+        r = self._session.put(f"{self._url}/repos/{owner}/{repo}/actions/workflows/{workflow_id}/enable", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -12048,9 +12051,9 @@ Anyone with read access to the repository can use this endpoint. If the reposito
             data['created'] = created
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/actions/workflows/{workflow_id}/runs", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/actions/workflows/{workflow_id}/runs", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -12078,9 +12081,9 @@ You can replace `workflow_id` with the workflow file name. For example, you coul
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/actions/workflows/{workflow_id}/timing", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/actions/workflows/{workflow_id}/timing", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -12111,9 +12114,9 @@ You can replace `workflow_id` with the workflow file name. For example, you coul
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repositories/{repository_id}/environments/{environment_name}/secrets", 
+        r = self._session.get(f"{self._url}/repositories/{repository_id}/environments/{environment_name}/secrets", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -12138,9 +12141,9 @@ You can replace `workflow_id` with the workflow file name. For example, you coul
         data = {}
         
         
-        r = requests.get(f"{self._url}/repositories/{repository_id}/environments/{environment_name}/secrets/public-key", 
+        r = self._session.get(f"{self._url}/repositories/{repository_id}/environments/{environment_name}/secrets/public-key", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -12166,9 +12169,9 @@ You can replace `workflow_id` with the workflow file name. For example, you coul
         data = {}
         
         
-        r = requests.get(f"{self._url}/repositories/{repository_id}/environments/{environment_name}/secrets/{secret_name}", 
+        r = self._session.get(f"{self._url}/repositories/{repository_id}/environments/{environment_name}/secrets/{secret_name}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -12275,9 +12278,9 @@ puts Base64.strict_encode64(encrypted_secret)
         }
         
         
-        r = requests.put(f"{self._url}/repositories/{repository_id}/environments/{environment_name}/secrets/{secret_name}", 
+        r = self._session.put(f"{self._url}/repositories/{repository_id}/environments/{environment_name}/secrets/{secret_name}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -12306,9 +12309,9 @@ puts Base64.strict_encode64(encrypted_secret)
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repositories/{repository_id}/environments/{environment_name}/secrets/{secret_name}", 
+        r = self._session.delete(f"{self._url}/repositories/{repository_id}/environments/{environment_name}/secrets/{secret_name}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -12332,9 +12335,9 @@ puts Base64.strict_encode64(encrypted_secret)
         data = {}
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/interaction-limits", 
+        r = self._session.get(f"{self._url}/orgs/{org}/interaction-limits", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -12365,9 +12368,9 @@ puts Base64.strict_encode64(encrypted_secret)
         }
         
         
-        r = requests.put(f"{self._url}/orgs/{org}/interaction-limits", 
+        r = self._session.put(f"{self._url}/orgs/{org}/interaction-limits", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -12394,9 +12397,9 @@ puts Base64.strict_encode64(encrypted_secret)
         data = {}
         
         
-        r = requests.delete(f"{self._url}/orgs/{org}/interaction-limits", 
+        r = self._session.delete(f"{self._url}/orgs/{org}/interaction-limits", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -12421,9 +12424,9 @@ puts Base64.strict_encode64(encrypted_secret)
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/interaction-limits", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/interaction-limits", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -12455,9 +12458,9 @@ puts Base64.strict_encode64(encrypted_secret)
         }
         
         
-        r = requests.put(f"{self._url}/repos/{owner}/{repo}/interaction-limits", 
+        r = self._session.put(f"{self._url}/repos/{owner}/{repo}/interaction-limits", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -12485,9 +12488,9 @@ puts Base64.strict_encode64(encrypted_secret)
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/interaction-limits", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/interaction-limits", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -12513,9 +12516,9 @@ puts Base64.strict_encode64(encrypted_secret)
         data = {}
         
         
-        r = requests.get(f"{self._url}/user/interaction-limits", 
+        r = self._session.get(f"{self._url}/user/interaction-limits", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -12548,9 +12551,9 @@ puts Base64.strict_encode64(encrypted_secret)
         }
         
         
-        r = requests.put(f"{self._url}/user/interaction-limits", 
+        r = self._session.put(f"{self._url}/user/interaction-limits", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -12576,9 +12579,9 @@ puts Base64.strict_encode64(encrypted_secret)
         data = {}
         
         
-        r = requests.delete(f"{self._url}/user/interaction-limits", 
+        r = self._session.delete(f"{self._url}/user/interaction-limits", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -12611,9 +12614,9 @@ puts Base64.strict_encode64(encrypted_secret)
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/migrations", 
+        r = self._session.get(f"{self._url}/orgs/{org}/migrations", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -12648,9 +12651,9 @@ puts Base64.strict_encode64(encrypted_secret)
         }
         
         
-        r = requests.post(f"{self._url}/orgs/{org}/migrations", 
+        r = self._session.post(f"{self._url}/orgs/{org}/migrations", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -12691,9 +12694,9 @@ The `state` of a migration can be one of the following values:
             data['exclude'] = exclude
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/migrations/{migration_id}", 
+        r = self._session.get(f"{self._url}/orgs/{org}/migrations/{migration_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -12721,9 +12724,9 @@ The `state` of a migration can be one of the following values:
         data = {}
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/migrations/{migration_id}/archive", 
+        r = self._session.get(f"{self._url}/orgs/{org}/migrations/{migration_id}/archive", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -12751,9 +12754,9 @@ The `state` of a migration can be one of the following values:
         data = {}
         
         
-        r = requests.delete(f"{self._url}/orgs/{org}/migrations/{migration_id}/archive", 
+        r = self._session.delete(f"{self._url}/orgs/{org}/migrations/{migration_id}/archive", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -12782,9 +12785,9 @@ The `state` of a migration can be one of the following values:
         data = {}
         
         
-        r = requests.delete(f"{self._url}/orgs/{org}/migrations/{migration_id}/repos/{repo_name}/lock", 
+        r = self._session.delete(f"{self._url}/orgs/{org}/migrations/{migration_id}/repos/{repo_name}/lock", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -12818,9 +12821,9 @@ The `state` of a migration can be one of the following values:
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/migrations/{migration_id}/repositories", 
+        r = self._session.get(f"{self._url}/orgs/{org}/migrations/{migration_id}/repositories", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -12881,9 +12884,9 @@ This section includes details about Git LFS related fields that may be present i
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/import", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/import", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -12924,9 +12927,9 @@ This section includes details about Git LFS related fields that may be present i
         }
         
         
-        r = requests.put(f"{self._url}/repos/{owner}/{repo}/import", 
+        r = self._session.put(f"{self._url}/repos/{owner}/{repo}/import", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -12969,9 +12972,9 @@ request. If no parameters are provided, the import will be restarted.
         }
         
         
-        r = requests.patch(f"{self._url}/repos/{owner}/{repo}/import", 
+        r = self._session.patch(f"{self._url}/repos/{owner}/{repo}/import", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -12996,9 +12999,9 @@ request. If no parameters are provided, the import will be restarted.
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/import", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/import", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -13028,9 +13031,9 @@ This endpoint and the [Map a commit author](https://docs.github.com/rest/referen
             data['since'] = since
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/import/authors", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/import/authors", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -13066,9 +13069,9 @@ This endpoint and the [Map a commit author](https://docs.github.com/rest/referen
         }
         
         
-        r = requests.patch(f"{self._url}/repos/{owner}/{repo}/import/authors/{author_id}", 
+        r = self._session.patch(f"{self._url}/repos/{owner}/{repo}/import/authors/{author_id}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -13099,9 +13102,9 @@ This endpoint and the [Map a commit author](https://docs.github.com/rest/referen
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/import/large_files", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/import/large_files", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -13131,9 +13134,9 @@ This endpoint and the [Map a commit author](https://docs.github.com/rest/referen
         }
         
         
-        r = requests.patch(f"{self._url}/repos/{owner}/{repo}/import/lfs", 
+        r = self._session.patch(f"{self._url}/repos/{owner}/{repo}/import/lfs", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -13165,9 +13168,9 @@ This endpoint and the [Map a commit author](https://docs.github.com/rest/referen
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/user/migrations", 
+        r = self._session.get(f"{self._url}/user/migrations", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -13210,9 +13213,9 @@ This endpoint and the [Map a commit author](https://docs.github.com/rest/referen
         }
         
         
-        r = requests.post(f"{self._url}/user/migrations", 
+        r = self._session.post(f"{self._url}/user/migrations", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -13258,9 +13261,9 @@ Once the migration has been `exported` you can [download the migration archive](
             data['exclude'] = exclude
         
         
-        r = requests.get(f"{self._url}/user/migrations/{migration_id}", 
+        r = self._session.get(f"{self._url}/user/migrations/{migration_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -13316,9 +13319,9 @@ The archive will also contain an `attachments` directory that includes all attac
         data = {}
         
         
-        r = requests.get(f"{self._url}/user/migrations/{migration_id}/archive", 
+        r = self._session.get(f"{self._url}/user/migrations/{migration_id}/archive", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -13351,9 +13354,9 @@ The archive will also contain an `attachments` directory that includes all attac
         data = {}
         
         
-        r = requests.delete(f"{self._url}/user/migrations/{migration_id}/archive", 
+        r = self._session.delete(f"{self._url}/user/migrations/{migration_id}/archive", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -13390,9 +13393,9 @@ The archive will also contain an `attachments` directory that includes all attac
         data = {}
         
         
-        r = requests.delete(f"{self._url}/user/migrations/{migration_id}/repos/{repo_name}/lock", 
+        r = self._session.delete(f"{self._url}/user/migrations/{migration_id}/repos/{repo_name}/lock", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -13434,9 +13437,9 @@ The archive will also contain an `attachments` directory that includes all attac
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/user/migrations/{migration_id}/repositories", 
+        r = self._session.get(f"{self._url}/user/migrations/{migration_id}/repositories", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -13468,9 +13471,9 @@ If `package_type` is not `container`, your token must also include the `repo` sc
         data = {}
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/packages/{package_type}/{package_name}", 
+        r = self._session.get(f"{self._url}/orgs/{org}/packages/{package_type}/{package_name}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -13500,9 +13503,9 @@ To use this endpoint, you must have admin permissions in the organization and au
         data = {}
         
         
-        r = requests.delete(f"{self._url}/orgs/{org}/packages/{package_type}/{package_name}", 
+        r = self._session.delete(f"{self._url}/orgs/{org}/packages/{package_type}/{package_name}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -13549,9 +13552,9 @@ To use this endpoint, you must have admin permissions in the organization and au
         }
         
         
-        r = requests.post(f"{self._url}/orgs/{org}/packages/{package_type}/{package_name}/restore", 
+        r = self._session.post(f"{self._url}/orgs/{org}/packages/{package_type}/{package_name}/restore", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -13598,9 +13601,9 @@ If `package_type` is not `container`, your token must also include the `repo` sc
             data['state'] = state
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/packages/{package_type}/{package_name}/versions", 
+        r = self._session.get(f"{self._url}/orgs/{org}/packages/{package_type}/{package_name}/versions", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -13639,9 +13642,9 @@ If `package_type` is not `container`, your token must also include the `repo` sc
         data = {}
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/packages/{package_type}/{package_name}/versions/{package_version_id}", 
+        r = self._session.get(f"{self._url}/orgs/{org}/packages/{package_type}/{package_name}/versions/{package_version_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -13672,9 +13675,9 @@ To use this endpoint, you must have admin permissions in the organization and au
         data = {}
         
         
-        r = requests.delete(f"{self._url}/orgs/{org}/packages/{package_type}/{package_name}/versions/{package_version_id}", 
+        r = self._session.delete(f"{self._url}/orgs/{org}/packages/{package_type}/{package_name}/versions/{package_version_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -13721,9 +13724,9 @@ To use this endpoint, you must have admin permissions in the organization and au
         }
         
         
-        r = requests.post(f"{self._url}/orgs/{org}/packages/{package_type}/{package_name}/versions/{package_version_id}/restore", 
+        r = self._session.post(f"{self._url}/orgs/{org}/packages/{package_type}/{package_name}/versions/{package_version_id}/restore", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -13760,9 +13763,9 @@ If `package_type` is not `container`, your token must also include the `repo` sc
         data = {}
         
         
-        r = requests.get(f"{self._url}/user/packages/{package_type}/{package_name}", 
+        r = self._session.get(f"{self._url}/user/packages/{package_type}/{package_name}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -13790,9 +13793,9 @@ If `package_type` is not `container`, your token must also include the `repo` sc
         data = {}
         
         
-        r = requests.delete(f"{self._url}/user/packages/{package_type}/{package_name}", 
+        r = self._session.delete(f"{self._url}/user/packages/{package_type}/{package_name}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -13836,9 +13839,9 @@ To use this endpoint, you must authenticate using an access token with the `pack
         }
         
         
-        r = requests.post(f"{self._url}/user/packages/{package_type}/{package_name}/restore", 
+        r = self._session.post(f"{self._url}/user/packages/{package_type}/{package_name}/restore", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -13884,9 +13887,9 @@ If `package_type` is not `container`, your token must also include the `repo` sc
             data['state'] = state
         
         
-        r = requests.get(f"{self._url}/user/packages/{package_type}/{package_name}/versions", 
+        r = self._session.get(f"{self._url}/user/packages/{package_type}/{package_name}/versions", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -13924,9 +13927,9 @@ If `package_type` is not `container`, your token must also include the `repo` sc
         data = {}
         
         
-        r = requests.get(f"{self._url}/user/packages/{package_type}/{package_name}/versions/{package_version_id}", 
+        r = self._session.get(f"{self._url}/user/packages/{package_type}/{package_name}/versions/{package_version_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -13955,9 +13958,9 @@ If `package_type` is not `container`, your token must also include the `repo` sc
         data = {}
         
         
-        r = requests.delete(f"{self._url}/user/packages/{package_type}/{package_name}/versions/{package_version_id}", 
+        r = self._session.delete(f"{self._url}/user/packages/{package_type}/{package_name}/versions/{package_version_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -14001,9 +14004,9 @@ To use this endpoint, you must authenticate using an access token with the `pack
         }
         
         
-        r = requests.post(f"{self._url}/user/packages/{package_type}/{package_name}/versions/{package_version_id}/restore", 
+        r = self._session.post(f"{self._url}/user/packages/{package_type}/{package_name}/versions/{package_version_id}/restore", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -14041,9 +14044,9 @@ If `package_type` is not `container`, your token must also include the `repo` sc
         data = {}
         
         
-        r = requests.get(f"{self._url}/users/{username}/packages/{package_type}/{package_name}", 
+        r = self._session.get(f"{self._url}/users/{username}/packages/{package_type}/{package_name}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -14072,9 +14075,9 @@ If `package_type` is not `container`, your token must also include the `repo` sc
         data = {}
         
         
-        r = requests.get(f"{self._url}/users/{username}/packages/{package_type}/{package_name}/versions", 
+        r = self._session.get(f"{self._url}/users/{username}/packages/{package_type}/{package_name}/versions", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -14113,9 +14116,9 @@ If `package_type` is not `container`, your token must also include the `repo` sc
         data = {}
         
         
-        r = requests.get(f"{self._url}/users/{username}/packages/{package_type}/{package_name}/versions/{package_version_id}", 
+        r = self._session.get(f"{self._url}/users/{username}/packages/{package_type}/{package_name}/versions/{package_version_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -14148,9 +14151,9 @@ If `package_type` is not `container`, your token must also include the `repo` sc
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/projects", 
+        r = self._session.get(f"{self._url}/orgs/{org}/projects", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -14184,9 +14187,9 @@ If `package_type` is not `container`, your token must also include the `repo` sc
         }
         
         
-        r = requests.post(f"{self._url}/orgs/{org}/projects", 
+        r = self._session.post(f"{self._url}/orgs/{org}/projects", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -14225,9 +14228,9 @@ If `package_type` is not `container`, your token must also include the `repo` sc
         data = {}
         
         
-        r = requests.get(f"{self._url}/projects/columns/cards/{card_id}", 
+        r = self._session.get(f"{self._url}/projects/columns/cards/{card_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -14270,9 +14273,9 @@ If `package_type` is not `container`, your token must also include the `repo` sc
         }
         
         
-        r = requests.patch(f"{self._url}/projects/columns/cards/{card_id}", 
+        r = self._session.patch(f"{self._url}/projects/columns/cards/{card_id}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -14311,9 +14314,9 @@ If `package_type` is not `container`, your token must also include the `repo` sc
         data = {}
         
         
-        r = requests.delete(f"{self._url}/projects/columns/cards/{card_id}", 
+        r = self._session.delete(f"{self._url}/projects/columns/cards/{card_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -14356,9 +14359,9 @@ If `package_type` is not `container`, your token must also include the `repo` sc
         }
         
         
-        r = requests.post(f"{self._url}/projects/columns/cards/{card_id}/moves", 
+        r = self._session.post(f"{self._url}/projects/columns/cards/{card_id}/moves", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -14397,9 +14400,9 @@ If `package_type` is not `container`, your token must also include the `repo` sc
         data = {}
         
         
-        r = requests.get(f"{self._url}/projects/columns/{column_id}", 
+        r = self._session.get(f"{self._url}/projects/columns/{column_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -14440,9 +14443,9 @@ If `package_type` is not `container`, your token must also include the `repo` sc
         }
         
         
-        r = requests.patch(f"{self._url}/projects/columns/{column_id}", 
+        r = self._session.patch(f"{self._url}/projects/columns/{column_id}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -14475,9 +14478,9 @@ If `package_type` is not `container`, your token must also include the `repo` sc
         data = {}
         
         
-        r = requests.delete(f"{self._url}/projects/columns/{column_id}", 
+        r = self._session.delete(f"{self._url}/projects/columns/{column_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -14519,9 +14522,9 @@ If `package_type` is not `container`, your token must also include the `repo` sc
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/projects/columns/{column_id}/cards", 
+        r = self._session.get(f"{self._url}/projects/columns/{column_id}/cards", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -14559,9 +14562,9 @@ If `package_type` is not `container`, your token must also include the `repo` sc
         }
         
         
-        r = requests.post(f"{self._url}/projects/columns/{column_id}/cards", 
+        r = self._session.post(f"{self._url}/projects/columns/{column_id}/cards", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -14605,9 +14608,9 @@ If `package_type` is not `container`, your token must also include the `repo` sc
         }
         
         
-        r = requests.post(f"{self._url}/projects/columns/{column_id}/moves", 
+        r = self._session.post(f"{self._url}/projects/columns/{column_id}/moves", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -14643,9 +14646,9 @@ If `package_type` is not `container`, your token must also include the `repo` sc
         data = {}
         
         
-        r = requests.get(f"{self._url}/projects/{project_id}", 
+        r = self._session.get(f"{self._url}/projects/{project_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -14691,9 +14694,9 @@ If `package_type` is not `container`, your token must also include the `repo` sc
         }
         
         
-        r = requests.patch(f"{self._url}/projects/{project_id}", 
+        r = self._session.patch(f"{self._url}/projects/{project_id}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -14735,9 +14738,9 @@ If `package_type` is not `container`, your token must also include the `repo` sc
         data = {}
         
         
-        r = requests.delete(f"{self._url}/projects/{project_id}", 
+        r = self._session.delete(f"{self._url}/projects/{project_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -14788,9 +14791,9 @@ If `package_type` is not `container`, your token must also include the `repo` sc
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/projects/{project_id}/collaborators", 
+        r = self._session.get(f"{self._url}/projects/{project_id}/collaborators", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -14838,9 +14841,9 @@ If `package_type` is not `container`, your token must also include the `repo` sc
         }
         
         
-        r = requests.put(f"{self._url}/projects/{project_id}/collaborators/{username}", 
+        r = self._session.put(f"{self._url}/projects/{project_id}/collaborators/{username}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -14883,9 +14886,9 @@ If `package_type` is not `container`, your token must also include the `repo` sc
         data = {}
         
         
-        r = requests.delete(f"{self._url}/projects/{project_id}/collaborators/{username}", 
+        r = self._session.delete(f"{self._url}/projects/{project_id}/collaborators/{username}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -14928,9 +14931,9 @@ If `package_type` is not `container`, your token must also include the `repo` sc
         data = {}
         
         
-        r = requests.get(f"{self._url}/projects/{project_id}/collaborators/{username}/permission", 
+        r = self._session.get(f"{self._url}/projects/{project_id}/collaborators/{username}/permission", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -14978,9 +14981,9 @@ If `package_type` is not `container`, your token must also include the `repo` sc
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/projects/{project_id}/columns", 
+        r = self._session.get(f"{self._url}/projects/{project_id}/columns", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -15018,9 +15021,9 @@ If `package_type` is not `container`, your token must also include the `repo` sc
         }
         
         
-        r = requests.post(f"{self._url}/projects/{project_id}/columns", 
+        r = self._session.post(f"{self._url}/projects/{project_id}/columns", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -15066,9 +15069,9 @@ If `package_type` is not `container`, your token must also include the `repo` sc
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/projects", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/projects", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -15115,9 +15118,9 @@ If `package_type` is not `container`, your token must also include the `repo` sc
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/projects", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/projects", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -15162,9 +15165,9 @@ If `package_type` is not `container`, your token must also include the `repo` sc
         }
         
         
-        r = requests.post(f"{self._url}/user/projects", 
+        r = self._session.post(f"{self._url}/user/projects", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -15212,9 +15215,9 @@ If `package_type` is not `container`, your token must also include the `repo` sc
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/users/{username}/projects", 
+        r = self._session.get(f"{self._url}/users/{username}/projects", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -15259,9 +15262,9 @@ If `package_type` is not `container`, your token must also include the `repo` sc
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/repos", 
+        r = self._session.get(f"{self._url}/orgs/{org}/repos", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -15332,9 +15335,9 @@ The `visibility` parameter overrides the `private` parameter when you use both p
         }
         
         
-        r = requests.post(f"{self._url}/orgs/{org}/repos", 
+        r = self._session.post(f"{self._url}/orgs/{org}/repos", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -15367,9 +15370,9 @@ The `parent` and `source` objects are present when the repository is a fork. `pa
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -15441,9 +15444,9 @@ The `parent` and `source` objects are present when the repository is a fork. `pa
         }
         
         
-        r = requests.patch(f"{self._url}/repos/{owner}/{repo}", 
+        r = self._session.patch(f"{self._url}/repos/{owner}/{repo}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -15483,9 +15486,9 @@ repositories, you will get a `403 Forbidden` response.
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -15524,9 +15527,9 @@ Information about autolinks are only available to repository administrators.
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/autolinks", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/autolinks", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -15558,9 +15561,9 @@ Information about autolinks are only available to repository administrators.
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/autolinks", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/autolinks", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -15591,9 +15594,9 @@ Information about autolinks are only available to repository administrators.
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/autolinks/{autolink_id}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/autolinks/{autolink_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -15624,9 +15627,9 @@ Information about autolinks are only available to repository administrators.
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/autolinks/{autolink_id}", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/autolinks/{autolink_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -15657,9 +15660,9 @@ Information about autolinks are only available to repository administrators.
         }
         
         
-        r = requests.put(f"{self._url}/repos/{owner}/{repo}/automated-security-fixes", 
+        r = self._session.put(f"{self._url}/repos/{owner}/{repo}/automated-security-fixes", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -15684,9 +15687,9 @@ Information about autolinks are only available to repository administrators.
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/automated-security-fixes", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/automated-security-fixes", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -15720,9 +15723,9 @@ Information about autolinks are only available to repository administrators.
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/branches", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/branches", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -15751,9 +15754,9 @@ Information about autolinks are only available to repository administrators.
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/branches/{branch}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/branches/{branch}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -15788,9 +15791,9 @@ Information about autolinks are only available to repository administrators.
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -15844,9 +15847,9 @@ Protecting a branch requires admin or owner permissions to the repository.
         }
         
         
-        r = requests.put(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection", 
+        r = self._session.put(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -15884,9 +15887,9 @@ Protecting a branch requires admin or owner permissions to the repository.
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -15915,9 +15918,9 @@ Protecting a branch requires admin or owner permissions to the repository.
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/enforce_admins", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/enforce_admins", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -15948,9 +15951,9 @@ Adding admin enforcement requires admin or owner permissions to the repository a
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/enforce_admins", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/enforce_admins", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -15978,9 +15981,9 @@ Removing admin enforcement requires admin or owner permissions to the repository
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/enforce_admins", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/enforce_admins", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -16009,9 +16012,9 @@ Removing admin enforcement requires admin or owner permissions to the repository
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/required_pull_request_reviews", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/required_pull_request_reviews", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -16052,9 +16055,9 @@ Updating pull request review enforcement requires admin or owner permissions to 
         }
         
         
-        r = requests.patch(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/required_pull_request_reviews", 
+        r = self._session.patch(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/required_pull_request_reviews", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -16083,9 +16086,9 @@ Updating pull request review enforcement requires admin or owner permissions to 
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/required_pull_request_reviews", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/required_pull_request_reviews", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -16118,9 +16121,9 @@ When authenticated with admin or owner permissions to the repository, you can us
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/required_signatures", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/required_signatures", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -16154,9 +16157,9 @@ When authenticated with admin or owner permissions to the repository, you can us
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/required_signatures", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/required_signatures", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -16187,9 +16190,9 @@ When authenticated with admin or owner permissions to the repository, you can us
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/required_signatures", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/required_signatures", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -16218,9 +16221,9 @@ When authenticated with admin or owner permissions to the repository, you can us
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/required_status_checks", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/required_status_checks", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -16258,9 +16261,9 @@ Updating required status checks requires admin or owner permissions to the repos
         }
         
         
-        r = requests.patch(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/required_status_checks", 
+        r = self._session.patch(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/required_status_checks", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -16292,9 +16295,9 @@ Updating required status checks requires admin or owner permissions to the repos
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/required_status_checks", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/required_status_checks", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -16320,9 +16323,9 @@ Updating required status checks requires admin or owner permissions to the repos
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/required_status_checks/contexts", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/required_status_checks/contexts", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -16356,9 +16359,9 @@ Updating required status checks requires admin or owner permissions to the repos
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/required_status_checks/contexts", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/required_status_checks/contexts", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -16398,9 +16401,9 @@ Updating required status checks requires admin or owner permissions to the repos
         }
         
         
-        r = requests.put(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/required_status_checks/contexts", 
+        r = self._session.put(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/required_status_checks/contexts", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -16432,9 +16435,9 @@ Updating required status checks requires admin or owner permissions to the repos
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/required_status_checks/contexts", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/required_status_checks/contexts", 
                            params=data,
-                           headers=self._headers({'Content-Type':  'application/json'}))
+                           **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
     
         
@@ -16470,9 +16473,9 @@ Lists who has access to this protected branch.
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/restrictions", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/restrictions", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -16503,9 +16506,9 @@ Disables the ability to restrict who can push to this branch.
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/restrictions", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/restrictions", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -16533,9 +16536,9 @@ Lists the GitHub Apps that have push access to this branch. Only installed GitHu
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/restrictions/apps", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/restrictions/apps", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -16575,9 +16578,9 @@ Grants the specified apps push access for this branch. Only installed GitHub App
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/restrictions/apps", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/restrictions/apps", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -16617,9 +16620,9 @@ Replaces the list of apps that have push access to this branch. This removes all
         }
         
         
-        r = requests.put(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/restrictions/apps", 
+        r = self._session.put(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/restrictions/apps", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -16654,9 +16657,9 @@ Removes the ability of an app to push to this branch. Only installed GitHub Apps
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/restrictions/apps", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/restrictions/apps", 
                            params=data,
-                           headers=self._headers({'Content-Type':  'application/json'}))
+                           **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
     
         
@@ -16687,9 +16690,9 @@ Lists the teams who have push access to this branch. The list includes child tea
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/restrictions/teams", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/restrictions/teams", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -16729,9 +16732,9 @@ Grants the specified teams push access for this branch. You can also give push a
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/restrictions/teams", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/restrictions/teams", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -16771,9 +16774,9 @@ Replaces the list of teams that have push access to this branch. This removes al
         }
         
         
-        r = requests.put(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/restrictions/teams", 
+        r = self._session.put(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/restrictions/teams", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -16808,9 +16811,9 @@ Removes the ability of a team to push to this branch. You can also remove push a
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/restrictions/teams", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/restrictions/teams", 
                            params=data,
-                           headers=self._headers({'Content-Type':  'application/json'}))
+                           **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
     
         
@@ -16841,9 +16844,9 @@ Lists the people who have push access to this branch.
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/restrictions/users", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/restrictions/users", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -16883,9 +16886,9 @@ Grants the specified people push access for this branch.
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/restrictions/users", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/restrictions/users", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -16925,9 +16928,9 @@ Replaces the list of people that have push access to this branch. This removes a
         }
         
         
-        r = requests.put(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/restrictions/users", 
+        r = self._session.put(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/restrictions/users", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -16962,9 +16965,9 @@ Removes the ability of a user to push to this branch.
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/restrictions/users", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/protection/restrictions/users", 
                            params=data,
-                           headers=self._headers({'Content-Type':  'application/json'}))
+                           **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
     
         
@@ -17012,9 +17015,9 @@ To rename the default branch:
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/rename", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/branches/{branch}/rename", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -17062,9 +17065,9 @@ Team members will include the members of child teams.
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/collaborators", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/collaborators", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -17095,9 +17098,9 @@ Team members will include the members of child teams.
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/collaborators/{username}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/collaborators/{username}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -17148,9 +17151,9 @@ You are limited to sending 50 invitations to a repository per 24 hour period. No
         }
         
         
-        r = requests.put(f"{self._url}/repos/{owner}/{repo}/collaborators/{username}", 
+        r = self._session.put(f"{self._url}/repos/{owner}/{repo}/collaborators/{username}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -17185,9 +17188,9 @@ You are limited to sending 50 invitations to a repository per 24 hour period. No
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/collaborators/{username}", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/collaborators/{username}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -17213,9 +17216,9 @@ You are limited to sending 50 invitations to a repository per 24 hour period. No
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/collaborators/{username}/permission", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/collaborators/{username}/permission", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -17251,9 +17254,9 @@ Comments are ordered by ascending ID.
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/comments", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/comments", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -17279,9 +17282,9 @@ Comments are ordered by ascending ID.
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/comments/{comment_id}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/comments/{comment_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -17315,9 +17318,9 @@ Comments are ordered by ascending ID.
         }
         
         
-        r = requests.patch(f"{self._url}/repos/{owner}/{repo}/comments/{comment_id}", 
+        r = self._session.patch(f"{self._url}/repos/{owner}/{repo}/comments/{comment_id}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -17346,9 +17349,9 @@ Comments are ordered by ascending ID.
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/comments/{comment_id}", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/comments/{comment_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -17424,9 +17427,9 @@ These are the possible values for `reason` in the `verification` object:
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/commits", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/commits", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -17466,9 +17469,9 @@ Returns all branches where the given commit SHA is the HEAD, or latest commit fo
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/commits/{commit_sha}/branches-where-head", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/commits/{commit_sha}/branches-where-head", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -17506,9 +17509,9 @@ Returns all branches where the given commit SHA is the HEAD, or latest commit fo
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/commits/{commit_sha}/comments", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/commits/{commit_sha}/comments", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -17547,9 +17550,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/commits/{commit_sha}/comments", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/commits/{commit_sha}/comments", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -17587,9 +17590,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/commits/{commit_sha}/pulls", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/commits/{commit_sha}/pulls", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -17659,9 +17662,9 @@ These are the possible values for `reason` in the `verification` object:
             data['per_page'] = per_page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/commits/{ref}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/commits/{ref}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -17710,9 +17713,9 @@ Additionally, a combined `state` is returned. The `state` is one of:
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/commits/{ref}/status", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/commits/{ref}/status", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -17749,9 +17752,9 @@ This resource is also available via a legacy route: `GET /repos/:owner/:repo/sta
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/commits/{ref}/statuses", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/commits/{ref}/statuses", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -17790,9 +17793,9 @@ the `health_percentage` is `100`. If only one is present, then the
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/community/profile", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/community/profile", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -17863,9 +17866,9 @@ These are the possible values for `reason` in the `verification` object:
             data['per_page'] = per_page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/compare/{basehead}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/compare/{basehead}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -17931,9 +17934,9 @@ github.com URLs (`html_url` and `_links["html"]`) will have null values.
             data['ref'] = ref
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/contents/{path}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/contents/{path}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -17983,9 +17986,9 @@ github.com URLs (`html_url` and `_links["html"]`) will have null values.
         }
         
         
-        r = requests.put(f"{self._url}/repos/{owner}/{repo}/contents/{path}", 
+        r = self._session.put(f"{self._url}/repos/{owner}/{repo}/contents/{path}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -18029,9 +18032,9 @@ You must provide values for both `name` and `email`, whether you choose to use `
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/contents/{path}", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/contents/{path}", 
                            params=data,
-                           headers=self._headers({'Content-Type':  'application/json'}))
+                           **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
     
         
@@ -18079,9 +18082,9 @@ GitHub identifies contributors by author email address. This endpoint groups con
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/contributors", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/contributors", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -18133,9 +18136,9 @@ GitHub identifies contributors by author email address. This endpoint groups con
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/deployments", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/deployments", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -18227,9 +18230,9 @@ status for the commit to be deployed, but one or more of the required contexts d
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/deployments", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/deployments", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -18264,9 +18267,9 @@ status for the commit to be deployed, but one or more of the required contexts d
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/deployments/{deployment_id}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/deployments/{deployment_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -18302,9 +18305,9 @@ For more information, see "[Create a deployment](https://docs.github.com/rest/re
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/deployments/{deployment_id}", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/deployments/{deployment_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -18342,9 +18345,9 @@ For more information, see "[Create a deployment](https://docs.github.com/rest/re
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/deployments/{deployment_id}/statuses", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/deployments/{deployment_id}/statuses", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -18396,9 +18399,9 @@ GitHub Apps require `read & write` access to "Deployments" and `read-only` acces
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/deployments/{deployment_id}/statuses", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/deployments/{deployment_id}/statuses", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -18428,9 +18431,9 @@ GitHub Apps require `read & write` access to "Deployments" and `read-only` acces
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/deployments/{deployment_id}/statuses/{status_id}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/deployments/{deployment_id}/statuses/{status_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -18477,9 +18480,9 @@ This input example shows how you can use the `client_payload` as a test to debug
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/dispatches", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/dispatches", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -18509,9 +18512,9 @@ Anyone with read access to the repository can use this endpoint. If the reposito
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/environments", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/environments", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -18537,9 +18540,9 @@ Anyone with read access to the repository can use this endpoint. If the reposito
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/environments/{environment_name}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/environments/{environment_name}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -18580,9 +18583,9 @@ You must authenticate using an access token with the repo scope to use this endp
         }
         
         
-        r = requests.put(f"{self._url}/repos/{owner}/{repo}/environments/{environment_name}", 
+        r = self._session.put(f"{self._url}/repos/{owner}/{repo}/environments/{environment_name}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -18611,9 +18614,9 @@ You must authenticate using an access token with the repo scope to use this endp
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/environments/{environment_name}", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/environments/{environment_name}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -18647,9 +18650,9 @@ You must authenticate using an access token with the repo scope to use this endp
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/forks", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/forks", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -18684,9 +18687,9 @@ You must authenticate using an access token with the repo scope to use this endp
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/forks", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/forks", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -18729,9 +18732,9 @@ You must authenticate using an access token with the repo scope to use this endp
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/hooks", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/hooks", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -18771,9 +18774,9 @@ share the same `config` as long as those webhooks do not have any `events` that 
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/hooks", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/hooks", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -18808,9 +18811,9 @@ share the same `config` as long as those webhooks do not have any `events` that 
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/hooks/{hook_id}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/hooks/{hook_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -18852,9 +18855,9 @@ share the same `config` as long as those webhooks do not have any `events` that 
         }
         
         
-        r = requests.patch(f"{self._url}/repos/{owner}/{repo}/hooks/{hook_id}", 
+        r = self._session.patch(f"{self._url}/repos/{owner}/{repo}/hooks/{hook_id}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -18886,9 +18889,9 @@ share the same `config` as long as those webhooks do not have any `events` that 
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/hooks/{hook_id}", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/hooks/{hook_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -18919,9 +18922,9 @@ Access tokens must have the `read:repo_hook` or `repo` scope, and GitHub Apps mu
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/hooks/{hook_id}/config", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/hooks/{hook_id}/config", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -18960,9 +18963,9 @@ Access tokens must have the `write:repo_hook` or `repo` scope, and GitHub Apps m
         }
         
         
-        r = requests.patch(f"{self._url}/repos/{owner}/{repo}/hooks/{hook_id}/config", 
+        r = self._session.patch(f"{self._url}/repos/{owner}/{repo}/hooks/{hook_id}/config", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -18994,9 +18997,9 @@ Access tokens must have the `write:repo_hook` or `repo` scope, and GitHub Apps m
             data['cursor'] = cursor
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/hooks/{hook_id}/deliveries", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/hooks/{hook_id}/deliveries", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -19029,9 +19032,9 @@ Access tokens must have the `write:repo_hook` or `repo` scope, and GitHub Apps m
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/hooks/{hook_id}/deliveries/{delivery_id}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/hooks/{hook_id}/deliveries/{delivery_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -19067,9 +19070,9 @@ Access tokens must have the `write:repo_hook` or `repo` scope, and GitHub Apps m
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/hooks/{hook_id}/deliveries/{delivery_id}/attempts", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/hooks/{hook_id}/deliveries/{delivery_id}/attempts", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -19104,9 +19107,9 @@ Access tokens must have the `write:repo_hook` or `repo` scope, and GitHub Apps m
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/hooks/{hook_id}/pings", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/hooks/{hook_id}/pings", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -19140,9 +19143,9 @@ Access tokens must have the `write:repo_hook` or `repo` scope, and GitHub Apps m
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/hooks/{hook_id}/tests", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/hooks/{hook_id}/tests", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -19176,9 +19179,9 @@ Access tokens must have the `write:repo_hook` or `repo` scope, and GitHub Apps m
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/invitations", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/invitations", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -19209,9 +19212,9 @@ Access tokens must have the `write:repo_hook` or `repo` scope, and GitHub Apps m
         }
         
         
-        r = requests.patch(f"{self._url}/repos/{owner}/{repo}/invitations/{invitation_id}", 
+        r = self._session.patch(f"{self._url}/repos/{owner}/{repo}/invitations/{invitation_id}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -19237,9 +19240,9 @@ Access tokens must have the `write:repo_hook` or `repo` scope, and GitHub Apps m
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/invitations/{invitation_id}", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/invitations/{invitation_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -19270,9 +19273,9 @@ Access tokens must have the `write:repo_hook` or `repo` scope, and GitHub Apps m
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/keys", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/keys", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -19308,9 +19311,9 @@ Deploy keys with write access can perform the same actions as an organization me
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/keys", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/keys", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -19339,9 +19342,9 @@ Deploy keys with write access can perform the same actions as an organization me
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/keys/{key_id}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/keys/{key_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -19370,9 +19373,9 @@ Deploy keys with write access can perform the same actions as an organization me
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/keys/{key_id}", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/keys/{key_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -19397,9 +19400,9 @@ Deploy keys with write access can perform the same actions as an organization me
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/languages", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/languages", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -19433,9 +19436,9 @@ Deploy keys with write access can perform the same actions as an organization me
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/merges", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/merges", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -19475,9 +19478,9 @@ Deploy keys with write access can perform the same actions as an organization me
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/pages", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/pages", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -19510,9 +19513,9 @@ Deploy keys with write access can perform the same actions as an organization me
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/pages", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/pages", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -19557,9 +19560,9 @@ Deploy keys with write access can perform the same actions as an organization me
         }
         
         
-        r = requests.put(f"{self._url}/repos/{owner}/{repo}/pages", 
+        r = self._session.put(f"{self._url}/repos/{owner}/{repo}/pages", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -19590,9 +19593,9 @@ Deploy keys with write access can perform the same actions as an organization me
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/pages", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/pages", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -19632,9 +19635,9 @@ Deploy keys with write access can perform the same actions as an organization me
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/pages/builds", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/pages/builds", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -19664,9 +19667,9 @@ Build requests are limited to one concurrent build per repository and one concur
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/pages/builds", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/pages/builds", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -19691,9 +19694,9 @@ Build requests are limited to one concurrent build per repository and one concur
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/pages/builds/latest", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/pages/builds/latest", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -19719,9 +19722,9 @@ Build requests are limited to one concurrent build per repository and one concur
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/pages/builds/{build_id}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/pages/builds/{build_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -19750,9 +19753,9 @@ Users must have admin or owner permissions. GitHub Apps must have the `pages:wri
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/pages/health", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/pages/health", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -19794,9 +19797,9 @@ READMEs support [custom media types](https://docs.github.com/rest/reference/repo
             data['ref'] = ref
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/readme", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/readme", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -19833,9 +19836,9 @@ READMEs support [custom media types](https://docs.github.com/rest/reference/repo
             data['ref'] = ref
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/readme/{dir}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/readme/{dir}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -19874,9 +19877,9 @@ Information about published releases are available to everyone. Only users with 
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/releases", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/releases", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -19923,9 +19926,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/releases", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/releases", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -19957,9 +19960,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/releases/assets/{asset_id}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/releases/assets/{asset_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -20003,9 +20006,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
         }
         
         
-        r = requests.patch(f"{self._url}/repos/{owner}/{repo}/releases/assets/{asset_id}", 
+        r = self._session.patch(f"{self._url}/repos/{owner}/{repo}/releases/assets/{asset_id}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -20031,9 +20034,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/releases/assets/{asset_id}", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/releases/assets/{asset_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -20060,9 +20063,9 @@ The latest release is the most recent non-prerelease, non-draft release, sorted 
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/releases/latest", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/releases/latest", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -20088,9 +20091,9 @@ The latest release is the most recent non-prerelease, non-draft release, sorted 
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/releases/tags/{tag}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/releases/tags/{tag}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -20119,9 +20122,9 @@ The latest release is the most recent non-prerelease, non-draft release, sorted 
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/releases/{release_id}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/releases/{release_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -20167,9 +20170,9 @@ The latest release is the most recent non-prerelease, non-draft release, sorted 
         }
         
         
-        r = requests.patch(f"{self._url}/repos/{owner}/{repo}/releases/{release_id}", 
+        r = self._session.patch(f"{self._url}/repos/{owner}/{repo}/releases/{release_id}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -20198,9 +20201,9 @@ The latest release is the most recent non-prerelease, non-draft release, sorted 
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/releases/{release_id}", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/releases/{release_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -20232,9 +20235,9 @@ The latest release is the most recent non-prerelease, non-draft release, sorted 
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/releases/{release_id}/assets", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/releases/{release_id}/assets", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -20280,9 +20283,9 @@ endpoint lists the renamed filenames. For more information and help, contact [Gi
     
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/releases/{release_id}/assets", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/releases/{release_id}/assets", 
                           data=data,
-                          headers=self._headers({'Content-Type':  '*/*'}))
+                          **self._requests_kwargs({'Content-Type':  '*/*'}))
         self._updateStats(r.headers)
                           
         
@@ -20307,9 +20310,9 @@ endpoint lists the renamed filenames. For more information and help, contact [Gi
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/stats/code_frequency", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/stats/code_frequency", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -20340,9 +20343,9 @@ endpoint lists the renamed filenames. For more information and help, contact [Gi
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/stats/commit_activity", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/stats/commit_activity", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -20379,9 +20382,9 @@ Returns the `total` number of commits authored by the contributor. In addition, 
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/stats/contributors", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/stats/contributors", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -20414,9 +20417,9 @@ The array order is oldest week (index 0) to most recent week.
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/stats/participation", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/stats/participation", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -20450,9 +20453,9 @@ For example, `[2, 14, 25]` indicates that there were 25 total commits, during th
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/stats/punch_card", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/stats/punch_card", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -20496,9 +20499,9 @@ For example, if your continuous integration system is posting build status, you 
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/statuses/{sha}", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/statuses/{sha}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -20529,9 +20532,9 @@ For example, if your continuous integration system is posting build status, you 
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/tags", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/tags", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -20560,9 +20563,9 @@ the `Location` header to make a second `GET` request.
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/tarball/{ref}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/tarball/{ref}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -20593,9 +20596,9 @@ the `Location` header to make a second `GET` request.
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/teams", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/teams", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -20626,9 +20629,9 @@ the `Location` header to make a second `GET` request.
             data['per_page'] = per_page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/topics", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/topics", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -20664,9 +20667,9 @@ the `Location` header to make a second `GET` request.
         }
         
         
-        r = requests.put(f"{self._url}/repos/{owner}/{repo}/topics", 
+        r = self._session.put(f"{self._url}/repos/{owner}/{repo}/topics", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -20703,9 +20706,9 @@ the `Location` header to make a second `GET` request.
             data['per'] = per
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/traffic/clones", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/traffic/clones", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -20733,9 +20736,9 @@ the `Location` header to make a second `GET` request.
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/traffic/popular/paths", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/traffic/popular/paths", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -20763,9 +20766,9 @@ the `Location` header to make a second `GET` request.
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/traffic/popular/referrers", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/traffic/popular/referrers", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -20796,9 +20799,9 @@ the `Location` header to make a second `GET` request.
             data['per'] = per
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/traffic/views", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/traffic/views", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -20833,9 +20836,9 @@ the `Location` header to make a second `GET` request.
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/transfer", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/transfer", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -20860,9 +20863,9 @@ the `Location` header to make a second `GET` request.
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/vulnerability-alerts", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/vulnerability-alerts", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -20893,9 +20896,9 @@ the `Location` header to make a second `GET` request.
         }
         
         
-        r = requests.put(f"{self._url}/repos/{owner}/{repo}/vulnerability-alerts", 
+        r = self._session.put(f"{self._url}/repos/{owner}/{repo}/vulnerability-alerts", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -20920,9 +20923,9 @@ the `Location` header to make a second `GET` request.
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/vulnerability-alerts", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/vulnerability-alerts", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -20951,9 +20954,9 @@ the `Location` header to make a second `GET` request.
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/zipball/{ref}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/zipball/{ref}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -20998,9 +21001,9 @@ When using [OAuth](https://docs.github.com/apps/building-oauth-apps/understandin
         }
         
         
-        r = requests.post(f"{self._url}/repos/{template_owner}/{template_repo}/generate", 
+        r = self._session.post(f"{self._url}/repos/{template_owner}/{template_repo}/generate", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -21030,9 +21033,9 @@ Note:
             data['since'] = since
         
         
-        r = requests.get(f"{self._url}/repositories", 
+        r = self._session.get(f"{self._url}/repositories", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -21095,9 +21098,9 @@ Will cause a `422` error if used in the same request as **visibility** or **affi
             data['before'] = before
         
         
-        r = requests.get(f"{self._url}/user/repos", 
+        r = self._session.get(f"{self._url}/user/repos", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -21178,9 +21181,9 @@ When using [OAuth](https://docs.github.com/apps/building-oauth-apps/understandin
         }
         
         
-        r = requests.post(f"{self._url}/user/repos", 
+        r = self._session.post(f"{self._url}/user/repos", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -21227,9 +21230,9 @@ When using [OAuth](https://docs.github.com/apps/building-oauth-apps/understandin
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/user/repository_invitations", 
+        r = self._session.get(f"{self._url}/user/repository_invitations", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -21268,9 +21271,9 @@ When using [OAuth](https://docs.github.com/apps/building-oauth-apps/understandin
         }
         
         
-        r = requests.patch(f"{self._url}/user/repository_invitations/{invitation_id}", 
+        r = self._session.patch(f"{self._url}/user/repository_invitations/{invitation_id}", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -21306,9 +21309,9 @@ When using [OAuth](https://docs.github.com/apps/building-oauth-apps/understandin
         data = {}
         
         
-        r = requests.delete(f"{self._url}/user/repository_invitations/{invitation_id}", 
+        r = self._session.delete(f"{self._url}/user/repository_invitations/{invitation_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -21359,9 +21362,9 @@ When using [OAuth](https://docs.github.com/apps/building-oauth-apps/understandin
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/users/{username}/repos", 
+        r = self._session.get(f"{self._url}/users/{username}/repos", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -21395,9 +21398,9 @@ The `per_page` parameter provides pagination for a list of IdP groups the authen
             data['per_page'] = per_page
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/team-sync/groups", 
+        r = self._session.get(f"{self._url}/orgs/{org}/team-sync/groups", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -21427,9 +21430,9 @@ The `per_page` parameter provides pagination for a list of IdP groups the authen
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/teams", 
+        r = self._session.get(f"{self._url}/orgs/{org}/teams", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -21485,9 +21488,9 @@ Default for child team: `closed`
         }
         
         
-        r = requests.post(f"{self._url}/orgs/{org}/teams", 
+        r = self._session.post(f"{self._url}/orgs/{org}/teams", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -21520,9 +21523,9 @@ Default for child team: `closed`
         data = {}
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/teams/{team_slug}", 
+        r = self._session.get(f"{self._url}/orgs/{org}/teams/{team_slug}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -21573,9 +21576,9 @@ Default for child team: `closed`
         }
         
         
-        r = requests.patch(f"{self._url}/orgs/{org}/teams/{team_slug}", 
+        r = self._session.patch(f"{self._url}/orgs/{org}/teams/{team_slug}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -21604,9 +21607,9 @@ If you are an organization owner, deleting a parent team will delete all of its 
         data = {}
         
         
-        r = requests.delete(f"{self._url}/orgs/{org}/teams/{team_slug}", 
+        r = self._session.delete(f"{self._url}/orgs/{org}/teams/{team_slug}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -21645,9 +21648,9 @@ If you are an organization owner, deleting a parent team will delete all of its 
             data['pinned'] = pinned
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/teams/{team_slug}/discussions", 
+        r = self._session.get(f"{self._url}/orgs/{org}/teams/{team_slug}/discussions", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -21685,9 +21688,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
         }
         
         
-        r = requests.post(f"{self._url}/orgs/{org}/teams/{team_slug}/discussions", 
+        r = self._session.post(f"{self._url}/orgs/{org}/teams/{team_slug}/discussions", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -21715,9 +21718,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
         data = {}
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/teams/{team_slug}/discussions/{discussion_number}", 
+        r = self._session.get(f"{self._url}/orgs/{org}/teams/{team_slug}/discussions/{discussion_number}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -21752,9 +21755,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
         }
         
         
-        r = requests.patch(f"{self._url}/orgs/{org}/teams/{team_slug}/discussions/{discussion_number}", 
+        r = self._session.patch(f"{self._url}/orgs/{org}/teams/{team_slug}/discussions/{discussion_number}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -21782,9 +21785,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
         data = {}
         
         
-        r = requests.delete(f"{self._url}/orgs/{org}/teams/{team_slug}/discussions/{discussion_number}", 
+        r = self._session.delete(f"{self._url}/orgs/{org}/teams/{team_slug}/discussions/{discussion_number}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -21821,9 +21824,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/comments", 
+        r = self._session.get(f"{self._url}/orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/comments", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -21858,9 +21861,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
         }
         
         
-        r = requests.post(f"{self._url}/orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/comments", 
+        r = self._session.post(f"{self._url}/orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/comments", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -21889,9 +21892,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
         data = {}
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/comments/{comment_number}", 
+        r = self._session.get(f"{self._url}/orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/comments/{comment_number}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -21925,9 +21928,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
         }
         
         
-        r = requests.patch(f"{self._url}/orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/comments/{comment_number}", 
+        r = self._session.patch(f"{self._url}/orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/comments/{comment_number}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -21956,9 +21959,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
         data = {}
         
         
-        r = requests.delete(f"{self._url}/orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/comments/{comment_number}", 
+        r = self._session.delete(f"{self._url}/orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/comments/{comment_number}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -21991,9 +21994,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/teams/{team_slug}/invitations", 
+        r = self._session.get(f"{self._url}/orgs/{org}/teams/{team_slug}/invitations", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -22032,9 +22035,9 @@ To list members in a team, the team must be visible to the authenticated user.
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/teams/{team_slug}/members", 
+        r = self._session.get(f"{self._url}/orgs/{org}/teams/{team_slug}/members", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -22069,9 +22072,9 @@ The `role` for organization owners is set to `maintainer`. For more information 
         data = {}
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/teams/{team_slug}/memberships/{username}", 
+        r = self._session.get(f"{self._url}/orgs/{org}/teams/{team_slug}/memberships/{username}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -22117,9 +22120,9 @@ If the user is already a member of the team, this endpoint will update the role 
         }
         
         
-        r = requests.put(f"{self._url}/orgs/{org}/teams/{team_slug}/memberships/{username}", 
+        r = self._session.put(f"{self._url}/orgs/{org}/teams/{team_slug}/memberships/{username}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -22157,9 +22160,9 @@ To remove a membership between a user and a team, the authenticated user must ha
         data = {}
         
         
-        r = requests.delete(f"{self._url}/orgs/{org}/teams/{team_slug}/memberships/{username}", 
+        r = self._session.delete(f"{self._url}/orgs/{org}/teams/{team_slug}/memberships/{username}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -22195,9 +22198,9 @@ To remove a membership between a user and a team, the authenticated user must ha
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/teams/{team_slug}/projects", 
+        r = self._session.get(f"{self._url}/orgs/{org}/teams/{team_slug}/projects", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -22225,9 +22228,9 @@ To remove a membership between a user and a team, the authenticated user must ha
         data = {}
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/teams/{team_slug}/projects/{project_id}", 
+        r = self._session.get(f"{self._url}/orgs/{org}/teams/{team_slug}/projects/{project_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -22267,9 +22270,9 @@ Default: the team's `permission` attribute will be used to determine what permis
         }
         
         
-        r = requests.put(f"{self._url}/orgs/{org}/teams/{team_slug}/projects/{project_id}", 
+        r = self._session.put(f"{self._url}/orgs/{org}/teams/{team_slug}/projects/{project_id}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -22300,9 +22303,9 @@ Default: the team's `permission` attribute will be used to determine what permis
         data = {}
         
         
-        r = requests.delete(f"{self._url}/orgs/{org}/teams/{team_slug}/projects/{project_id}", 
+        r = self._session.delete(f"{self._url}/orgs/{org}/teams/{team_slug}/projects/{project_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -22335,9 +22338,9 @@ Default: the team's `permission` attribute will be used to determine what permis
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/teams/{team_slug}/repos", 
+        r = self._session.get(f"{self._url}/orgs/{org}/teams/{team_slug}/repos", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -22370,9 +22373,9 @@ If a team doesn't have permission for the repository, you will receive a `404 No
         data = {}
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/teams/{team_slug}/repos/{owner}/{repo}", 
+        r = self._session.get(f"{self._url}/orgs/{org}/teams/{team_slug}/repos/{owner}/{repo}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -22421,9 +22424,9 @@ If no permission is specified, the team's `permission` attribute will be used to
         }
         
         
-        r = requests.put(f"{self._url}/orgs/{org}/teams/{team_slug}/repos/{owner}/{repo}", 
+        r = self._session.put(f"{self._url}/orgs/{org}/teams/{team_slug}/repos/{owner}/{repo}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -22452,9 +22455,9 @@ If no permission is specified, the team's `permission` attribute will be used to
         data = {}
         
         
-        r = requests.delete(f"{self._url}/orgs/{org}/teams/{team_slug}/repos/{owner}/{repo}", 
+        r = self._session.delete(f"{self._url}/orgs/{org}/teams/{team_slug}/repos/{owner}/{repo}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -22483,9 +22486,9 @@ List IdP groups connected to a team on GitHub.
         data = {}
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/teams/{team_slug}/team-sync/group-mappings", 
+        r = self._session.get(f"{self._url}/orgs/{org}/teams/{team_slug}/team-sync/group-mappings", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -22519,9 +22522,9 @@ Creates, updates, or removes a connection between a team and an IdP group. When 
         }
         
         
-        r = requests.patch(f"{self._url}/orgs/{org}/teams/{team_slug}/team-sync/group-mappings", 
+        r = self._session.patch(f"{self._url}/orgs/{org}/teams/{team_slug}/team-sync/group-mappings", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -22554,9 +22557,9 @@ Creates, updates, or removes a connection between a team and an IdP group. When 
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/teams/{team_slug}/teams", 
+        r = self._session.get(f"{self._url}/orgs/{org}/teams/{team_slug}/teams", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -22580,9 +22583,9 @@ Creates, updates, or removes a connection between a team and an IdP group. When 
         data = {}
         
         
-        r = requests.get(f"{self._url}/teams/{team_id}", 
+        r = self._session.get(f"{self._url}/teams/{team_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -22634,9 +22637,9 @@ To edit a team, the authenticated user must either be an organization owner or a
         }
         
         
-        r = requests.patch(f"{self._url}/teams/{team_id}", 
+        r = self._session.patch(f"{self._url}/teams/{team_id}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -22676,9 +22679,9 @@ If you are an organization owner, deleting a parent team will delete all of its 
         data = {}
         
         
-        r = requests.delete(f"{self._url}/teams/{team_id}", 
+        r = self._session.delete(f"{self._url}/teams/{team_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -22719,9 +22722,9 @@ List all discussions on a team's page. OAuth access tokens require the `read:dis
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/teams/{team_id}/discussions", 
+        r = self._session.get(f"{self._url}/teams/{team_id}/discussions", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -22758,9 +22761,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
         }
         
         
-        r = requests.post(f"{self._url}/teams/{team_id}/discussions", 
+        r = self._session.post(f"{self._url}/teams/{team_id}/discussions", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -22787,9 +22790,9 @@ Get a specific discussion on a team's page. OAuth access tokens require the `rea
         data = {}
         
         
-        r = requests.get(f"{self._url}/teams/{team_id}/discussions/{discussion_number}", 
+        r = self._session.get(f"{self._url}/teams/{team_id}/discussions/{discussion_number}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -22823,9 +22826,9 @@ Edits the title and body text of a discussion post. Only the parameters you prov
         }
         
         
-        r = requests.patch(f"{self._url}/teams/{team_id}/discussions/{discussion_number}", 
+        r = self._session.patch(f"{self._url}/teams/{team_id}/discussions/{discussion_number}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -22852,9 +22855,9 @@ Delete a discussion from a team's page. OAuth access tokens require the `write:d
         data = {}
         
         
-        r = requests.delete(f"{self._url}/teams/{team_id}/discussions/{discussion_number}", 
+        r = self._session.delete(f"{self._url}/teams/{team_id}/discussions/{discussion_number}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -22890,9 +22893,9 @@ List all comments on a team discussion. OAuth access tokens require the `read:di
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/teams/{team_id}/discussions/{discussion_number}/comments", 
+        r = self._session.get(f"{self._url}/teams/{team_id}/discussions/{discussion_number}/comments", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -22926,9 +22929,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
         }
         
         
-        r = requests.post(f"{self._url}/teams/{team_id}/discussions/{discussion_number}/comments", 
+        r = self._session.post(f"{self._url}/teams/{team_id}/discussions/{discussion_number}/comments", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -22956,9 +22959,9 @@ Get a specific comment on a team discussion. OAuth access tokens require the `re
         data = {}
         
         
-        r = requests.get(f"{self._url}/teams/{team_id}/discussions/{discussion_number}/comments/{comment_number}", 
+        r = self._session.get(f"{self._url}/teams/{team_id}/discussions/{discussion_number}/comments/{comment_number}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -22991,9 +22994,9 @@ Edits the body text of a discussion comment. OAuth access tokens require the `wr
         }
         
         
-        r = requests.patch(f"{self._url}/teams/{team_id}/discussions/{discussion_number}/comments/{comment_number}", 
+        r = self._session.patch(f"{self._url}/teams/{team_id}/discussions/{discussion_number}/comments/{comment_number}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -23021,9 +23024,9 @@ Deletes a comment on a team discussion. OAuth access tokens require the `write:d
         data = {}
         
         
-        r = requests.delete(f"{self._url}/teams/{team_id}/discussions/{discussion_number}/comments/{comment_number}", 
+        r = self._session.delete(f"{self._url}/teams/{team_id}/discussions/{discussion_number}/comments/{comment_number}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -23055,9 +23058,9 @@ The return hash contains a `role` field which refers to the Organization Invitat
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/teams/{team_id}/invitations", 
+        r = self._session.get(f"{self._url}/teams/{team_id}/invitations", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -23095,9 +23098,9 @@ Team members will include the members of child teams.
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/teams/{team_id}/members", 
+        r = self._session.get(f"{self._url}/teams/{team_id}/members", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -23129,9 +23132,9 @@ To list members in a team, the team must be visible to the authenticated user.
         data = {}
         
         
-        r = requests.get(f"{self._url}/teams/{team_id}/members/{username}", 
+        r = self._session.get(f"{self._url}/teams/{team_id}/members/{username}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -23172,9 +23175,9 @@ Note that you'll need to set `Content-Length` to zero when calling out to this e
         }
         
         
-        r = requests.put(f"{self._url}/teams/{team_id}/members/{username}", 
+        r = self._session.put(f"{self._url}/teams/{team_id}/members/{username}", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -23216,9 +23219,9 @@ To remove a team member, the authenticated user must have 'admin' permissions to
         data = {}
         
         
-        r = requests.delete(f"{self._url}/teams/{team_id}/members/{username}", 
+        r = self._session.delete(f"{self._url}/teams/{team_id}/members/{username}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -23255,9 +23258,9 @@ The `role` for organization owners is set to `maintainer`. For more information 
         data = {}
         
         
-        r = requests.get(f"{self._url}/teams/{team_id}/memberships/{username}", 
+        r = self._session.get(f"{self._url}/teams/{team_id}/memberships/{username}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -23302,9 +23305,9 @@ If the user is already a member of the team, this endpoint will update the role 
         }
         
         
-        r = requests.put(f"{self._url}/teams/{team_id}/memberships/{username}", 
+        r = self._session.put(f"{self._url}/teams/{team_id}/memberships/{username}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -23344,9 +23347,9 @@ To remove a membership between a user and a team, the authenticated user must ha
         data = {}
         
         
-        r = requests.delete(f"{self._url}/teams/{team_id}/memberships/{username}", 
+        r = self._session.delete(f"{self._url}/teams/{team_id}/memberships/{username}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -23381,9 +23384,9 @@ Lists the organization projects for a team.
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/teams/{team_id}/projects", 
+        r = self._session.get(f"{self._url}/teams/{team_id}/projects", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -23416,9 +23419,9 @@ Checks whether a team has `read`, `write`, or `admin` permissions for an organiz
         data = {}
         
         
-        r = requests.get(f"{self._url}/teams/{team_id}/projects/{project_id}", 
+        r = self._session.get(f"{self._url}/teams/{team_id}/projects/{project_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -23460,9 +23463,9 @@ Default: the team's `permission` attribute will be used to determine what permis
         }
         
         
-        r = requests.put(f"{self._url}/teams/{team_id}/projects/{project_id}", 
+        r = self._session.put(f"{self._url}/teams/{team_id}/projects/{project_id}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -23501,9 +23504,9 @@ Removes an organization project from a team. An organization owner or a team mai
         data = {}
         
         
-        r = requests.delete(f"{self._url}/teams/{team_id}/projects/{project_id}", 
+        r = self._session.delete(f"{self._url}/teams/{team_id}/projects/{project_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -23542,9 +23545,9 @@ Removes an organization project from a team. An organization owner or a team mai
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/teams/{team_id}/repos", 
+        r = self._session.get(f"{self._url}/teams/{team_id}/repos", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -23577,9 +23580,9 @@ You can also get information about the specified repository, including what perm
         data = {}
         
         
-        r = requests.get(f"{self._url}/teams/{team_id}/repos/{owner}/{repo}", 
+        r = self._session.get(f"{self._url}/teams/{team_id}/repos/{owner}/{repo}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -23625,9 +23628,9 @@ If no permission is specified, the team's `permission` attribute will be used to
         }
         
         
-        r = requests.put(f"{self._url}/teams/{team_id}/repos/{owner}/{repo}", 
+        r = self._session.put(f"{self._url}/teams/{team_id}/repos/{owner}/{repo}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -23661,9 +23664,9 @@ If the authenticated user is an organization owner or a team maintainer, they ca
         data = {}
         
         
-        r = requests.delete(f"{self._url}/teams/{team_id}/repos/{owner}/{repo}", 
+        r = self._session.delete(f"{self._url}/teams/{team_id}/repos/{owner}/{repo}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -23691,9 +23694,9 @@ List IdP groups connected to a team on GitHub.
         data = {}
         
         
-        r = requests.get(f"{self._url}/teams/{team_id}/team-sync/group-mappings", 
+        r = self._session.get(f"{self._url}/teams/{team_id}/team-sync/group-mappings", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -23734,9 +23737,9 @@ Creates, updates, or removes a connection between a team and an IdP group. When 
         }
         
         
-        r = requests.patch(f"{self._url}/teams/{team_id}/team-sync/group-mappings", 
+        r = self._session.patch(f"{self._url}/teams/{team_id}/team-sync/group-mappings", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -23772,9 +23775,9 @@ Creates, updates, or removes a connection between a team and an IdP group. When 
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/teams/{team_id}/teams", 
+        r = self._session.get(f"{self._url}/teams/{team_id}/teams", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -23812,9 +23815,9 @@ Creates, updates, or removes a connection between a team and an IdP group. When 
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/user/teams", 
+        r = self._session.get(f"{self._url}/user/teams", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -23861,9 +23864,9 @@ Creates, updates, or removes a connection between a team and an IdP group. When 
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/comments/{comment_number}/reactions", 
+        r = self._session.get(f"{self._url}/orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/comments/{comment_number}/reactions", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -23897,9 +23900,9 @@ Creates, updates, or removes a connection between a team and an IdP group. When 
         }
         
         
-        r = requests.post(f"{self._url}/orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/comments/{comment_number}/reactions", 
+        r = self._session.post(f"{self._url}/orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/comments/{comment_number}/reactions", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -23932,9 +23935,9 @@ Delete a reaction to a [team discussion comment](https://docs.github.com/rest/re
         data = {}
         
         
-        r = requests.delete(f"{self._url}/orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/comments/{comment_number}/reactions/{reaction_id}", 
+        r = self._session.delete(f"{self._url}/orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/comments/{comment_number}/reactions/{reaction_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -23971,9 +23974,9 @@ Delete a reaction to a [team discussion comment](https://docs.github.com/rest/re
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/reactions", 
+        r = self._session.get(f"{self._url}/orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/reactions", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -24006,9 +24009,9 @@ Delete a reaction to a [team discussion comment](https://docs.github.com/rest/re
         }
         
         
-        r = requests.post(f"{self._url}/orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/reactions", 
+        r = self._session.post(f"{self._url}/orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/reactions", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -24040,9 +24043,9 @@ Delete a reaction to a [team discussion](https://docs.github.com/rest/reference/
         data = {}
         
         
-        r = requests.delete(f"{self._url}/orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/reactions/{reaction_id}", 
+        r = self._session.delete(f"{self._url}/orgs/{org}/teams/{team_slug}/discussions/{discussion_number}/reactions/{reaction_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -24068,9 +24071,9 @@ OAuth access tokens require the `write:discussion` [scope](https://docs.github.c
         data = {}
         
         
-        r = requests.delete(f"{self._url}/reactions/{reaction_id}", 
+        r = self._session.delete(f"{self._url}/reactions/{reaction_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -24120,9 +24123,9 @@ OAuth access tokens require the `write:discussion` [scope](https://docs.github.c
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/comments/{comment_id}/reactions", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/comments/{comment_id}/reactions", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -24159,9 +24162,9 @@ OAuth access tokens require the `write:discussion` [scope](https://docs.github.c
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/comments/{comment_id}/reactions", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/comments/{comment_id}/reactions", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -24199,9 +24202,9 @@ Delete a reaction to a [commit comment](https://docs.github.com/rest/reference/r
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/comments/{comment_id}/reactions/{reaction_id}", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/comments/{comment_id}/reactions/{reaction_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -24236,9 +24239,9 @@ Delete a reaction to a [commit comment](https://docs.github.com/rest/reference/r
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/issues/comments/{comment_id}/reactions", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/issues/comments/{comment_id}/reactions", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -24275,9 +24278,9 @@ Delete a reaction to a [commit comment](https://docs.github.com/rest/reference/r
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/issues/comments/{comment_id}/reactions", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/issues/comments/{comment_id}/reactions", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -24315,9 +24318,9 @@ Delete a reaction to an [issue comment](https://docs.github.com/rest/reference/i
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/issues/comments/{comment_id}/reactions/{reaction_id}", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/issues/comments/{comment_id}/reactions/{reaction_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -24352,9 +24355,9 @@ Delete a reaction to an [issue comment](https://docs.github.com/rest/reference/i
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/issues/{issue_number}/reactions", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/issues/{issue_number}/reactions", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -24394,9 +24397,9 @@ Delete a reaction to an [issue comment](https://docs.github.com/rest/reference/i
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/issues/{issue_number}/reactions", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/issues/{issue_number}/reactions", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -24434,9 +24437,9 @@ Delete a reaction to an [issue](https://docs.github.com/rest/reference/issues/).
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/issues/{issue_number}/reactions/{reaction_id}", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/issues/{issue_number}/reactions/{reaction_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -24471,9 +24474,9 @@ Delete a reaction to an [issue](https://docs.github.com/rest/reference/issues/).
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/pulls/comments/{comment_id}/reactions", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/pulls/comments/{comment_id}/reactions", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -24510,9 +24513,9 @@ Delete a reaction to an [issue](https://docs.github.com/rest/reference/issues/).
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/pulls/comments/{comment_id}/reactions", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/pulls/comments/{comment_id}/reactions", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -24550,9 +24553,9 @@ Delete a reaction to a [pull request review comment](https://docs.github.com/res
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/pulls/comments/{comment_id}/reactions/{reaction_id}", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/pulls/comments/{comment_id}/reactions/{reaction_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -24583,9 +24586,9 @@ Delete a reaction to a [pull request review comment](https://docs.github.com/res
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/releases/{release_id}/reactions", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/releases/{release_id}/reactions", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -24631,9 +24634,9 @@ List the reactions to a [team discussion comment](https://docs.github.com/rest/r
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/teams/{team_id}/discussions/{discussion_number}/comments/{comment_number}/reactions", 
+        r = self._session.get(f"{self._url}/teams/{team_id}/discussions/{discussion_number}/comments/{comment_number}/reactions", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -24666,9 +24669,9 @@ Create a reaction to a [team discussion comment](https://docs.github.com/rest/re
         }
         
         
-        r = requests.post(f"{self._url}/teams/{team_id}/discussions/{discussion_number}/comments/{comment_number}/reactions", 
+        r = self._session.post(f"{self._url}/teams/{team_id}/discussions/{discussion_number}/comments/{comment_number}/reactions", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -24704,9 +24707,9 @@ List the reactions to a [team discussion](https://docs.github.com/rest/reference
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/teams/{team_id}/discussions/{discussion_number}/reactions", 
+        r = self._session.get(f"{self._url}/teams/{team_id}/discussions/{discussion_number}/reactions", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -24738,9 +24741,9 @@ Create a reaction to a [team discussion](https://docs.github.com/rest/reference/
         }
         
         
-        r = requests.post(f"{self._url}/teams/{team_id}/discussions/{discussion_number}/reactions", 
+        r = self._session.post(f"{self._url}/teams/{team_id}/discussions/{discussion_number}/reactions", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -24765,9 +24768,9 @@ Create a reaction to a [team discussion](https://docs.github.com/rest/reference/
         data = {}
         
         
-        r = requests.get(f"{self._url}/rate_limit", 
+        r = self._session.get(f"{self._url}/rate_limit", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -24826,9 +24829,9 @@ In a check suite, GitHub limits the number of check runs with the same name to 1
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/check-runs", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/check-runs", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -24856,9 +24859,9 @@ Gets a single check run using its `id`. GitHub Apps must have the `checks:read` 
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/check-runs/{check_run_id}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/check-runs/{check_run_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -24908,9 +24911,9 @@ Updates a check run for a specific commit in a repository. Your GitHub App must 
         }
         
         
-        r = requests.patch(f"{self._url}/repos/{owner}/{repo}/check-runs/{check_run_id}", 
+        r = self._session.patch(f"{self._url}/repos/{owner}/{repo}/check-runs/{check_run_id}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -24942,9 +24945,9 @@ Updates a check run for a specific commit in a repository. Your GitHub App must 
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/check-runs/{check_run_id}/annotations", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/check-runs/{check_run_id}/annotations", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -24976,9 +24979,9 @@ By default, check suites are automatically created when you create a [check run]
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/check-suites", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/check-suites", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -25011,9 +25014,9 @@ By default, check suites are automatically created when you create a [check run]
         }
         
         
-        r = requests.patch(f"{self._url}/repos/{owner}/{repo}/check-suites/preferences", 
+        r = self._session.patch(f"{self._url}/repos/{owner}/{repo}/check-suites/preferences", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -25041,9 +25044,9 @@ Gets a single check suite using its `id`. GitHub Apps must have the `checks:read
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/check-suites/{check_suite_id}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/check-suites/{check_suite_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -25086,9 +25089,9 @@ Lists check runs for a check suite using its `id`. GitHub Apps must have the `ch
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/check-suites/{check_suite_id}/check-runs", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/check-suites/{check_suite_id}/check-runs", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -25119,9 +25122,9 @@ To rerequest a check suite, your GitHub App must have the `checks:read` permissi
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/check-suites/{check_suite_id}/rerequest", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/check-suites/{check_suite_id}/rerequest", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -25167,9 +25170,9 @@ Lists check runs for a commit ref. The `ref` can be a SHA, branch name, or a tag
             data['app_id'] = app_id
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/commits/{ref}/check-runs", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/commits/{ref}/check-runs", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -25209,9 +25212,9 @@ Lists check suites for a commit `ref`. The `ref` can be a SHA, branch name, or a
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/commits/{ref}/check-suites", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/commits/{ref}/check-suites", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -25262,9 +25265,9 @@ for the default branch or for the specified Git reference
             data['state'] = state
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/code-scanning/alerts", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/code-scanning/alerts", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -25302,9 +25305,9 @@ The instances field is deprecated and will, in future, not be included in the re
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/code-scanning/alerts/{alert_number}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/code-scanning/alerts/{alert_number}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -25346,9 +25349,9 @@ The instances field is deprecated and will, in future, not be included in the re
         }
         
         
-        r = requests.patch(f"{self._url}/repos/{owner}/{repo}/code-scanning/alerts/{alert_number}", 
+        r = self._session.patch(f"{self._url}/repos/{owner}/{repo}/code-scanning/alerts/{alert_number}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -25392,9 +25395,9 @@ The instances field is deprecated and will, in future, not be included in the re
             data['ref'] = ref
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/code-scanning/alerts/{alert_number}/instances", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/code-scanning/alerts/{alert_number}/instances", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -25461,9 +25464,9 @@ The `tool_name` field is deprecated and will, in future, not be included in the 
             data['sarif_id'] = sarif_id
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/code-scanning/analyses", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/code-scanning/analyses", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -25518,9 +25521,9 @@ The `tool_name` field is deprecated and will, in future, not be included in the 
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/code-scanning/analyses/{analysis_id}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/code-scanning/analyses/{analysis_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -25621,9 +25624,9 @@ The above process assumes that you want to remove all trace of the tool's analys
             data['confirm_delete'] = confirm_delete
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/code-scanning/analyses/{analysis_id}", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/code-scanning/analyses/{analysis_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -25692,9 +25695,9 @@ This property is used to convert file paths from absolute to relative, so that a
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/code-scanning/sarifs", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/code-scanning/sarifs", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -25735,9 +25738,9 @@ This property is used to convert file paths from absolute to relative, so that a
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/code-scanning/sarifs/{sarif_id}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/code-scanning/sarifs/{sarif_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -25778,9 +25781,9 @@ This property is used to convert file paths from absolute to relative, so that a
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/git/blobs", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/git/blobs", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -25820,9 +25823,9 @@ _Note_: This API supports blobs up to 100 megabytes in size.
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/git/blobs/{file_sha}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/git/blobs/{file_sha}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -25900,9 +25903,9 @@ These are the possible values for `reason` in the `verification` object:
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/git/commits", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/git/commits", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -25963,9 +25966,9 @@ These are the possible values for `reason` in the `verification` object:
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/git/commits/{commit_sha}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/git/commits/{commit_sha}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -26006,9 +26009,9 @@ If you request matching references for a branch named `feature` but the branch `
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/git/matching-refs/{ref}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/git/matching-refs/{ref}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -26036,9 +26039,9 @@ If you request matching references for a branch named `feature` but the branch `
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/git/ref/{ref}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/git/ref/{ref}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -26075,9 +26078,9 @@ If you request matching references for a branch named `feature` but the branch `
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/git/refs", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/git/refs", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -26113,9 +26116,9 @@ If you request matching references for a branch named `feature` but the branch `
         }
         
         
-        r = requests.patch(f"{self._url}/repos/{owner}/{repo}/git/refs/{ref}", 
+        r = self._session.patch(f"{self._url}/repos/{owner}/{repo}/git/refs/{ref}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -26144,9 +26147,9 @@ If you request matching references for a branch named `feature` but the branch `
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/git/refs/{ref}", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/git/refs/{ref}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -26216,9 +26219,9 @@ These are the possible values for `reason` in the `verification` object:
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/git/tags", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/git/tags", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -26274,9 +26277,9 @@ These are the possible values for `reason` in the `verification` object:
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/git/tags/{tag_sha}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/git/tags/{tag_sha}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -26315,9 +26318,9 @@ If not provided, GitHub will create a new Git tree object from only the entries 
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/git/trees", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/git/trees", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -26357,9 +26360,9 @@ If `truncated` is `true` in the response then the number of items in the `tree` 
             data['recursive'] = recursive
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/git/trees/{tree_sha}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/git/trees/{tree_sha}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -26411,9 +26414,9 @@ If `truncated` is `true` in the response then the number of items in the `tree` 
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/pulls", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/pulls", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -26467,9 +26470,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/pulls", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/pulls", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -26515,9 +26518,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/pulls/comments", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/pulls/comments", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -26543,9 +26546,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/pulls/comments/{comment_id}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/pulls/comments/{comment_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -26579,9 +26582,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
         }
         
         
-        r = requests.patch(f"{self._url}/repos/{owner}/{repo}/pulls/comments/{comment_id}", 
+        r = self._session.patch(f"{self._url}/repos/{owner}/{repo}/pulls/comments/{comment_id}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -26607,9 +26610,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/pulls/comments/{comment_id}", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/pulls/comments/{comment_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -26652,9 +26655,9 @@ Pass the appropriate [media type](https://docs.github.com/rest/overview/media-ty
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -26704,9 +26707,9 @@ To open or update a pull request in a public repository, you must have write acc
         }
         
         
-        r = requests.patch(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}", 
+        r = self._session.patch(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -26753,9 +26756,9 @@ To open or update a pull request in a public repository, you must have write acc
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}/comments", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}/comments", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -26809,9 +26812,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}/comments", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}/comments", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -26851,9 +26854,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}/comments/{comment_id}/replies", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}/comments/{comment_id}/replies", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -26888,9 +26891,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}/commits", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}/commits", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -26922,9 +26925,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}/files", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}/files", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -26956,9 +26959,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}/merge", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}/merge", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -26998,9 +27001,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
         }
         
         
-        r = requests.put(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}/merge", 
+        r = self._session.put(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}/merge", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -27047,9 +27050,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}/requested_reviewers", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}/requested_reviewers", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -27082,9 +27085,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}/requested_reviewers", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}/requested_reviewers", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -27116,9 +27119,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}/requested_reviewers", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}/requested_reviewers", 
                            params=data,
-                           headers=self._headers({'Content-Type':  'application/json'}))
+                           **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
     
         
@@ -27153,9 +27156,9 @@ This endpoint triggers [notifications](https://docs.github.com/en/github/managin
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}/reviews", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}/reviews", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -27198,9 +27201,9 @@ The `position` value equals the number of lines down from the first "@@" hunk he
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}/reviews", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}/reviews", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -27233,9 +27236,9 @@ The `position` value equals the number of lines down from the first "@@" hunk he
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -27270,9 +27273,9 @@ The `position` value equals the number of lines down from the first "@@" hunk he
         }
         
         
-        r = requests.put(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}", 
+        r = self._session.put(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -27302,9 +27305,9 @@ The `position` value equals the number of lines down from the first "@@" hunk he
         data = {}
         
         
-        r = requests.delete(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}", 
+        r = self._session.delete(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -27343,9 +27346,9 @@ The `position` value equals the number of lines down from the first "@@" hunk he
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}/comments", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}/comments", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -27382,9 +27385,9 @@ The `position` value equals the number of lines down from the first "@@" hunk he
         }
         
         
-        r = requests.put(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}/dismissals", 
+        r = self._session.put(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}/dismissals", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -27424,9 +27427,9 @@ The `position` value equals the number of lines down from the first "@@" hunk he
         }
         
         
-        r = requests.post(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}/events", 
+        r = self._session.post(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}/reviews/{review_id}/events", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -27466,9 +27469,9 @@ The `position` value equals the number of lines down from the first "@@" hunk he
         }
         
         
-        r = requests.put(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}/update-branch", 
+        r = self._session.put(f"{self._url}/repos/{owner}/{repo}/pulls/{pull_number}/update-branch", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -27516,9 +27519,9 @@ GitHub Apps must have the `secret_scanning_alerts` read permission to use this e
             data['per_page'] = per_page
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/secret-scanning/alerts", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/secret-scanning/alerts", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -27552,9 +27555,9 @@ GitHub Apps must have the `secret_scanning_alerts` read permission to use this e
         data = {}
         
         
-        r = requests.get(f"{self._url}/repos/{owner}/{repo}/secret-scanning/alerts/{alert_number}", 
+        r = self._session.get(f"{self._url}/repos/{owner}/{repo}/secret-scanning/alerts/{alert_number}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -27595,9 +27598,9 @@ GitHub Apps must have the `secret_scanning_alerts` write permission to use this 
         }
         
         
-        r = requests.patch(f"{self._url}/repos/{owner}/{repo}/secret-scanning/alerts/{alert_number}", 
+        r = self._session.patch(f"{self._url}/repos/{owner}/{repo}/secret-scanning/alerts/{alert_number}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -27660,9 +27663,9 @@ To filter results for the identity with the email `octocat@github.com`, you woul
             data['filter'] = filter
         
         
-        r = requests.get(f"{self._url}/scim/v2/organizations/{org}/Users", 
+        r = self._session.get(f"{self._url}/scim/v2/organizations/{org}/Users", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -27717,9 +27720,9 @@ To filter results for the identity with the email `octocat@github.com`, you woul
         }
         
         
-        r = requests.post(f"{self._url}/scim/v2/organizations/{org}/Users", 
+        r = self._session.post(f"{self._url}/scim/v2/organizations/{org}/Users", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -27762,9 +27765,9 @@ To filter results for the identity with the email `octocat@github.com`, you woul
         data = {}
         
         
-        r = requests.get(f"{self._url}/scim/v2/organizations/{org}/Users/{scim_user_id}", 
+        r = self._session.get(f"{self._url}/scim/v2/organizations/{org}/Users/{scim_user_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -27821,9 +27824,9 @@ You must at least provide the required values for the user: `userName`, `name`, 
         }
         
         
-        r = requests.put(f"{self._url}/scim/v2/organizations/{org}/Users/{scim_user_id}", 
+        r = self._session.put(f"{self._url}/scim/v2/organizations/{org}/Users/{scim_user_id}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -27879,9 +27882,9 @@ You must at least provide the required values for the user: `userName`, `name`, 
         }
         
         
-        r = requests.patch(f"{self._url}/scim/v2/organizations/{org}/Users/{scim_user_id}", 
+        r = self._session.patch(f"{self._url}/scim/v2/organizations/{org}/Users/{scim_user_id}", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -27921,9 +27924,9 @@ You must at least provide the required values for the user: `userName`, `name`, 
         data = {}
         
         
-        r = requests.delete(f"{self._url}/scim/v2/organizations/{org}/Users/{scim_user_id}", 
+        r = self._session.delete(f"{self._url}/scim/v2/organizations/{org}/Users/{scim_user_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -27987,9 +27990,9 @@ language:go`](https://github.com/search?utf8=%E2%9C%93&q=amazing+language%3Ago&t
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/search/code", 
+        r = self._session.get(f"{self._url}/search/code", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -28046,9 +28049,9 @@ For example, if you want to find commits related to CSS in the [octocat/Spoon-Kn
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/search/commits", 
+        r = self._session.get(f"{self._url}/search/commits", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -28103,9 +28106,9 @@ This query searches for the keyword `windows`, within any open issue that is lab
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/search/issues", 
+        r = self._session.get(f"{self._url}/search/issues", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -28166,9 +28169,9 @@ The labels that best match the query appear first in the search results.
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/search/labels", 
+        r = self._session.get(f"{self._url}/search/labels", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -28230,9 +28233,9 @@ When you include the `mercy` preview header, you can also search for multiple to
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/search/repositories", 
+        r = self._session.get(f"{self._url}/search/repositories", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -28281,9 +28284,9 @@ This query searches for topics with the keyword `ruby` and limits the results to
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/search/topics", 
+        r = self._session.get(f"{self._url}/search/topics", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -28335,9 +28338,9 @@ This query searches for users with the name `tom`. The results are restricted to
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/search/users", 
+        r = self._session.get(f"{self._url}/search/users", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -28371,9 +28374,9 @@ If the authenticated user is authenticated through OAuth without the `user` scop
         data = {}
         
         
-        r = requests.get(f"{self._url}/user", 
+        r = self._session.get(f"{self._url}/user", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -28424,9 +28427,9 @@ If the authenticated user is authenticated through OAuth without the `user` scop
         }
         
         
-        r = requests.patch(f"{self._url}/user", 
+        r = self._session.patch(f"{self._url}/user", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -28464,9 +28467,9 @@ If the authenticated user is authenticated through OAuth without the `user` scop
         data = {}
         
         
-        r = requests.get(f"{self._url}/user/blocks", 
+        r = self._session.get(f"{self._url}/user/blocks", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -28505,9 +28508,9 @@ If the authenticated user is authenticated through OAuth without the `user` scop
         data = {}
         
         
-        r = requests.get(f"{self._url}/user/blocks/{username}", 
+        r = self._session.get(f"{self._url}/user/blocks/{username}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -28546,9 +28549,9 @@ If the authenticated user is authenticated through OAuth without the `user` scop
         }
         
         
-        r = requests.put(f"{self._url}/user/blocks/{username}", 
+        r = self._session.put(f"{self._url}/user/blocks/{username}", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -28587,9 +28590,9 @@ If the authenticated user is authenticated through OAuth without the `user` scop
         data = {}
         
         
-        r = requests.delete(f"{self._url}/user/blocks/{username}", 
+        r = self._session.delete(f"{self._url}/user/blocks/{username}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -28629,9 +28632,9 @@ If the authenticated user is authenticated through OAuth without the `user` scop
         }
         
         
-        r = requests.patch(f"{self._url}/user/email/visibility", 
+        r = self._session.patch(f"{self._url}/user/email/visibility", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -28675,9 +28678,9 @@ If the authenticated user is authenticated through OAuth without the `user` scop
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/user/emails", 
+        r = self._session.get(f"{self._url}/user/emails", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -28717,9 +28720,9 @@ If the authenticated user is authenticated through OAuth without the `user` scop
         }
         
         
-        r = requests.post(f"{self._url}/user/emails", 
+        r = self._session.post(f"{self._url}/user/emails", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -28757,9 +28760,9 @@ If the authenticated user is authenticated through OAuth without the `user` scop
         data = {}
         
         
-        r = requests.delete(f"{self._url}/user/emails", 
+        r = self._session.delete(f"{self._url}/user/emails", 
                            params=data,
-                           headers=self._headers({'Content-Type':  'application/json'}))
+                           **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
     
         
@@ -28803,9 +28806,9 @@ If the authenticated user is authenticated through OAuth without the `user` scop
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/user/followers", 
+        r = self._session.get(f"{self._url}/user/followers", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -28843,9 +28846,9 @@ If the authenticated user is authenticated through OAuth without the `user` scop
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/user/following", 
+        r = self._session.get(f"{self._url}/user/following", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -28878,9 +28881,9 @@ If the authenticated user is authenticated through OAuth without the `user` scop
         data = {}
         
         
-        r = requests.get(f"{self._url}/user/following/{username}", 
+        r = self._session.get(f"{self._url}/user/following/{username}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -28921,9 +28924,9 @@ Following a user requires the user to be logged in and authenticated with basic 
         }
         
         
-        r = requests.put(f"{self._url}/user/following/{username}", 
+        r = self._session.put(f"{self._url}/user/following/{username}", 
                           json=data,
-                          headers=self._headers())
+                          **self._requests_kwargs())
         self._updateStats(r.headers)
                           
         
@@ -28959,9 +28962,9 @@ Following a user requires the user to be logged in and authenticated with basic 
         data = {}
         
         
-        r = requests.delete(f"{self._url}/user/following/{username}", 
+        r = self._session.delete(f"{self._url}/user/following/{username}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -29002,9 +29005,9 @@ Following a user requires the user to be logged in and authenticated with basic 
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/user/gpg_keys", 
+        r = self._session.get(f"{self._url}/user/gpg_keys", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -29044,9 +29047,9 @@ Following a user requires the user to be logged in and authenticated with basic 
         }
         
         
-        r = requests.post(f"{self._url}/user/gpg_keys", 
+        r = self._session.post(f"{self._url}/user/gpg_keys", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -29085,9 +29088,9 @@ Following a user requires the user to be logged in and authenticated with basic 
         data = {}
         
         
-        r = requests.get(f"{self._url}/user/gpg_keys/{gpg_key_id}", 
+        r = self._session.get(f"{self._url}/user/gpg_keys/{gpg_key_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -29123,9 +29126,9 @@ Following a user requires the user to be logged in and authenticated with basic 
         data = {}
         
         
-        r = requests.delete(f"{self._url}/user/gpg_keys/{gpg_key_id}", 
+        r = self._session.delete(f"{self._url}/user/gpg_keys/{gpg_key_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -29169,9 +29172,9 @@ Following a user requires the user to be logged in and authenticated with basic 
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/user/keys", 
+        r = self._session.get(f"{self._url}/user/keys", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -29213,9 +29216,9 @@ Following a user requires the user to be logged in and authenticated with basic 
         }
         
         
-        r = requests.post(f"{self._url}/user/keys", 
+        r = self._session.post(f"{self._url}/user/keys", 
                           json=data,
-                          headers=self._headers({'Content-Type':  'application/json'}))
+                          **self._requests_kwargs({'Content-Type':  'application/json'}))
         self._updateStats(r.headers)
                           
         
@@ -29254,9 +29257,9 @@ Following a user requires the user to be logged in and authenticated with basic 
         data = {}
         
         
-        r = requests.get(f"{self._url}/user/keys/{key_id}", 
+        r = self._session.get(f"{self._url}/user/keys/{key_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -29292,9 +29295,9 @@ Following a user requires the user to be logged in and authenticated with basic 
         data = {}
         
         
-        r = requests.delete(f"{self._url}/user/keys/{key_id}", 
+        r = self._session.delete(f"{self._url}/user/keys/{key_id}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -29335,9 +29338,9 @@ Following a user requires the user to be logged in and authenticated with basic 
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/user/public_emails", 
+        r = self._session.get(f"{self._url}/user/public_emails", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -29380,9 +29383,9 @@ Note: Pagination is powered exclusively by the `since` parameter. Use the [Link 
             data['per_page'] = per_page
         
         
-        r = requests.get(f"{self._url}/users", 
+        r = self._session.get(f"{self._url}/users", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -29415,9 +29418,9 @@ The Emails API enables you to list all of your email addresses, and toggle a pri
         data = {}
         
         
-        r = requests.get(f"{self._url}/users/{username}", 
+        r = self._session.get(f"{self._url}/users/{username}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -29453,9 +29456,9 @@ The Emails API enables you to list all of your email addresses, and toggle a pri
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/users/{username}/followers", 
+        r = self._session.get(f"{self._url}/users/{username}/followers", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -29485,9 +29488,9 @@ The Emails API enables you to list all of your email addresses, and toggle a pri
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/users/{username}/following", 
+        r = self._session.get(f"{self._url}/users/{username}/following", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -29512,9 +29515,9 @@ The Emails API enables you to list all of your email addresses, and toggle a pri
         data = {}
         
         
-        r = requests.get(f"{self._url}/users/{username}/following/{target_user}", 
+        r = self._session.get(f"{self._url}/users/{username}/following/{target_user}", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -29547,9 +29550,9 @@ The Emails API enables you to list all of your email addresses, and toggle a pri
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/users/{username}/gpg_keys", 
+        r = self._session.get(f"{self._url}/users/{username}/gpg_keys", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -29586,9 +29589,9 @@ The `subject_type` and `subject_id` parameters provide context for the person's 
             data['subject_id'] = subject_id
         
         
-        r = requests.get(f"{self._url}/users/{username}/hovercard", 
+        r = self._session.get(f"{self._url}/users/{username}/hovercard", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         
@@ -29624,9 +29627,9 @@ The `subject_type` and `subject_id` parameters provide context for the person's 
             data['page'] = page
         
         
-        r = requests.get(f"{self._url}/users/{username}/keys", 
+        r = self._session.get(f"{self._url}/users/{username}/keys", 
                            params=data,
-                           headers=self._headers())
+                           **self._requests_kwargs())
         self._updateStats(r.headers)
     
         

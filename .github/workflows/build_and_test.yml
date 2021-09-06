@@ -1,8 +1,8 @@
 name: Build And Test
 on: [push]
-# ${{ secrets.GITHUBPYTEST_ACCT_TOKEN }}
+
 jobs:
-  Build:
+  BuildAndTest:
     runs-on: ubuntu-18.04
     defaults:
       run:
@@ -10,16 +10,15 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
-      - name: Install virtualenv
-        run: sudo apt install -y python3.8 virtualenv
-      - uses: actions/setup-python@v2
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.6
       - uses: syphar/restore-virtualenv@v1
-      - name: Validate
-        run: which python
-      - name: Upgrade pip
-        run:  pip install --upgrade pip
       - name: Build
-        run: pip install --use-feature=in-tree-build .
+        run: |
+          pip install --upgrade pip
+          pip install --use-feature=in-tree-build .
       - name: Test
         working-directory: unittests
         env:

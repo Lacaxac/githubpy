@@ -14,7 +14,7 @@ class BasicTests(unittest.TestCase):
     
     def test_octocat(self):
         
-        ghc = GitHubClient('')
+        ghc = GitHubClient(token=os.environ['GITHUB_TOKEN'])
         
         text = BasicTests.randstring()
         
@@ -33,7 +33,7 @@ class BasicTests(unittest.TestCase):
     
     def test_create_delete_repo(self):
         reponame = 'foobar'
-        ghc = GitHubClient(os.environ['GITHUB_TOKEN'])
+        ghc = GitHubClient(token=os.environ['GITHUB_TOKEN'])
         
         result = ghc.ReposDelete("GitHubPyTest", "foobar")
         self.assertTrue((isinstance(result, HttpResponse) and result.result_code == 204) or result.message == 'Not Found')
@@ -52,4 +52,18 @@ class BasicTests(unittest.TestCase):
         result = ghc.ReposDelete("GitHubPyTest", "foobar")
         
         return
+    
+    def test_pagination(self):
+        
+        ghc = GitHubClient(token=os.environ['GITHUB_TOKEN'])
+        
+        count = 7
+        
+        commits = GitHubClient.paginate(ghc.ReposListCommits, 
+                                        "geodynamics", 
+                                        "aspect", per_page=5, pagination_limit=count)
+        
+        self.assertEqual(len(commits), count, "didn't get expected count")
+                
+        
         
