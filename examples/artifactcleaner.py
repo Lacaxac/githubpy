@@ -2,11 +2,13 @@
 
 import sys
 from PyQt5.QtWidgets import *
+from PyQt5.QtCore import QThread, QMutex, QWaitCondition, pyqtSignal, pyqtSlot, Qt
 from PyQt5 import QtGui
 from datetime import datetime
+from operator import attrgetter
 
 import githubpy
-from githubpy import GitHubClient
+from githubpy import GitHubClient, Artifact
     
     
 def SizeStr(size):
@@ -19,103 +21,230 @@ def SizeStr(size):
     if size >= 1e3:
         return f"{size/1024:.1f}K"
     return f"{size}"
+
+class AritfactThread(QThread):
     
+    output = pyqtSignal(str, Artifact)
+    complete = pyqtSignal(int, datetime)
+    running = pyqtSignal(bool)
+    
+    def __init__(self, owner, token, parent=None):
+        QThread.__init__(self, parent)
+        
+        self._token = token
+        self._owner = owner
+        
+        self._mutex = QMutex()
+        self._cond = QWaitCondition()
+        self._runningcond = QWaitCondition()
+        self._runflag = True
+
+        self._loopflag = True
+        self._isRunning = False
+        
+        
+    def run(self):
+        self._mutex.lock()
+        
+        while True:
+            
+            self._isRunning = False
+            self._runningcond.wakeAll()
+            
+            self._cond.wait(self._mutex)
+            if not self._runflag:
+                return
+            
+            self._isRunning = True
+            self._runningcond.wakeAll()            
+            
+            ghc = GitHubClient(token=self._token, usesession=True)
+            for repo in GitHubClient.generate(ghc.ReposListForAuthenticatedUser):
+                if not self._loopflag:
+                    break
+                
+                for artifact in GitHubClient.generate(ghc.ActionsListArtifactsForRepo, self._owner, repo.name, extractor=attrgetter('artifacts')):
+                    
+                    if not self._loopflag:
+                        break 
+                    
+                    if not artifact.ok and artifact.status_code == 404:
+                        break # expected if repo has no artifacts
+                    
+                    
+                    if artifact.expired:
+                        continue
+                    self.output.emit(repo.name, artifact)
+            self.complete.emit(ghc.rateLimitRemaining, ghc.rateLimitReset)
+                    
+            
+    @pyqtSlot()
+    def stop(self):
+        
+        self._mutex.lock()
+        self._loopflag = False
+        
+        while self._isRunning:
+            self._runningcond.wait(self._mutex)
+        
+        self._mutex.unlock()
+        
+    @pyqtSlot()
+    def fetchartifacts(self):        
+        self._mutex.lock()
+        self._cond.wakeAll()
+        self._mutex.unlock()
 
 class ArtifactWindow(object):
     def __init__(self, token, owner, geometry=(500, 100, 600, 600)):
-        self._ghc = GitHubClient(token=token, usesession=True)
         self._owner = owner
+        self._token = token
         self._artifacts = []
+        self._thread = AritfactThread(owner, token)
+        
+        self._thread.start()
+        
+        self._thread.output[str, Artifact].connect(self._addArtifact)
+        self._thread.complete[int, datetime].connect(self._artifactsComplete)
     
         self._mainw = mainW = QMainWindow()
+        mainW.setWindowTitle("Artifact Cleaner")
             
         menuBar = mainW.menuBar()
         
         tb = mainW.addToolBar("")
-        self._fetchAction = fetchAction = tb.addAction(QtGui.QIcon("data/refresh+icon-1320183705440102854_64.png"), "Fetch")
-        fetchAction.triggered.connect(self.fetch_artifacts)
+        self._fetchAction = fetchAction = tb.addAction(QtGui.QIcon("data/refresh+icon-1320183705440102854_64.png"), "Fetch Artifacts")
+        fetchAction.triggered.connect(self._fetch_artifacts)
         
-        self._deleteAction = tb.addAction(QtGui.QIcon("data/icon+x+icon-1320183702540076171_64.png"), "Delete")
-        self._deleteAction.triggered.connect(self.delete_artifacts)
+        
+        self._stopAction = tb.addAction(QtGui.QIcon("data/stop64x64.png"), "Stop Fetch")
+        self._stopAction.triggered.connect(self._stopFetch)
+        self._stopAction.setEnabled(False)
+        
+        self._deleteAction = tb.addAction(QtGui.QIcon("data/icon+x+icon-1320183702540076171_64.png"), "Delete Check Items")
+        self._deleteAction.triggered.connect(self._delete_artifacts)
     
     
         table = self._table = QTableWidget()
-        table.setColumnCount(5)
+        table.setColumnCount(6)
         table.setRowCount(0)
         
         checkHeader = QTableWidgetItem()
         table.setHorizontalHeaderItem(0, checkHeader)
+        self._checkAllState = True
+        
         table.setColumnWidth(0, 50)
         
+        idheader = QTableWidgetItem("ID")
+        table.setHorizontalHeaderItem(1, idheader)
+        table.setColumnWidth(1, 100)
+        
         repoHeader = QTableWidgetItem("Repo")
-        table.setHorizontalHeaderItem(1, repoHeader)
-        table.setColumnWidth(1, 250)
+        table.setHorizontalHeaderItem(2, repoHeader)
+        table.setColumnWidth(2, 250)
         
         artifactHeader = QTableWidgetItem("Artifact")
-        table.setHorizontalHeaderItem(2, artifactHeader)
-        table.setColumnWidth(2, 200)
+        table.setHorizontalHeaderItem(3, artifactHeader)
+        table.setColumnWidth(3, 200)
         
         sizeHeader = QTableWidgetItem("Size")
-        table.setHorizontalHeaderItem(3, sizeHeader)
-        table.setColumnWidth(3, 75)
+        table.setHorizontalHeaderItem(4, sizeHeader)
+        table.setColumnWidth(4, 75)
         
         expiresHeader = QTableWidgetItem("Expires")
-        table.setHorizontalHeaderItem(4, expiresHeader)
-        table.setColumnWidth(4, 150)
+        table.setHorizontalHeaderItem(5, expiresHeader)
+        table.setColumnWidth(5, 175)
         
         mainW.setCentralWidget(self._table)
         
+        header = table.horizontalHeader()
+        header.setSectionsClickable(True)
+        header.sectionClicked.connect(self._headerSectionClicked)
+        
+        self._tableIndex = 0
+        self._totalSize = 0
+        
         mainW.setGeometry(*geometry)
         
-    def fetch_artifacts(self):
-        self._fetchAction.setEnabled(False)
-        ghc = self._ghc
+    def _headerSectionClicked(self, item):
+        if item == 0:
+            self._checkAll(self._checkAllState)
+            self._checkAllState = not self._checkAllState
+            
+    def _checkAll(self, state=True):
+        for row in range(self._table.rowCount()):
+            w = self._table.cellWidget(row, 0) 
+            w.setChecked(state)
+            
+        
+    def _artifactsComplete(self, rateLimitRemaining, rateLimitReset):
+        self._fetchAction.setEnabled(True)
+        self._stopAction.setEnabled(False)
+        resetT = rateLimitReset.strftime("%I:%M%p")
+        self._mainw.statusBar().showMessage(f"{rateLimitRemaining} remaining  reset:  {resetT}  total={SizeStr(self._totalSize)}")
+        
+    def _addArtifact(self, reponame, artifact):
+        isinstance(artifact, Artifact)
+        self._totalSize += artifact.size_in_bytes
+        self._artifacts.append((reponame, artifact))
+        table = self._table
+        
+        table.setRowCount(self._tableIndex+1)
+        table.setCellWidget(self._tableIndex, 0, QCheckBox())
+        
+        
+        idcell = QTableWidgetItem(f"{artifact.id}")
+        table.setItem(self._tableIndex, 1, idcell)
+        
+        repoCell = QTableWidgetItem(reponame)
+        table.setItem(self._tableIndex, 2, repoCell)
+        
+        
+        artifactCell = QTableWidgetItem(artifact.name)
+        table.setItem(self._tableIndex, 3, artifactCell)
+        
+        sizeCell = QTableWidgetItem(SizeStr(artifact.size_in_bytes))
+        table.setItem(self._tableIndex, 4, sizeCell)
+        
+        dateStr = artifact.expires_at.strftime("%m/%d/%y %I:%M%p UTC")
+        dateCell = QTableWidgetItem(dateStr)
+        
+        table.setItem(self._tableIndex, 5, dateCell)
+        self._tableIndex += 1        
+        
+        
+    def _stopFetch(self):
+        
+        self._thread.stop()
+        
+        self._artifacts.clear()
+                
         table = self._table
         table.clearContents()
         table.setRowCount(0)
-        index = 0
-        totalSize = 0
-        #t0 = datetime.now()
-        for repo in GitHubClient.paginateGenerate(ghc.ReposListForAuthenticatedUser, type=None):
-            
-            try:
-                artifacts = GitHubClient.paginate(ghc.ActionsListArtifactsForRepo, self._owner, repo.name, extractor=lambda data: data.artifacts)
-            except githubpy.UnexpectedResult:
-                continue
-            
-            
-            for artifact in artifacts:
-                if artifact.expired:
-                    continue
-                self._artifacts.append((repo.name, artifact))
-                totalSize += artifact.size_in_bytes
-                table.setRowCount(index+1)
-                table.setCellWidget(index, 0, QCheckBox())
-                table.setColumnWidth(0, 35)
-                
-                repoCell = QTableWidgetItem(repo.name)
-                table.setItem(index, 1, repoCell)
-                
-                artifactCell = QTableWidgetItem(artifact.name)
-                table.setItem(index, 2, artifactCell)
-                sizeCell = QTableWidgetItem(SizeStr(artifact.size_in_bytes))
-                table.setItem(index, 3, sizeCell)
-                dateStr = artifact.expires_at.strftime("%m/%d/%y %I:%M%p")
-                dateCell = QTableWidgetItem(dateStr)
-                table.setItem(index, 4, dateCell)
-                index += 1
-            
-        resetT = self._ghc.rateLimitReset.strftime("%I:%M%p")
-        self._mainw.statusBar().showMessage(f"{self._ghc.rateLimitRemaining} remaining  reset:{resetT}  total={SizeStr(totalSize)}")
+        self._fetchAction.setEnabled(False)
+        self._stopAction.setEnabled(True)
         
-        
-        
-        #print(f"fetched in {datetime.now()-t0}")
-        self._fetchAction.setEnabled(True)
-                
+        self._tableIndex = 0
+        self._totalSize = 0
         return
+        
+    def _fetch_artifacts(self):
+        self._fetchAction.setEnabled(False)
+        self._stopAction.setEnabled(True)
+        self._artifacts.clear()
+        
+        
+        table = self._table
+        table.clearContents()
+        table.setRowCount(0)
+        self._tableIndex = 0
+        self._totalSize = 0
+        
+        self._thread.fetchartifacts()
+        
     
-    def delete_artifacts(self):
+    def _delete_artifacts(self):
         
         col = 0
         n = 0
@@ -134,12 +263,14 @@ class ArtifactWindow(object):
         if result == QMessageBox.Cancel:
             return
         
-        ghc = self._ghc
-        isinstance(ghc, GitHubClient)
+        ghc = GitHubClient(token=self._token, usesession=True)
         for reponame, artifact in toDelete:
             result = ghc.ActionsDeleteArtifact(self._owner, reponame, artifact.id)
             assert(isinstance(result, githubpy.HttpResponse))
         
+        
+        
+        self._fetch_artifacts()
         return
     
     def show(self):

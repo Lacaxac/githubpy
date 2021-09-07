@@ -1,8 +1,11 @@
 
 
-import datetime, requests, sys
+import requests, sys
+from datetime import datetime, time
 
 class GitHubClientBase(object):
+    
+    
     def __init__(self, username=None, password=None, token=None, url="https://api.github.com", usesession=False):
         """Git hub access token
         if token is callable it will be invoked to produce the token """
@@ -70,7 +73,7 @@ class GitHubClientBase(object):
     ##
     ##
     def _getrateLimitReset(self):
-        return datetime.datetime.fromtimestamp(int(self._rateLimitReset))
+        return datetime.fromtimestamp(int(self._rateLimitReset))
   
     rateLimitReset = property(_getrateLimitReset, doc="get local time when rate limit will reset")
     
@@ -95,8 +98,8 @@ class GitHubClientBase(object):
                 kwargs['per_page'] = pagination_limit
             
             kwargs['page'] = page
-            data = methodcall(*args, **kwargs)
-            data = extractor(data)
+            data2 = methodcall(*args, **kwargs)
+            data = extractor(data2)
             if not isinstance(data, list):
                 return data # an error of some description
             if len(data) == 0:
@@ -108,7 +111,7 @@ class GitHubClientBase(object):
         return results 
             
     @classmethod
-    def paginateGenerate(clazz, methodcall, *args, per_page=100, page=1, pagination_limit=sys.maxsize, extractor=lambda x: x, **kwargs):
+    def generate(clazz, methodcall, *args, per_page=100, page=1, pagination_limit=sys.maxsize, extractor=lambda x: x, **kwargs):
         """Utility method that will paginate a request, gathering the results
         up to the pagination_limit_parameter
         
@@ -131,12 +134,15 @@ class GitHubClientBase(object):
             
             kwargs['page'] = page
             data = methodcall(*args, **kwargs)
-            if not isinstance(data, list):
-                return data # an error of some description
+            if not isinstance(data, list) and not data.ok:
+                yield data # an error of some description
+                return
+            
+            data = extractor(data)
             if len(data) == 0:
                 return 
             
-            for d in extractor(data):
+            for d in data:
                 yield d
             
             page += 1

@@ -1,48 +1,24 @@
 
 import sys, os
 import unittest
-import random
+from datetime import datetime, timedelta
 
 from githubpy import *
 
 class BasicTests(unittest.TestCase):
-    
-    @staticmethod
-    def randstring(n=10, seed="abcdefghijklmnopqrtstuvwxyzABCDEFGHIJKLMNOPQRTSTUVWXYZ"):
-        "Generate a random string"
-        return ''.join(random.choices(seed, k=n))
-    
-    def test_octocat(self):
-        
-        ghc = GitHubClient(token=os.environ['GITHUB_TOKEN'])
-        
-        text = BasicTests.randstring()
-        
-        ascii_art = ghc.MetaGetOctocat(text)
-        
-        self.assertIsInstance(ascii_art, DataResponse)
-        
-        ascii_art = ascii_art.data.decode('utf-8')
-        
-        index = ascii_art.find(text)
-        
-        self.assertNotEqual(index, -1, "Could not find text that was to be rendered")
-        
-        
-        return
     
     def test_create_delete_repo(self):
         reponame = 'foobar'
         ghc = GitHubClient(token=os.environ['GITHUB_TOKEN'])
         
         result = ghc.ReposDelete("GitHubPyTest", "foobar")
-        self.assertTrue((isinstance(result, HttpResponse) and result.result_code == 204) or result.message == 'Not Found')
+        self.assertTrue((isinstance(result, HttpResponse) and result.status_code == 204) or result.message == 'Not Found')
         
         
         result = ghc.ReposCreateForAuthenticatedUser(reponame, description="test repo")
         self.assertIsInstance(result, Repository)
     
-        result = ghc.ReposListForAuthenticatedUser(type=None)
+        result = ghc.ReposListForAuthenticatedUser()
         found = False
         for repo in result:
             found = found or repo.name==reponame
@@ -64,6 +40,23 @@ class BasicTests(unittest.TestCase):
                                         "aspect", per_page=5, pagination_limit=count)
         
         self.assertEqual(len(commits), count, "didn't get expected count")
+        
+    def test_datetime_usage(self):
+        
+        ghc = GitHubClient(token=os.environ['GITHUB_TOKEN'])
+        
+        since = datetime(2021, 9, 2)
+        until = datetime(2021, 9, 3)
+        
+        ##
+        ## We tailor the query to a known repo with a known history
+        ##
+        commits = ghc.ReposListCommits("geodynamics", 
+                                        "aspect", since=since, until=until)
+        
+        self.assertEqual(3, len(commits), "number of commits not what was expected")
+        
+        return
                 
         
     def test_generation(self):
@@ -73,12 +66,45 @@ class BasicTests(unittest.TestCase):
         count = 7
         
         n = 0 
-        for c in GitHubClient.paginateGenerate(ghc.ReposListCommits, 
+        for c in GitHubClient.generate(ghc.ReposListCommits, 
                                         "geodynamics", 
                                         "aspect", per_page=5, pagination_limit=count):
             n += 1
         
         
         self.assertEqual(n, count, "didn't get expected count")
-                
         
+    def test_generation_error(self):
+        
+        ghc = GitHubClient(token=os.environ['GITHUB_TOKEN'])
+        
+        count = 7
+        
+        n = 0 
+        executed = False
+        for c in GitHubClient.generate(ghc.ReposListCommits, 
+                                        "GitHubPyTest", 
+                                        "nonexistentrepo_xxx"):
+            self.assertFalse(c.ok)
+            executed = True
+        
+        self.assertTrue(executed)
+        
+        return
+                
+    def test_workflow_artifacts(self):
+        
+        ghc = GitHubClient(token=os.environ['GITHUB_TOKEN'])
+        
+        # launch a workflow
+        
+        result = ghc.ActionsCreateWorkflowDispatch('GitHubPyTest', 
+                                               'actiontesting', 
+                                               'simple_action.yml', 
+                                               'Dev', inputs={})
+        
+        self.assertIsInstance(result, HttpResponse)
+        self.assertAlmostEqual(result.status_code, 204)
+        
+        
+ 

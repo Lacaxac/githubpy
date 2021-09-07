@@ -1,4 +1,5 @@
 
+import sys
 import argparse
 
 from githubpy import *
@@ -15,8 +16,12 @@ def main():
     options = parser.parse_args()
     
     ghc = GitHubClient(token=options.token)
+    response = ghc.MetaGetOctocat(options.text)
+    if not response.ok:
+        print(f"Bad response({response.status_code}): {response.message}", file=sys.stderr)
+        sys.exit(2)
 
-    ascii_art = ghc.MetaGetOctocat(options.text).data.decode('utf-8')
+    ascii_art = response.data.decode('utf-8')
     
     print(ascii_art)
     

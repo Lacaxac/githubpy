@@ -1,7 +1,7 @@
 
 
 import enum
-import datetime
+from datetime import datetime
 
 class EnumParameter(enum.Enum):
     def __str__(self):
@@ -10,48 +10,59 @@ class EnumParameter(enum.Enum):
         if isinstance(o, str):
             return self.name == o
         return self is o
-
-class HttpResponse(object):
-    def __init__(self, result_code):
-        self._result_code = result_code
         
-    def _get_result_code(self):
-        return self._result_code
+        
+class ResponseBase(object):
+    def __init__(self):
+        return
+
+    def __ok(o):
+        return True
+        
+    def __status_code(o):
+        return 200
+
+        
+    ok = property(__ok, "Response is good")
+    
+    status_code = property(__status_code)
+
+class HttpResponse(ResponseBase):
+    def __init__(self, request):
+        ResponseBase.__init__(self)
+        self._message = ''
+        self._ok = request.ok
+        self._status_code = request.status_code
+        if 'Content-Type' in request.headers and request.headers['Content-Type'].startswith('application/json'):
+            json = request.json()
+            if 'message' in json:
+                self._message = json['message']
+            
+        
+    def _get_status_code(self):
+        return self._status_code
+        
+    status_code = property(_get_status_code, doc="request status code")
+
+    def _get_message(self):
+        return self._message
+        
+    message = property(_get_message)
+    
+    def _get_ok(self):
+        return self._ok
+        
+    ok = property(_get_ok)
         
     def __repr__(self):
-        return f"HttpResponse({self._result_code})"
+        return f"HttpResponse({self._status_code})"
         
-    result_code = property(_get_result_code, doc="result code")
 
-
-#
-# audit-log-include
-#
-class include(EnumParameter):
-    """The event types to include:
-
-- `web` - returns web (non-Git) events
-- `git` - returns Git events
-- `all` - returns both web and Git events
-
-The default is `web`.
-    """
-    web = enum.auto()
-    git = enum.auto()
-    all = enum.auto()
-    
-
-#
-# audit-log-order
-#
-class order(EnumParameter):
-    """The order of audit log events. To list newest events first, specify `desc`. To list oldest events first, specify `asc`.
-
-The default is `desc`.
-    """
-    desc = enum.auto()
-    asc = enum.auto()
-    
+class UnexpectedResult(HttpResponse):
+    def __init__(self, request):
+        HttpResponse.__init__(self, request)
+        
+        
 
 #
 # direction
@@ -64,34 +75,30 @@ class direction(EnumParameter):
     
 
 #
-# sort
+# audit-log-order
 #
-class sort(EnumParameter):
-    """One of `created` (when the repository was starred) or `updated` (when it was last pushed to).
+class direction(EnumParameter):
+    """One of `asc` (ascending) or `desc` (descending).
     """
-    created = enum.auto()
-    updated = enum.auto()
+    asc = enum.auto()
+    desc = enum.auto()
     
 
 #
-# package-type
+# secret-scanning-alert-state
 #
-class package_type(EnumParameter):
-    """The type of supported package. Can be one of `npm`, `maven`, `rubygems`, `nuget`, `docker`, or `container`. Packages in GitHub's Gradle registry have the type `maven`. Docker images pushed to GitHub's Container registry (`ghcr.io`) have the type `container`. You can use the type `docker` to find images that were pushed to GitHub's Docker registry (`docker.pkg.github.com`), even if these have now been migrated to the Container registry.
+class state(EnumParameter):
+    """Set to `open` or `resolved` to only list secret scanning alerts in a specific state.
     """
-    npm = enum.auto()
-    maven = enum.auto()
-    rubygems = enum.auto()
-    docker = enum.auto()
-    nuget = enum.auto()
-    container = enum.auto()
+    open = enum.auto()
+    resolved = enum.auto()
     
 
 #
 # workflow-run-status
 #
 class status(EnumParameter):
-    """Returns workflow runs with the check run `status` or `conclusion` that you specify. For example, a conclusion can be `success` or a status can be `in_progress`. Only GitHub can set a status of `waiting` or `requested`. For a list of the possible `status` and `conclusion` options, see "[Create a check run](https://docs.github.com/rest/reference/checks#create-a-check-run)."
+    """Returns workflow runs with the check run `status` or `conclusion` that you specify. For example, a conclusion can be `success` or a status can be `in_progress`. Only GitHub can set a status of `waiting` or `requested`. For a list of the possible `status` and `conclusion` options, see "[Create a check run](https://docs.github.com/enterprise-server@3.3/rest/reference/checks#create-a-check-run)."
     """
     completed = enum.auto()
     action_required = enum.auto()
@@ -120,28 +127,29 @@ class status(EnumParameter):
     
 
 #
-# per
+# sort
 #
-class per(EnumParameter):
-    """Must be one of: `day`, `week`.
+class sort(EnumParameter):
+    """One of `created` (when the repository was starred) or `updated` (when it was last pushed to).
     """
-    day = enum.auto()
-    week = enum.auto()
+    created = enum.auto()
+    updated = enum.auto()
     
 
 #
 # order
 #
-class order(EnumParameter):
-    """Determines whether the first search result returned is the highest number of matches (`desc`) or lowest number of matches (`asc`). This parameter is ignored unless you provide `sort`.
+class direction(EnumParameter):
+    """One of `asc` (ascending) or `desc` (descending).
     """
-    desc = enum.auto()
     asc = enum.auto()
+    desc = enum.auto()
     ##
 ##
 ##
-class DataResponse(object):
+class DataResponse(ResponseBase):
     def __init__(self, data:object):
+        ResponseBase.__init__(self)
         self._data = data
         return
         
@@ -163,9 +171,1396 @@ class DataResponse(object):
     ##
 ##
 ##
-class SimpleUser(object):
+class Globalhook_config(ResponseBase):
+    def __init__(self, url:str=None, content_type:str=None, insecure_ssl:str=None, secret:str=None):
+        ResponseBase.__init__(self)
+        self._url = url
+        self._content_type = content_type
+        self._insecure_ssl = insecure_ssl
+        self._secret = secret
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _geturl(self):
+        return self._url
+        
+    url = property(_geturl)
+
+    ##
+    ##
+    def _getcontent_type(self):
+        return self._content_type
+        
+    content_type = property(_getcontent_type)
+
+    ##
+    ##
+    def _getinsecure_ssl(self):
+        return self._insecure_ssl
+        
+    insecure_ssl = property(_getinsecure_ssl)
+
+    ##
+    ##
+    def _getsecret(self):
+        return self._secret
+        
+    secret = property(_getsecret)
+
+
+    ##
+##
+##
+class GlobalHook(ResponseBase):
+    def __init__(self, type:str=None, id:int=None, name:str=None, active:bool=None, events:list=None, config:dict=None, updated_at:str=None, created_at:str=None, url:str=None, ping_url:str=None):
+        ResponseBase.__init__(self)
+        self._type = type
+        self._id = id
+        self._name = name
+        self._active = active
+        self._events = events
+        self._config = config
+        self._updated_at = updated_at
+        self._created_at = created_at
+        self._url = url
+        self._ping_url = ping_url
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _gettype(self):
+        return self._type
+        
+    type = property(_gettype)
+
+    ##
+    ##
+    def _getid(self):
+        return self._id
+        
+    id = property(_getid)
+
+    ##
+    ##
+    def _getname(self):
+        return self._name
+        
+    name = property(_getname)
+
+    ##
+    ##
+    def _getactive(self):
+        return self._active
+        
+    active = property(_getactive)
+
+    ##
+    ##
+    def _getevents(self):
+        return self._events and [ entry for entry in self._events ]
+        
+    events = property(_getevents)
+
+    ##
+    ##
+    def _getconfig(self):
+        return self._config and Globalhook_config(**self._config)
+        
+    config = property(_getconfig)
+
+    ##
+    ##
+    def _getupdated_at(self):
+        return self._updated_at
+        
+    updated_at = property(_getupdated_at)
+
+    ##
+    ##
+    def _getcreated_at(self):
+        return self._created_at
+        
+    created_at = property(_getcreated_at)
+
+    ##
+    ##
+    def _geturl(self):
+        return self._url
+        
+    url = property(_geturl)
+
+    ##
+    ##
+    def _getping_url(self):
+        return self._ping_url
+        
+    ping_url = property(_getping_url)
+
+
+    ##
+##
+##
+class Globalhook2_config(ResponseBase):
+    def __init__(self, url:str=None, content_type:str=None, insecure_ssl:str=None):
+        ResponseBase.__init__(self)
+        self._url = url
+        self._content_type = content_type
+        self._insecure_ssl = insecure_ssl
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _geturl(self):
+        return self._url
+        
+    url = property(_geturl)
+
+    ##
+    ##
+    def _getcontent_type(self):
+        return self._content_type
+        
+    content_type = property(_getcontent_type)
+
+    ##
+    ##
+    def _getinsecure_ssl(self):
+        return self._insecure_ssl
+        
+    insecure_ssl = property(_getinsecure_ssl)
+
+
+    ##
+##
+##
+class GlobalHook2(ResponseBase):
+    def __init__(self, type:str=None, id:int=None, name:str=None, active:bool=None, events:list=None, config:dict=None, updated_at:str=None, created_at:str=None, url:str=None, ping_url:str=None):
+        ResponseBase.__init__(self)
+        self._type = type
+        self._id = id
+        self._name = name
+        self._active = active
+        self._events = events
+        self._config = config
+        self._updated_at = updated_at
+        self._created_at = created_at
+        self._url = url
+        self._ping_url = ping_url
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _gettype(self):
+        return self._type
+        
+    type = property(_gettype)
+
+    ##
+    ##
+    def _getid(self):
+        return self._id
+        
+    id = property(_getid)
+
+    ##
+    ##
+    def _getname(self):
+        return self._name
+        
+    name = property(_getname)
+
+    ##
+    ##
+    def _getactive(self):
+        return self._active
+        
+    active = property(_getactive)
+
+    ##
+    ##
+    def _getevents(self):
+        return self._events and [ entry for entry in self._events ]
+        
+    events = property(_getevents)
+
+    ##
+    ##
+    def _getconfig(self):
+        return self._config and Globalhook2_config(**self._config)
+        
+    config = property(_getconfig)
+
+    ##
+    ##
+    def _getupdated_at(self):
+        return self._updated_at
+        
+    updated_at = property(_getupdated_at)
+
+    ##
+    ##
+    def _getcreated_at(self):
+        return self._created_at
+        
+    created_at = property(_getcreated_at)
+
+    ##
+    ##
+    def _geturl(self):
+        return self._url
+        
+    url = property(_geturl)
+
+    ##
+    ##
+    def _getping_url(self):
+        return self._ping_url
+        
+    ping_url = property(_getping_url)
+
+
+    ##
+##
+##
+class PublicKeyFull(ResponseBase):
+    def __init__(self, last_used:datetime, created_at:datetime, verified:bool, read_only:bool, title:str, url:str, repository_id:int, user_id:int, key:str, id:int):
+        ResponseBase.__init__(self)
+        self._last_used = last_used
+        self._created_at = created_at
+        self._verified = verified
+        self._read_only = read_only
+        self._title = title
+        self._url = url
+        self._repository_id = repository_id
+        self._user_id = user_id
+        self._key = key
+        self._id = id
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getlast_used(self):
+        return self._last_used and datetime.fromisoformat(self._last_used[0:-1])
+        
+    last_used = property(_getlast_used)
+
+    ##
+    ##
+    def _getcreated_at(self):
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
+        
+    created_at = property(_getcreated_at)
+
+    ##
+    ##
+    def _getverified(self):
+        return self._verified
+        
+    verified = property(_getverified)
+
+    ##
+    ##
+    def _getread_only(self):
+        return self._read_only
+        
+    read_only = property(_getread_only)
+
+    ##
+    ##
+    def _gettitle(self):
+        return self._title
+        
+    title = property(_gettitle)
+
+    ##
+    ##
+    def _geturl(self):
+        return self._url
+        
+    url = property(_geturl)
+
+    ##
+    ##
+    def _getrepository_id(self):
+        return self._repository_id
+        
+    repository_id = property(_getrepository_id)
+
+    ##
+    ##
+    def _getuser_id(self):
+        return self._user_id
+        
+    user_id = property(_getuser_id)
+
+    ##
+    ##
+    def _getkey(self):
+        return self._key
+        
+    key = property(_getkey)
+
+    ##
+    ##
+    def _getid(self):
+        return self._id
+        
+    id = property(_getid)
+
+
+    ##
+##
+##
+class LdapMappingTeam(ResponseBase):
+    def __init__(self, ldap_dn:str=None, id:int=None, node_id:str=None, url:str=None, html_url:str=None, name:str=None, slug:str=None, description:str=None, privacy:str=None, permission:str=None, members_url:str=None, repositories_url:str=None, parent:object=None):
+        ResponseBase.__init__(self)
+        self._ldap_dn = ldap_dn
+        self._id = id
+        self._node_id = node_id
+        self._url = url
+        self._html_url = html_url
+        self._name = name
+        self._slug = slug
+        self._description = description
+        self._privacy = privacy
+        self._permission = permission
+        self._members_url = members_url
+        self._repositories_url = repositories_url
+        self._parent = parent
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getldap_dn(self):
+        return self._ldap_dn
+        
+    ldap_dn = property(_getldap_dn)
+
+    ##
+    ##
+    def _getid(self):
+        return self._id
+        
+    id = property(_getid)
+
+    ##
+    ##
+    def _getnode_id(self):
+        return self._node_id
+        
+    node_id = property(_getnode_id)
+
+    ##
+    ##
+    def _geturl(self):
+        return self._url
+        
+    url = property(_geturl)
+
+    ##
+    ##
+    def _gethtml_url(self):
+        return self._html_url
+        
+    html_url = property(_gethtml_url)
+
+    ##
+    ##
+    def _getname(self):
+        return self._name
+        
+    name = property(_getname)
+
+    ##
+    ##
+    def _getslug(self):
+        return self._slug
+        
+    slug = property(_getslug)
+
+    ##
+    ##
+    def _getdescription(self):
+        return self._description
+        
+    description = property(_getdescription)
+
+    ##
+    ##
+    def _getprivacy(self):
+        return self._privacy
+        
+    privacy = property(_getprivacy)
+
+    ##
+    ##
+    def _getpermission(self):
+        return self._permission
+        
+    permission = property(_getpermission)
+
+    ##
+    ##
+    def _getmembers_url(self):
+        return self._members_url
+        
+    members_url = property(_getmembers_url)
+
+    ##
+    ##
+    def _getrepositories_url(self):
+        return self._repositories_url
+        
+    repositories_url = property(_getrepositories_url)
+
+    ##
+    ##
+    def _getparent(self):
+        return self._parent
+        
+    parent = property(_getparent)
+
+
+    ##
+##
+##
+class Ldapprivateuser_plan(ResponseBase):
+    def __init__(self, private_repos:int, space:int, name:str, collaborators:int):
+        ResponseBase.__init__(self)
+        self._private_repos = private_repos
+        self._space = space
+        self._name = name
+        self._collaborators = collaborators
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getprivate_repos(self):
+        return self._private_repos
+        
+    private_repos = property(_getprivate_repos)
+
+    ##
+    ##
+    def _getspace(self):
+        return self._space
+        
+    space = property(_getspace)
+
+    ##
+    ##
+    def _getname(self):
+        return self._name
+        
+    name = property(_getname)
+
+    ##
+    ##
+    def _getcollaborators(self):
+        return self._collaborators
+        
+    collaborators = property(_getcollaborators)
+
+
+    ##
+##
+##
+class LdapPrivateUser(ResponseBase):
+    """Ldap Private User """
+    def __init__(self, two_factor_authentication:bool, collaborators:int, disk_usage:int, owned_private_repos:int, total_private_repos:int, private_gists:int, updated_at:datetime, created_at:datetime, following:int, followers:int, public_gists:int, public_repos:int, bio:str, hireable:bool, email:str, location:str, blog:str, company:str, name:str, site_admin:bool, type:str, received_events_url:str, events_url:str, repos_url:str, organizations_url:str, subscriptions_url:str, starred_url:str, gists_url:str, following_url:str, followers_url:str, html_url:str, url:str, gravatar_id:str, avatar_url:str, node_id:str, id:int, login:str, ldap_dn:str=None, twitter_username:str=None, plan:dict=None, suspended_at:datetime=None, business_plus:bool=None):
+        ResponseBase.__init__(self)
+        self._two_factor_authentication = two_factor_authentication
+        self._collaborators = collaborators
+        self._disk_usage = disk_usage
+        self._owned_private_repos = owned_private_repos
+        self._total_private_repos = total_private_repos
+        self._private_gists = private_gists
+        self._updated_at = updated_at
+        self._created_at = created_at
+        self._following = following
+        self._followers = followers
+        self._public_gists = public_gists
+        self._public_repos = public_repos
+        self._bio = bio
+        self._hireable = hireable
+        self._email = email
+        self._location = location
+        self._blog = blog
+        self._company = company
+        self._name = name
+        self._site_admin = site_admin
+        self._type = type
+        self._received_events_url = received_events_url
+        self._events_url = events_url
+        self._repos_url = repos_url
+        self._organizations_url = organizations_url
+        self._subscriptions_url = subscriptions_url
+        self._starred_url = starred_url
+        self._gists_url = gists_url
+        self._following_url = following_url
+        self._followers_url = followers_url
+        self._html_url = html_url
+        self._url = url
+        self._gravatar_id = gravatar_id
+        self._avatar_url = avatar_url
+        self._node_id = node_id
+        self._id = id
+        self._login = login
+        self._ldap_dn = ldap_dn
+        self._twitter_username = twitter_username
+        self._plan = plan
+        self._suspended_at = suspended_at
+        self._business_plus = business_plus
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _gettwo_factor_authentication(self):
+        return self._two_factor_authentication
+        
+    two_factor_authentication = property(_gettwo_factor_authentication)
+
+    ##
+    ##
+    def _getcollaborators(self):
+        return self._collaborators
+        
+    collaborators = property(_getcollaborators)
+
+    ##
+    ##
+    def _getdisk_usage(self):
+        return self._disk_usage
+        
+    disk_usage = property(_getdisk_usage)
+
+    ##
+    ##
+    def _getowned_private_repos(self):
+        return self._owned_private_repos
+        
+    owned_private_repos = property(_getowned_private_repos)
+
+    ##
+    ##
+    def _gettotal_private_repos(self):
+        return self._total_private_repos
+        
+    total_private_repos = property(_gettotal_private_repos)
+
+    ##
+    ##
+    def _getprivate_gists(self):
+        return self._private_gists
+        
+    private_gists = property(_getprivate_gists)
+
+    ##
+    ##
+    def _getupdated_at(self):
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
+        
+    updated_at = property(_getupdated_at)
+
+    ##
+    ##
+    def _getcreated_at(self):
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
+        
+    created_at = property(_getcreated_at)
+
+    ##
+    ##
+    def _getfollowing(self):
+        return self._following
+        
+    following = property(_getfollowing)
+
+    ##
+    ##
+    def _getfollowers(self):
+        return self._followers
+        
+    followers = property(_getfollowers)
+
+    ##
+    ##
+    def _getpublic_gists(self):
+        return self._public_gists
+        
+    public_gists = property(_getpublic_gists)
+
+    ##
+    ##
+    def _getpublic_repos(self):
+        return self._public_repos
+        
+    public_repos = property(_getpublic_repos)
+
+    ##
+    ##
+    def _getbio(self):
+        return self._bio
+        
+    bio = property(_getbio)
+
+    ##
+    ##
+    def _gethireable(self):
+        return self._hireable
+        
+    hireable = property(_gethireable)
+
+    ##
+    ##
+    def _getemail(self):
+        return self._email
+        
+    email = property(_getemail)
+
+    ##
+    ##
+    def _getlocation(self):
+        return self._location
+        
+    location = property(_getlocation)
+
+    ##
+    ##
+    def _getblog(self):
+        return self._blog
+        
+    blog = property(_getblog)
+
+    ##
+    ##
+    def _getcompany(self):
+        return self._company
+        
+    company = property(_getcompany)
+
+    ##
+    ##
+    def _getname(self):
+        return self._name
+        
+    name = property(_getname)
+
+    ##
+    ##
+    def _getsite_admin(self):
+        return self._site_admin
+        
+    site_admin = property(_getsite_admin)
+
+    ##
+    ##
+    def _gettype(self):
+        return self._type
+        
+    type = property(_gettype)
+
+    ##
+    ##
+    def _getreceived_events_url(self):
+        return self._received_events_url
+        
+    received_events_url = property(_getreceived_events_url)
+
+    ##
+    ##
+    def _getevents_url(self):
+        return self._events_url
+        
+    events_url = property(_getevents_url)
+
+    ##
+    ##
+    def _getrepos_url(self):
+        return self._repos_url
+        
+    repos_url = property(_getrepos_url)
+
+    ##
+    ##
+    def _getorganizations_url(self):
+        return self._organizations_url
+        
+    organizations_url = property(_getorganizations_url)
+
+    ##
+    ##
+    def _getsubscriptions_url(self):
+        return self._subscriptions_url
+        
+    subscriptions_url = property(_getsubscriptions_url)
+
+    ##
+    ##
+    def _getstarred_url(self):
+        return self._starred_url
+        
+    starred_url = property(_getstarred_url)
+
+    ##
+    ##
+    def _getgists_url(self):
+        return self._gists_url
+        
+    gists_url = property(_getgists_url)
+
+    ##
+    ##
+    def _getfollowing_url(self):
+        return self._following_url
+        
+    following_url = property(_getfollowing_url)
+
+    ##
+    ##
+    def _getfollowers_url(self):
+        return self._followers_url
+        
+    followers_url = property(_getfollowers_url)
+
+    ##
+    ##
+    def _gethtml_url(self):
+        return self._html_url
+        
+    html_url = property(_gethtml_url)
+
+    ##
+    ##
+    def _geturl(self):
+        return self._url
+        
+    url = property(_geturl)
+
+    ##
+    ##
+    def _getgravatar_id(self):
+        return self._gravatar_id
+        
+    gravatar_id = property(_getgravatar_id)
+
+    ##
+    ##
+    def _getavatar_url(self):
+        return self._avatar_url
+        
+    avatar_url = property(_getavatar_url)
+
+    ##
+    ##
+    def _getnode_id(self):
+        return self._node_id
+        
+    node_id = property(_getnode_id)
+
+    ##
+    ##
+    def _getid(self):
+        return self._id
+        
+    id = property(_getid)
+
+    ##
+    ##
+    def _getlogin(self):
+        return self._login
+        
+    login = property(_getlogin)
+
+    ##
+    ##
+    def _getldap_dn(self):
+        return self._ldap_dn
+        
+    ldap_dn = property(_getldap_dn)
+
+    ##
+    ##
+    def _gettwitter_username(self):
+        return self._twitter_username
+        
+    twitter_username = property(_gettwitter_username)
+
+    ##
+    ##
+    def _getplan(self):
+        return self._plan and Ldapprivateuser_plan(**self._plan)
+        
+    plan = property(_getplan)
+
+    ##
+    ##
+    def _getsuspended_at(self):
+        return self._suspended_at and datetime.fromisoformat(self._suspended_at[0:-1])
+        
+    suspended_at = property(_getsuspended_at)
+
+    ##
+    ##
+    def _getbusiness_plus(self):
+        return self._business_plus
+        
+    business_plus = property(_getbusiness_plus)
+
+
+    ##
+##
+##
+class OrganizationSimple(ResponseBase):
+    """Organization Simple """
+    def __init__(self, description:str, avatar_url:str, public_members_url:str, members_url:str, issues_url:str, hooks_url:str, events_url:str, repos_url:str, url:str, node_id:str, id:int, login:str):
+        ResponseBase.__init__(self)
+        self._description = description
+        self._avatar_url = avatar_url
+        self._public_members_url = public_members_url
+        self._members_url = members_url
+        self._issues_url = issues_url
+        self._hooks_url = hooks_url
+        self._events_url = events_url
+        self._repos_url = repos_url
+        self._url = url
+        self._node_id = node_id
+        self._id = id
+        self._login = login
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getdescription(self):
+        return self._description
+        
+    description = property(_getdescription)
+
+    ##
+    ##
+    def _getavatar_url(self):
+        return self._avatar_url
+        
+    avatar_url = property(_getavatar_url)
+
+    ##
+    ##
+    def _getpublic_members_url(self):
+        return self._public_members_url
+        
+    public_members_url = property(_getpublic_members_url)
+
+    ##
+    ##
+    def _getmembers_url(self):
+        return self._members_url
+        
+    members_url = property(_getmembers_url)
+
+    ##
+    ##
+    def _getissues_url(self):
+        return self._issues_url
+        
+    issues_url = property(_getissues_url)
+
+    ##
+    ##
+    def _gethooks_url(self):
+        return self._hooks_url
+        
+    hooks_url = property(_gethooks_url)
+
+    ##
+    ##
+    def _getevents_url(self):
+        return self._events_url
+        
+    events_url = property(_getevents_url)
+
+    ##
+    ##
+    def _getrepos_url(self):
+        return self._repos_url
+        
+    repos_url = property(_getrepos_url)
+
+    ##
+    ##
+    def _geturl(self):
+        return self._url
+        
+    url = property(_geturl)
+
+    ##
+    ##
+    def _getnode_id(self):
+        return self._node_id
+        
+    node_id = property(_getnode_id)
+
+    ##
+    ##
+    def _getid(self):
+        return self._id
+        
+    id = property(_getid)
+
+    ##
+    ##
+    def _getlogin(self):
+        return self._login
+        
+    login = property(_getlogin)
+
+
+    ##
+##
+##
+class Prereceiveenvironment_download(ResponseBase):
+    def __init__(self, url:str=None, state:str=None, downloaded_at:str=None, message:str=None):
+        ResponseBase.__init__(self)
+        self._url = url
+        self._state = state
+        self._downloaded_at = downloaded_at
+        self._message = message
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _geturl(self):
+        return self._url
+        
+    url = property(_geturl)
+
+    ##
+    ##
+    def _getstate(self):
+        return self._state
+        
+    state = property(_getstate)
+
+    ##
+    ##
+    def _getdownloaded_at(self):
+        return self._downloaded_at
+        
+    downloaded_at = property(_getdownloaded_at)
+
+    ##
+    ##
+    def _getmessage(self):
+        return self._message
+        
+    message = property(_getmessage)
+
+
+    ##
+##
+##
+class PreReceiveEnvironment(ResponseBase):
+    def __init__(self, id:int=None, name:str=None, image_url:str=None, url:str=None, html_url:str=None, default_environment:bool=None, created_at:str=None, hooks_count:int=None, download:dict=None):
+        ResponseBase.__init__(self)
+        self._id = id
+        self._name = name
+        self._image_url = image_url
+        self._url = url
+        self._html_url = html_url
+        self._default_environment = default_environment
+        self._created_at = created_at
+        self._hooks_count = hooks_count
+        self._download = download
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getid(self):
+        return self._id
+        
+    id = property(_getid)
+
+    ##
+    ##
+    def _getname(self):
+        return self._name
+        
+    name = property(_getname)
+
+    ##
+    ##
+    def _getimage_url(self):
+        return self._image_url
+        
+    image_url = property(_getimage_url)
+
+    ##
+    ##
+    def _geturl(self):
+        return self._url
+        
+    url = property(_geturl)
+
+    ##
+    ##
+    def _gethtml_url(self):
+        return self._html_url
+        
+    html_url = property(_gethtml_url)
+
+    ##
+    ##
+    def _getdefault_environment(self):
+        return self._default_environment
+        
+    default_environment = property(_getdefault_environment)
+
+    ##
+    ##
+    def _getcreated_at(self):
+        return self._created_at
+        
+    created_at = property(_getcreated_at)
+
+    ##
+    ##
+    def _gethooks_count(self):
+        return self._hooks_count
+        
+    hooks_count = property(_gethooks_count)
+
+    ##
+    ##
+    def _getdownload(self):
+        return self._download and Prereceiveenvironment_download(**self._download)
+        
+    download = property(_getdownload)
+
+
+    ##
+##
+##
+class PreReceiveEnvironmentDownloadStatus(ResponseBase):
+    def __init__(self, url:str=None, state:str=None, downloaded_at:str=None, message:str=None):
+        ResponseBase.__init__(self)
+        self._url = url
+        self._state = state
+        self._downloaded_at = downloaded_at
+        self._message = message
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _geturl(self):
+        return self._url
+        
+    url = property(_geturl)
+
+    ##
+    ##
+    def _getstate(self):
+        return self._state
+        
+    state = property(_getstate)
+
+    ##
+    ##
+    def _getdownloaded_at(self):
+        return self._downloaded_at
+        
+    downloaded_at = property(_getdownloaded_at)
+
+    ##
+    ##
+    def _getmessage(self):
+        return self._message
+        
+    message = property(_getmessage)
+
+
+    ##
+##
+##
+class Prereceivehook_script_repository(ResponseBase):
+    def __init__(self, id:int=None, full_name:str=None, url:str=None, html_url:str=None):
+        ResponseBase.__init__(self)
+        self._id = id
+        self._full_name = full_name
+        self._url = url
+        self._html_url = html_url
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getid(self):
+        return self._id
+        
+    id = property(_getid)
+
+    ##
+    ##
+    def _getfull_name(self):
+        return self._full_name
+        
+    full_name = property(_getfull_name)
+
+    ##
+    ##
+    def _geturl(self):
+        return self._url
+        
+    url = property(_geturl)
+
+    ##
+    ##
+    def _gethtml_url(self):
+        return self._html_url
+        
+    html_url = property(_gethtml_url)
+
+
+    ##
+##
+##
+class Prereceivehook_environment_download(ResponseBase):
+    def __init__(self, url:str=None, state:str=None, downloaded_at:str=None, message:str=None):
+        ResponseBase.__init__(self)
+        self._url = url
+        self._state = state
+        self._downloaded_at = downloaded_at
+        self._message = message
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _geturl(self):
+        return self._url
+        
+    url = property(_geturl)
+
+    ##
+    ##
+    def _getstate(self):
+        return self._state
+        
+    state = property(_getstate)
+
+    ##
+    ##
+    def _getdownloaded_at(self):
+        return self._downloaded_at
+        
+    downloaded_at = property(_getdownloaded_at)
+
+    ##
+    ##
+    def _getmessage(self):
+        return self._message
+        
+    message = property(_getmessage)
+
+
+    ##
+##
+##
+class Prereceivehook_environment(ResponseBase):
+    def __init__(self, id:int=None, name:str=None, image_url:str=None, url:str=None, html_url:str=None, default_environment:bool=None, created_at:str=None, hooks_count:int=None, download:dict=None):
+        ResponseBase.__init__(self)
+        self._id = id
+        self._name = name
+        self._image_url = image_url
+        self._url = url
+        self._html_url = html_url
+        self._default_environment = default_environment
+        self._created_at = created_at
+        self._hooks_count = hooks_count
+        self._download = download
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getid(self):
+        return self._id
+        
+    id = property(_getid)
+
+    ##
+    ##
+    def _getname(self):
+        return self._name
+        
+    name = property(_getname)
+
+    ##
+    ##
+    def _getimage_url(self):
+        return self._image_url
+        
+    image_url = property(_getimage_url)
+
+    ##
+    ##
+    def _geturl(self):
+        return self._url
+        
+    url = property(_geturl)
+
+    ##
+    ##
+    def _gethtml_url(self):
+        return self._html_url
+        
+    html_url = property(_gethtml_url)
+
+    ##
+    ##
+    def _getdefault_environment(self):
+        return self._default_environment
+        
+    default_environment = property(_getdefault_environment)
+
+    ##
+    ##
+    def _getcreated_at(self):
+        return self._created_at
+        
+    created_at = property(_getcreated_at)
+
+    ##
+    ##
+    def _gethooks_count(self):
+        return self._hooks_count
+        
+    hooks_count = property(_gethooks_count)
+
+    ##
+    ##
+    def _getdownload(self):
+        return self._download and Prereceivehook_environment_download(**self._download)
+        
+    download = property(_getdownload)
+
+
+    ##
+##
+##
+class PreReceiveHook(ResponseBase):
+    def __init__(self, id:int=None, name:str=None, enforcement:str=None, script:str=None, script_repository:dict=None, environment:dict=None, allow_downstream_configuration:bool=None):
+        ResponseBase.__init__(self)
+        self._id = id
+        self._name = name
+        self._enforcement = enforcement
+        self._script = script
+        self._script_repository = script_repository
+        self._environment = environment
+        self._allow_downstream_configuration = allow_downstream_configuration
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getid(self):
+        return self._id
+        
+    id = property(_getid)
+
+    ##
+    ##
+    def _getname(self):
+        return self._name
+        
+    name = property(_getname)
+
+    ##
+    ##
+    def _getenforcement(self):
+        return self._enforcement
+        
+    enforcement = property(_getenforcement)
+
+    ##
+    ##
+    def _getscript(self):
+        return self._script
+        
+    script = property(_getscript)
+
+    ##
+    ##
+    def _getscript_repository(self):
+        return self._script_repository and Prereceivehook_script_repository(**self._script_repository)
+        
+    script_repository = property(_getscript_repository)
+
+    ##
+    ##
+    def _getenvironment(self):
+        return self._environment and Prereceivehook_environment(**self._environment)
+        
+    environment = property(_getenvironment)
+
+    ##
+    ##
+    def _getallow_downstream_configuration(self):
+        return self._allow_downstream_configuration
+        
+    allow_downstream_configuration = property(_getallow_downstream_configuration)
+
+
+    ##
+##
+##
+class SimpleUser(ResponseBase):
     """Simple User """
     def __init__(self, site_admin:bool, type:str, received_events_url:str, events_url:str, repos_url:str, organizations_url:str, subscriptions_url:str, starred_url:str, gists_url:str, following_url:str, followers_url:str, html_url:str, url:str, gravatar_id:str, avatar_url:str, node_id:str, id:int, login:str, name:str=None, email:str=None, starred_at:str=None):
+        ResponseBase.__init__(self)
         self._site_admin = site_admin
         self._type = type
         self._received_events_url = received_events_url
@@ -343,854 +1738,13 @@ class SimpleUser(object):
     ##
 ##
 ##
-class Githubapp_permissions(object):
-    """The set of permissions for the GitHub app """
-    def __init__(self, issues:str=None, checks:str=None, metadata:str=None, contents:str=None, deployments:str=None):
-        self._issues = issues
-        self._checks = checks
-        self._metadata = metadata
-        self._contents = contents
-        self._deployments = deployments
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getissues(self):
-        return self._issues
-        
-    issues = property(_getissues)
-
-    ##
-    ##
-    def _getchecks(self):
-        return self._checks
-        
-    checks = property(_getchecks)
-
-    ##
-    ##
-    def _getmetadata(self):
-        return self._metadata
-        
-    metadata = property(_getmetadata)
-
-    ##
-    ##
-    def _getcontents(self):
-        return self._contents
-        
-    contents = property(_getcontents)
-
-    ##
-    ##
-    def _getdeployments(self):
-        return self._deployments
-        
-    deployments = property(_getdeployments)
-
-
-    ##
-##
-##
-class GithubApp(object):
-    """GitHub apps are a new way to extend GitHub. They can be installed directly on organizations and user accounts and granted access to specific repositories. They come with granular permissions and built-in webhooks. GitHub apps are first class actors within GitHub. """
-    def __init__(self, events:list, permissions:dict, updated_at:datetime, created_at:datetime, html_url:str, external_url:str, description:str, name:str, owner:dict, node_id:str, id:int, slug:str=None, installations_count:int=None, client_id:str=None, client_secret:str=None, webhook_secret:str=None, pem:str=None):
-        self._events = events
-        self._permissions = permissions
-        self._updated_at = updated_at
-        self._created_at = created_at
-        self._html_url = html_url
-        self._external_url = external_url
-        self._description = description
-        self._name = name
-        self._owner = owner
-        self._node_id = node_id
-        self._id = id
-        self._slug = slug
-        self._installations_count = installations_count
-        self._client_id = client_id
-        self._client_secret = client_secret
-        self._webhook_secret = webhook_secret
-        self._pem = pem
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getevents(self):
-        return self._events and [ entry for entry in self._events ]
-        
-    events = property(_getevents, doc="""The list of events for the GitHub app """)
-
-    ##
-    ##
-    def _getpermissions(self):
-        return self._permissions and Githubapp_permissions(**self._permissions)
-        
-    permissions = property(_getpermissions, doc="""The set of permissions for the GitHub app """)
-
-    ##
-    ##
-    def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
-        
-    updated_at = property(_getupdated_at)
-
-    ##
-    ##
-    def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
-        
-    created_at = property(_getcreated_at)
-
-    ##
-    ##
-    def _gethtml_url(self):
-        return self._html_url
-        
-    html_url = property(_gethtml_url)
-
-    ##
-    ##
-    def _getexternal_url(self):
-        return self._external_url
-        
-    external_url = property(_getexternal_url)
-
-    ##
-    ##
-    def _getdescription(self):
-        return self._description
-        
-    description = property(_getdescription)
-
-    ##
-    ##
-    def _getname(self):
-        return self._name
-        
-    name = property(_getname, doc="""The name of the GitHub app """)
-
-    ##
-    ##
-    def _getowner(self):
-        return self._owner and SimpleUser(**self._owner)
-        
-    owner = property(_getowner)
-
-    ##
-    ##
-    def _getnode_id(self):
-        return self._node_id
-        
-    node_id = property(_getnode_id)
-
-    ##
-    ##
-    def _getid(self):
-        return self._id
-        
-    id = property(_getid, doc="""Unique identifier of the GitHub app """)
-
-    ##
-    ##
-    def _getslug(self):
-        return self._slug
-        
-    slug = property(_getslug, doc="""The slug name of the GitHub app """)
-
-    ##
-    ##
-    def _getinstallations_count(self):
-        return self._installations_count
-        
-    installations_count = property(_getinstallations_count, doc="""The number of installations associated with the GitHub app """)
-
-    ##
-    ##
-    def _getclient_id(self):
-        return self._client_id
-        
-    client_id = property(_getclient_id)
-
-    ##
-    ##
-    def _getclient_secret(self):
-        return self._client_secret
-        
-    client_secret = property(_getclient_secret)
-
-    ##
-    ##
-    def _getwebhook_secret(self):
-        return self._webhook_secret
-        
-    webhook_secret = property(_getwebhook_secret)
-
-    ##
-    ##
-    def _getpem(self):
-        return self._pem
-        
-    pem = property(_getpem)
-
-
-    ##
-##
-##
-class BasicError(object):
-    """Basic Error """
-    def __init__(self, message:str=None, documentation_url:str=None, url:str=None, status:str=None):
-        self._message = message
-        self._documentation_url = documentation_url
-        self._url = url
-        self._status = status
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getmessage(self):
-        return self._message
-        
-    message = property(_getmessage)
-
-    ##
-    ##
-    def _getdocumentation_url(self):
-        return self._documentation_url
-        
-    documentation_url = property(_getdocumentation_url)
-
-    ##
-    ##
-    def _geturl(self):
-        return self._url
-        
-    url = property(_geturl)
-
-    ##
-    ##
-    def _getstatus(self):
-        return self._status
-        
-    status = property(_getstatus)
-
-
-    ##
-##
-##
-class ValidationErrorSimple(object):
-    """Validation Error Simple """
-    def __init__(self, documentation_url:str, message:str, errors:list=None):
-        self._documentation_url = documentation_url
-        self._message = message
-        self._errors = errors
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getdocumentation_url(self):
-        return self._documentation_url
-        
-    documentation_url = property(_getdocumentation_url)
-
-    ##
-    ##
-    def _getmessage(self):
-        return self._message
-        
-    message = property(_getmessage)
-
-    ##
-    ##
-    def _geterrors(self):
-        return self._errors and [ entry for entry in self._errors ]
-        
-    errors = property(_geterrors)
-
-
-    ##
-##
-##
-class WebhookConfiguration(object):
-    """Configuration object of the webhook """
-    def __init__(self, url:str=None, content_type:str=None, secret:str=None, insecure_ssl=None):
-        self._url = url
-        self._content_type = content_type
-        self._secret = secret
-        self._insecure_ssl = insecure_ssl
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _geturl(self):
-        return self._url
-        
-    url = property(_geturl)
-
-    ##
-    ##
-    def _getcontent_type(self):
-        return self._content_type
-        
-    content_type = property(_getcontent_type)
-
-    ##
-    ##
-    def _getsecret(self):
-        return self._secret
-        
-    secret = property(_getsecret)
-
-    ##
-    ##
-    def _getinsecure_ssl(self):
-        return self._insecure_ssl
-        
-    insecure_ssl = property(_getinsecure_ssl)
-
-
-    ##
-##
-##
-class SimpleWebhookDelivery(object):
-    """Delivery made by a webhook, without request and response information. """
-    def __init__(self, repository_id:int, installation_id:int, action:str, event:str, status_code:int, status:str, duration:int, redelivery:bool, delivered_at:datetime, guid:str, id:int):
-        self._repository_id = repository_id
-        self._installation_id = installation_id
-        self._action = action
-        self._event = event
-        self._status_code = status_code
-        self._status = status
-        self._duration = duration
-        self._redelivery = redelivery
-        self._delivered_at = delivered_at
-        self._guid = guid
-        self._id = id
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getrepository_id(self):
-        return self._repository_id
-        
-    repository_id = property(_getrepository_id, doc="""The id of the repository associated with this event. """)
-
-    ##
-    ##
-    def _getinstallation_id(self):
-        return self._installation_id
-        
-    installation_id = property(_getinstallation_id, doc="""The id of the GitHub App installation associated with this event. """)
-
-    ##
-    ##
-    def _getaction(self):
-        return self._action
-        
-    action = property(_getaction, doc="""The type of activity for the event that triggered the delivery. """)
-
-    ##
-    ##
-    def _getevent(self):
-        return self._event
-        
-    event = property(_getevent, doc="""The event that triggered the delivery. """)
-
-    ##
-    ##
-    def _getstatus_code(self):
-        return self._status_code
-        
-    status_code = property(_getstatus_code, doc="""Status code received when delivery was made. """)
-
-    ##
-    ##
-    def _getstatus(self):
-        return self._status
-        
-    status = property(_getstatus, doc="""Describes the response returned after attempting the delivery. """)
-
-    ##
-    ##
-    def _getduration(self):
-        return self._duration
-        
-    duration = property(_getduration, doc="""Time spent delivering. """)
-
-    ##
-    ##
-    def _getredelivery(self):
-        return self._redelivery
-        
-    redelivery = property(_getredelivery, doc="""Whether the webhook delivery is a redelivery. """)
-
-    ##
-    ##
-    def _getdelivered_at(self):
-        return self._delivered_at and datetime.datetime.fromisoformat(self._delivered_at[0:-1])
-        
-    delivered_at = property(_getdelivered_at, doc="""Time when the webhook delivery occurred. """)
-
-    ##
-    ##
-    def _getguid(self):
-        return self._guid
-        
-    guid = property(_getguid, doc="""Unique identifier for the event (shared with all deliveries for all webhooks that subscribe to this event). """)
-
-    ##
-    ##
-    def _getid(self):
-        return self._id
-        
-    id = property(_getid, doc="""Unique identifier of the webhook delivery. """)
-
-
-    ##
-##
-##
-class ScimError(object):
-    """Scim Error """
-    def __init__(self, message:str=None, documentation_url:str=None, detail:str=None, status:int=None, scimType:str=None, schemas:list=None):
-        self._message = message
-        self._documentation_url = documentation_url
-        self._detail = detail
-        self._status = status
-        self._scimType = scimType
-        self._schemas = schemas
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getmessage(self):
-        return self._message
-        
-    message = property(_getmessage)
-
-    ##
-    ##
-    def _getdocumentation_url(self):
-        return self._documentation_url
-        
-    documentation_url = property(_getdocumentation_url)
-
-    ##
-    ##
-    def _getdetail(self):
-        return self._detail
-        
-    detail = property(_getdetail)
-
-    ##
-    ##
-    def _getstatus(self):
-        return self._status
-        
-    status = property(_getstatus)
-
-    ##
-    ##
-    def _getscimType(self):
-        return self._scimType
-        
-    scimType = property(_getscimType)
-
-    ##
-    ##
-    def _getschemas(self):
-        return self._schemas and [ entry for entry in self._schemas ]
-        
-    schemas = property(_getschemas)
-
-
-    ##
-##
-##
-class Validationerror_errors(object):
-    def __init__(self, code:str, resource:str=None, field:str=None, message:str=None, index:int=None, value=None):
-        self._code = code
-        self._resource = resource
-        self._field = field
-        self._message = message
-        self._index = index
-        self._value = value
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getcode(self):
-        return self._code
-        
-    code = property(_getcode)
-
-    ##
-    ##
-    def _getresource(self):
-        return self._resource
-        
-    resource = property(_getresource)
-
-    ##
-    ##
-    def _getfield(self):
-        return self._field
-        
-    field = property(_getfield)
-
-    ##
-    ##
-    def _getmessage(self):
-        return self._message
-        
-    message = property(_getmessage)
-
-    ##
-    ##
-    def _getindex(self):
-        return self._index
-        
-    index = property(_getindex)
-
-    ##
-    ##
-    def _getvalue(self):
-        return self._value
-        
-    value = property(_getvalue)
-
-
-    ##
-##
-##
-class ValidationError(object):
-    """Validation Error """
-    def __init__(self, documentation_url:str, message:str, errors:list=None):
-        self._documentation_url = documentation_url
-        self._message = message
-        self._errors = errors
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getdocumentation_url(self):
-        return self._documentation_url
-        
-    documentation_url = property(_getdocumentation_url)
-
-    ##
-    ##
-    def _getmessage(self):
-        return self._message
-        
-    message = property(_getmessage)
-
-    ##
-    ##
-    def _geterrors(self):
-        return self._errors and [ entry and Validationerror_errors(**entry) for entry in self._errors ]
-        
-    errors = property(_geterrors)
-
-
-    ##
-##
-##
-class Webhookdelivery_request(object):
-    def __init__(self, payload:object, headers:object):
-        self._payload = payload
-        self._headers = headers
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getpayload(self):
-        return self._payload
-        
-    payload = property(_getpayload, doc="""The webhook payload. """)
-
-    ##
-    ##
-    def _getheaders(self):
-        return self._headers
-        
-    headers = property(_getheaders, doc="""The request headers sent with the webhook delivery. """)
-
-
-    ##
-##
-##
-class Webhookdelivery_response(object):
-    def __init__(self, payload:str, headers:object):
-        self._payload = payload
-        self._headers = headers
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getpayload(self):
-        return self._payload
-        
-    payload = property(_getpayload, doc="""The response payload received. """)
-
-    ##
-    ##
-    def _getheaders(self):
-        return self._headers
-        
-    headers = property(_getheaders, doc="""The response headers received when the delivery was made. """)
-
-
-    ##
-##
-##
-class WebhookDelivery(object):
-    """Delivery made by a webhook. """
-    def __init__(self, response:dict, request:dict, repository_id:int, installation_id:int, action:str, event:str, status_code:int, status:str, duration:int, redelivery:bool, delivered_at:datetime, guid:str, id:int):
-        self._response = response
-        self._request = request
-        self._repository_id = repository_id
-        self._installation_id = installation_id
-        self._action = action
-        self._event = event
-        self._status_code = status_code
-        self._status = status
-        self._duration = duration
-        self._redelivery = redelivery
-        self._delivered_at = delivered_at
-        self._guid = guid
-        self._id = id
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getresponse(self):
-        return self._response and Webhookdelivery_response(**self._response)
-        
-    response = property(_getresponse)
-
-    ##
-    ##
-    def _getrequest(self):
-        return self._request and Webhookdelivery_request(**self._request)
-        
-    request = property(_getrequest)
-
-    ##
-    ##
-    def _getrepository_id(self):
-        return self._repository_id
-        
-    repository_id = property(_getrepository_id, doc="""The id of the repository associated with this event. """)
-
-    ##
-    ##
-    def _getinstallation_id(self):
-        return self._installation_id
-        
-    installation_id = property(_getinstallation_id, doc="""The id of the GitHub App installation associated with this event. """)
-
-    ##
-    ##
-    def _getaction(self):
-        return self._action
-        
-    action = property(_getaction, doc="""The type of activity for the event that triggered the delivery. """)
-
-    ##
-    ##
-    def _getevent(self):
-        return self._event
-        
-    event = property(_getevent, doc="""The event that triggered the delivery. """)
-
-    ##
-    ##
-    def _getstatus_code(self):
-        return self._status_code
-        
-    status_code = property(_getstatus_code, doc="""Status code received when delivery was made. """)
-
-    ##
-    ##
-    def _getstatus(self):
-        return self._status
-        
-    status = property(_getstatus, doc="""Description of the status of the attempted delivery """)
-
-    ##
-    ##
-    def _getduration(self):
-        return self._duration
-        
-    duration = property(_getduration, doc="""Time spent delivering. """)
-
-    ##
-    ##
-    def _getredelivery(self):
-        return self._redelivery
-        
-    redelivery = property(_getredelivery, doc="""Whether the delivery is a redelivery. """)
-
-    ##
-    ##
-    def _getdelivered_at(self):
-        return self._delivered_at and datetime.datetime.fromisoformat(self._delivered_at[0:-1])
-        
-    delivered_at = property(_getdelivered_at, doc="""Time when the delivery was delivered. """)
-
-    ##
-    ##
-    def _getguid(self):
-        return self._guid
-        
-    guid = property(_getguid, doc="""Unique identifier for the event (shared with all deliveries for all webhooks that subscribe to this event). """)
-
-    ##
-    ##
-    def _getid(self):
-        return self._id
-        
-    id = property(_getid, doc="""Unique identifier of the delivery. """)
-
-
-    ##
-##
-##
-class Enterprise(object):
-    """An enterprise account """
-    def __init__(self, avatar_url:str, updated_at:datetime, created_at:datetime, slug:str, name:str, node_id:str, id:int, html_url:str, description:str=None, website_url:str=None):
-        self._avatar_url = avatar_url
-        self._updated_at = updated_at
-        self._created_at = created_at
-        self._slug = slug
-        self._name = name
-        self._node_id = node_id
-        self._id = id
-        self._html_url = html_url
-        self._description = description
-        self._website_url = website_url
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getavatar_url(self):
-        return self._avatar_url
-        
-    avatar_url = property(_getavatar_url)
-
-    ##
-    ##
-    def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
-        
-    updated_at = property(_getupdated_at)
-
-    ##
-    ##
-    def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
-        
-    created_at = property(_getcreated_at)
-
-    ##
-    ##
-    def _getslug(self):
-        return self._slug
-        
-    slug = property(_getslug, doc="""The slug url identifier for the enterprise. """)
-
-    ##
-    ##
-    def _getname(self):
-        return self._name
-        
-    name = property(_getname, doc="""The name of the enterprise. """)
-
-    ##
-    ##
-    def _getnode_id(self):
-        return self._node_id
-        
-    node_id = property(_getnode_id)
-
-    ##
-    ##
-    def _getid(self):
-        return self._id
-        
-    id = property(_getid, doc="""Unique identifier of the enterprise """)
-
-    ##
-    ##
-    def _gethtml_url(self):
-        return self._html_url
-        
-    html_url = property(_gethtml_url)
-
-    ##
-    ##
-    def _getdescription(self):
-        return self._description
-        
-    description = property(_getdescription, doc="""A short description of the enterprise. """)
-
-    ##
-    ##
-    def _getwebsite_url(self):
-        return self._website_url
-        
-    website_url = property(_getwebsite_url, doc="""The enterprise's website URL. """)
-
-
-    ##
-##
-##
-class AppPermissions(object):
+class AppPermissions(ResponseBase):
     """The permissions granted to the user-to-server access token. """
-    def __init__(self, actions:str=None, administration:str=None, checks:str=None, content_references:str=None, contents:str=None, deployments:str=None, environments:str=None, issues:str=None, metadata:str=None, packages:str=None, pages:str=None, pull_requests:str=None, repository_hooks:str=None, repository_projects:str=None, secret_scanning_alerts:str=None, secrets:str=None, security_events:str=None, single_file:str=None, statuses:str=None, vulnerability_alerts:str=None, workflows:str=None, members:str=None, organization_administration:str=None, organization_hooks:str=None, organization_plan:str=None, organization_projects:str=None, organization_packages:str=None, organization_secrets:str=None, organization_self_hosted_runners:str=None, organization_user_blocking:str=None, team_discussions:str=None):
+    def __init__(self, actions:str=None, administration:str=None, checks:str=None, contents:str=None, deployments:str=None, environments:str=None, issues:str=None, metadata:str=None, packages:str=None, pages:str=None, pull_requests:str=None, repository_hooks:str=None, repository_projects:str=None, secret_scanning_alerts:str=None, secrets:str=None, security_events:str=None, single_file:str=None, statuses:str=None, vulnerability_alerts:str=None, workflows:str=None, members:str=None, organization_administration:str=None, organization_hooks:str=None, organization_plan:str=None, organization_projects:str=None, organization_packages:str=None, organization_secrets:str=None, organization_self_hosted_runners:str=None, organization_user_blocking:str=None, team_discussions:str=None, content_references:str=None):
+        ResponseBase.__init__(self)
         self._actions = actions
         self._administration = administration
         self._checks = checks
-        self._content_references = content_references
         self._contents = contents
         self._deployments = deployments
         self._environments = environments
@@ -1218,6 +1772,7 @@ class AppPermissions(object):
         self._organization_self_hosted_runners = organization_self_hosted_runners
         self._organization_user_blocking = organization_user_blocking
         self._team_discussions = team_discussions
+        self._content_references = content_references
         return
         
     
@@ -1243,13 +1798,6 @@ class AppPermissions(object):
         return self._checks
         
     checks = property(_getchecks, doc="""The level of permission to grant the access token for checks on code. Can be one of: `read` or `write`. """)
-
-    ##
-    ##
-    def _getcontent_references(self):
-        return self._content_references
-        
-    content_references = property(_getcontent_references, doc="""The level of permission to grant the access token for notification of content references and creation content attachments. Can be one of: `read` or `write`. """)
 
     ##
     ##
@@ -1361,7 +1909,7 @@ class AppPermissions(object):
     def _getvulnerability_alerts(self):
         return self._vulnerability_alerts
         
-    vulnerability_alerts = property(_getvulnerability_alerts, doc="""The level of permission to grant the access token to retrieve Dependabot alerts. Can be one of: `read`. """)
+    vulnerability_alerts = property(_getvulnerability_alerts, doc="""The level of permission to grant the access token to manage Dependabot alerts. Can be one of: `read` or `write`. """)
 
     ##
     ##
@@ -1403,7 +1951,7 @@ class AppPermissions(object):
     def _getorganization_projects(self):
         return self._organization_projects
         
-    organization_projects = property(_getorganization_projects, doc="""The level of permission to grant the access token to manage organization projects, columns, and cards. Can be one of: `read`, `write`, or `admin`. """)
+    organization_projects = property(_getorganization_projects, doc="""The level of permission to grant the access token to manage organization projects and projects beta (where available). Can be one of: `read`, `write`, or `admin`. """)
 
     ##
     ##
@@ -1440,13 +1988,1305 @@ class AppPermissions(object):
         
     team_discussions = property(_getteam_discussions, doc="""The level of permission to grant the access token to manage team discussions and related comments. Can be one of: `read` or `write`. """)
 
+    ##
+    ##
+    def _getcontent_references(self):
+        return self._content_references
+        
+    content_references = property(_getcontent_references, doc="""The level of permission to grant the access token for notification of content references and creation content attachments. Can be one of: `read` or `write`. """)
+
 
     ##
 ##
 ##
-class Installation(object):
+class SimpleUser(ResponseBase):
+    """Simple User """
+    def __init__(self, site_admin:bool, type:str, received_events_url:str, events_url:str, repos_url:str, organizations_url:str, subscriptions_url:str, starred_url:str, gists_url:str, following_url:str, followers_url:str, html_url:str, url:str, gravatar_id:str, avatar_url:str, node_id:str, id:int, login:str, name:str=None, email:str=None, starred_at:str=None):
+        ResponseBase.__init__(self)
+        self._site_admin = site_admin
+        self._type = type
+        self._received_events_url = received_events_url
+        self._events_url = events_url
+        self._repos_url = repos_url
+        self._organizations_url = organizations_url
+        self._subscriptions_url = subscriptions_url
+        self._starred_url = starred_url
+        self._gists_url = gists_url
+        self._following_url = following_url
+        self._followers_url = followers_url
+        self._html_url = html_url
+        self._url = url
+        self._gravatar_id = gravatar_id
+        self._avatar_url = avatar_url
+        self._node_id = node_id
+        self._id = id
+        self._login = login
+        self._name = name
+        self._email = email
+        self._starred_at = starred_at
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getsite_admin(self):
+        return self._site_admin
+        
+    site_admin = property(_getsite_admin)
+
+    ##
+    ##
+    def _gettype(self):
+        return self._type
+        
+    type = property(_gettype)
+
+    ##
+    ##
+    def _getreceived_events_url(self):
+        return self._received_events_url
+        
+    received_events_url = property(_getreceived_events_url)
+
+    ##
+    ##
+    def _getevents_url(self):
+        return self._events_url
+        
+    events_url = property(_getevents_url)
+
+    ##
+    ##
+    def _getrepos_url(self):
+        return self._repos_url
+        
+    repos_url = property(_getrepos_url)
+
+    ##
+    ##
+    def _getorganizations_url(self):
+        return self._organizations_url
+        
+    organizations_url = property(_getorganizations_url)
+
+    ##
+    ##
+    def _getsubscriptions_url(self):
+        return self._subscriptions_url
+        
+    subscriptions_url = property(_getsubscriptions_url)
+
+    ##
+    ##
+    def _getstarred_url(self):
+        return self._starred_url
+        
+    starred_url = property(_getstarred_url)
+
+    ##
+    ##
+    def _getgists_url(self):
+        return self._gists_url
+        
+    gists_url = property(_getgists_url)
+
+    ##
+    ##
+    def _getfollowing_url(self):
+        return self._following_url
+        
+    following_url = property(_getfollowing_url)
+
+    ##
+    ##
+    def _getfollowers_url(self):
+        return self._followers_url
+        
+    followers_url = property(_getfollowers_url)
+
+    ##
+    ##
+    def _gethtml_url(self):
+        return self._html_url
+        
+    html_url = property(_gethtml_url)
+
+    ##
+    ##
+    def _geturl(self):
+        return self._url
+        
+    url = property(_geturl)
+
+    ##
+    ##
+    def _getgravatar_id(self):
+        return self._gravatar_id
+        
+    gravatar_id = property(_getgravatar_id)
+
+    ##
+    ##
+    def _getavatar_url(self):
+        return self._avatar_url
+        
+    avatar_url = property(_getavatar_url)
+
+    ##
+    ##
+    def _getnode_id(self):
+        return self._node_id
+        
+    node_id = property(_getnode_id)
+
+    ##
+    ##
+    def _getid(self):
+        return self._id
+        
+    id = property(_getid)
+
+    ##
+    ##
+    def _getlogin(self):
+        return self._login
+        
+    login = property(_getlogin)
+
+    ##
+    ##
+    def _getname(self):
+        return self._name
+        
+    name = property(_getname)
+
+    ##
+    ##
+    def _getemail(self):
+        return self._email
+        
+    email = property(_getemail)
+
+    ##
+    ##
+    def _getstarred_at(self):
+        return self._starred_at
+        
+    starred_at = property(_getstarred_at)
+
+
+    ##
+##
+##
+class ScopedInstallation(ResponseBase):
+    def __init__(self, account:dict, repositories_url:str, single_file_name:str, repository_selection:str, permissions:dict, has_multiple_single_files:bool=None, single_file_paths:list=None):
+        ResponseBase.__init__(self)
+        self._account = account
+        self._repositories_url = repositories_url
+        self._single_file_name = single_file_name
+        self._repository_selection = repository_selection
+        self._permissions = permissions
+        self._has_multiple_single_files = has_multiple_single_files
+        self._single_file_paths = single_file_paths
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getaccount(self):
+        return self._account and SimpleUser(**self._account)
+        
+    account = property(_getaccount)
+
+    ##
+    ##
+    def _getrepositories_url(self):
+        return self._repositories_url
+        
+    repositories_url = property(_getrepositories_url)
+
+    ##
+    ##
+    def _getsingle_file_name(self):
+        return self._single_file_name
+        
+    single_file_name = property(_getsingle_file_name)
+
+    ##
+    ##
+    def _getrepository_selection(self):
+        return self._repository_selection
+        
+    repository_selection = property(_getrepository_selection, doc="""Describe whether all repositories have been selected or there's a selection involved """)
+
+    ##
+    ##
+    def _getpermissions(self):
+        return self._permissions and AppPermissions(**self._permissions)
+        
+    permissions = property(_getpermissions)
+
+    ##
+    ##
+    def _gethas_multiple_single_files(self):
+        return self._has_multiple_single_files
+        
+    has_multiple_single_files = property(_gethas_multiple_single_files)
+
+    ##
+    ##
+    def _getsingle_file_paths(self):
+        return self._single_file_paths and [ entry for entry in self._single_file_paths ]
+        
+    single_file_paths = property(_getsingle_file_paths)
+
+
+    ##
+##
+##
+class Authorization_app(ResponseBase):
+    def __init__(self, url:str, name:str, client_id:str):
+        ResponseBase.__init__(self)
+        self._url = url
+        self._name = name
+        self._client_id = client_id
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _geturl(self):
+        return self._url
+        
+    url = property(_geturl)
+
+    ##
+    ##
+    def _getname(self):
+        return self._name
+        
+    name = property(_getname)
+
+    ##
+    ##
+    def _getclient_id(self):
+        return self._client_id
+        
+    client_id = property(_getclient_id)
+
+
+    ##
+##
+##
+class Authorization(ResponseBase):
+    """The authorization for an OAuth app, GitHub App, or a Personal Access Token. """
+    def __init__(self, expires_at:datetime, fingerprint:str, created_at:datetime, updated_at:datetime, note_url:str, note:str, app:dict, hashed_token:str, token_last_eight:str, token:str, scopes:list, url:str, id:int, user:dict=None, installation:dict=None):
+        ResponseBase.__init__(self)
+        self._expires_at = expires_at
+        self._fingerprint = fingerprint
+        self._created_at = created_at
+        self._updated_at = updated_at
+        self._note_url = note_url
+        self._note = note
+        self._app = app
+        self._hashed_token = hashed_token
+        self._token_last_eight = token_last_eight
+        self._token = token
+        self._scopes = scopes
+        self._url = url
+        self._id = id
+        self._user = user
+        self._installation = installation
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getexpires_at(self):
+        return self._expires_at and datetime.fromisoformat(self._expires_at[0:-1])
+        
+    expires_at = property(_getexpires_at)
+
+    ##
+    ##
+    def _getfingerprint(self):
+        return self._fingerprint
+        
+    fingerprint = property(_getfingerprint)
+
+    ##
+    ##
+    def _getcreated_at(self):
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
+        
+    created_at = property(_getcreated_at)
+
+    ##
+    ##
+    def _getupdated_at(self):
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
+        
+    updated_at = property(_getupdated_at)
+
+    ##
+    ##
+    def _getnote_url(self):
+        return self._note_url
+        
+    note_url = property(_getnote_url)
+
+    ##
+    ##
+    def _getnote(self):
+        return self._note
+        
+    note = property(_getnote)
+
+    ##
+    ##
+    def _getapp(self):
+        return self._app and Authorization_app(**self._app)
+        
+    app = property(_getapp)
+
+    ##
+    ##
+    def _gethashed_token(self):
+        return self._hashed_token
+        
+    hashed_token = property(_gethashed_token)
+
+    ##
+    ##
+    def _gettoken_last_eight(self):
+        return self._token_last_eight
+        
+    token_last_eight = property(_gettoken_last_eight)
+
+    ##
+    ##
+    def _gettoken(self):
+        return self._token
+        
+    token = property(_gettoken)
+
+    ##
+    ##
+    def _getscopes(self):
+        return self._scopes and [ entry for entry in self._scopes ]
+        
+    scopes = property(_getscopes, doc="""A list of scopes that this authorization is in. """)
+
+    ##
+    ##
+    def _geturl(self):
+        return self._url
+        
+    url = property(_geturl)
+
+    ##
+    ##
+    def _getid(self):
+        return self._id
+        
+    id = property(_getid)
+
+    ##
+    ##
+    def _getuser(self):
+        return self._user and SimpleUser(**self._user)
+        
+    user = property(_getuser)
+
+    ##
+    ##
+    def _getinstallation(self):
+        return self._installation and ScopedInstallation(**self._installation)
+        
+    installation = property(_getinstallation)
+
+
+    ##
+##
+##
+class Githubapp_permissions(ResponseBase):
+    """The set of permissions for the GitHub app """
+    def __init__(self, issues:str=None, checks:str=None, metadata:str=None, contents:str=None, deployments:str=None):
+        ResponseBase.__init__(self)
+        self._issues = issues
+        self._checks = checks
+        self._metadata = metadata
+        self._contents = contents
+        self._deployments = deployments
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getissues(self):
+        return self._issues
+        
+    issues = property(_getissues)
+
+    ##
+    ##
+    def _getchecks(self):
+        return self._checks
+        
+    checks = property(_getchecks)
+
+    ##
+    ##
+    def _getmetadata(self):
+        return self._metadata
+        
+    metadata = property(_getmetadata)
+
+    ##
+    ##
+    def _getcontents(self):
+        return self._contents
+        
+    contents = property(_getcontents)
+
+    ##
+    ##
+    def _getdeployments(self):
+        return self._deployments
+        
+    deployments = property(_getdeployments)
+
+
+    ##
+##
+##
+class GithubApp(ResponseBase):
+    """GitHub apps are a new way to extend GitHub. They can be installed directly on organizations and user accounts and granted access to specific repositories. They come with granular permissions and built-in webhooks. GitHub apps are first class actors within GitHub. """
+    def __init__(self, events:list, permissions:dict, updated_at:datetime, created_at:datetime, html_url:str, external_url:str, description:str, name:str, owner:dict, node_id:str, id:int, slug:str=None, installations_count:int=None, client_id:str=None, client_secret:str=None, webhook_secret:str=None, pem:str=None):
+        ResponseBase.__init__(self)
+        self._events = events
+        self._permissions = permissions
+        self._updated_at = updated_at
+        self._created_at = created_at
+        self._html_url = html_url
+        self._external_url = external_url
+        self._description = description
+        self._name = name
+        self._owner = owner
+        self._node_id = node_id
+        self._id = id
+        self._slug = slug
+        self._installations_count = installations_count
+        self._client_id = client_id
+        self._client_secret = client_secret
+        self._webhook_secret = webhook_secret
+        self._pem = pem
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getevents(self):
+        return self._events and [ entry for entry in self._events ]
+        
+    events = property(_getevents, doc="""The list of events for the GitHub app """)
+
+    ##
+    ##
+    def _getpermissions(self):
+        return self._permissions and Githubapp_permissions(**self._permissions)
+        
+    permissions = property(_getpermissions, doc="""The set of permissions for the GitHub app """)
+
+    ##
+    ##
+    def _getupdated_at(self):
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
+        
+    updated_at = property(_getupdated_at)
+
+    ##
+    ##
+    def _getcreated_at(self):
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
+        
+    created_at = property(_getcreated_at)
+
+    ##
+    ##
+    def _gethtml_url(self):
+        return self._html_url
+        
+    html_url = property(_gethtml_url)
+
+    ##
+    ##
+    def _getexternal_url(self):
+        return self._external_url
+        
+    external_url = property(_getexternal_url)
+
+    ##
+    ##
+    def _getdescription(self):
+        return self._description
+        
+    description = property(_getdescription)
+
+    ##
+    ##
+    def _getname(self):
+        return self._name
+        
+    name = property(_getname, doc="""The name of the GitHub app """)
+
+    ##
+    ##
+    def _getowner(self):
+        return self._owner and SimpleUser(**self._owner)
+        
+    owner = property(_getowner)
+
+    ##
+    ##
+    def _getnode_id(self):
+        return self._node_id
+        
+    node_id = property(_getnode_id)
+
+    ##
+    ##
+    def _getid(self):
+        return self._id
+        
+    id = property(_getid, doc="""Unique identifier of the GitHub app """)
+
+    ##
+    ##
+    def _getslug(self):
+        return self._slug
+        
+    slug = property(_getslug, doc="""The slug name of the GitHub app """)
+
+    ##
+    ##
+    def _getinstallations_count(self):
+        return self._installations_count
+        
+    installations_count = property(_getinstallations_count, doc="""The number of installations associated with the GitHub app """)
+
+    ##
+    ##
+    def _getclient_id(self):
+        return self._client_id
+        
+    client_id = property(_getclient_id)
+
+    ##
+    ##
+    def _getclient_secret(self):
+        return self._client_secret
+        
+    client_secret = property(_getclient_secret)
+
+    ##
+    ##
+    def _getwebhook_secret(self):
+        return self._webhook_secret
+        
+    webhook_secret = property(_getwebhook_secret)
+
+    ##
+    ##
+    def _getpem(self):
+        return self._pem
+        
+    pem = property(_getpem)
+
+
+    ##
+##
+##
+class BasicError(ResponseBase):
+    """Basic Error """
+    def __init__(self, message:str=None, documentation_url:str=None, url:str=None, status:str=None):
+        ResponseBase.__init__(self)
+        self._message = message
+        self._documentation_url = documentation_url
+        self._url = url
+        self._status = status
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getmessage(self):
+        return self._message
+        
+    message = property(_getmessage)
+
+    ##
+    ##
+    def _getdocumentation_url(self):
+        return self._documentation_url
+        
+    documentation_url = property(_getdocumentation_url)
+
+    ##
+    ##
+    def _geturl(self):
+        return self._url
+        
+    url = property(_geturl)
+
+    ##
+    ##
+    def _getstatus(self):
+        return self._status
+        
+    status = property(_getstatus)
+
+
+    def _ok(self):
+        return False
+
+    ok = property(_ok, doc='not ok')
+##
+##
+##
+class ValidationErrorSimple(ResponseBase):
+    """Validation Error Simple """
+    def __init__(self, documentation_url:str, message:str, errors:list=None):
+        ResponseBase.__init__(self)
+        self._documentation_url = documentation_url
+        self._message = message
+        self._errors = errors
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getdocumentation_url(self):
+        return self._documentation_url
+        
+    documentation_url = property(_getdocumentation_url)
+
+    ##
+    ##
+    def _getmessage(self):
+        return self._message
+        
+    message = property(_getmessage)
+
+    ##
+    ##
+    def _geterrors(self):
+        return self._errors and [ entry for entry in self._errors ]
+        
+    errors = property(_geterrors)
+
+
+    ##
+##
+##
+class WebhookConfiguration(ResponseBase):
+    """Configuration object of the webhook """
+    def __init__(self, url:str=None, content_type:str=None, secret:str=None, insecure_ssl=None):
+        ResponseBase.__init__(self)
+        self._url = url
+        self._content_type = content_type
+        self._secret = secret
+        self._insecure_ssl = insecure_ssl
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _geturl(self):
+        return self._url
+        
+    url = property(_geturl)
+
+    ##
+    ##
+    def _getcontent_type(self):
+        return self._content_type
+        
+    content_type = property(_getcontent_type)
+
+    ##
+    ##
+    def _getsecret(self):
+        return self._secret
+        
+    secret = property(_getsecret)
+
+    ##
+    ##
+    def _getinsecure_ssl(self):
+        return self._insecure_ssl
+        
+    insecure_ssl = property(_getinsecure_ssl)
+
+
+    ##
+##
+##
+class SimpleWebhookDelivery(ResponseBase):
+    """Delivery made by a webhook, without request and response information. """
+    def __init__(self, repository_id:int, installation_id:int, action:str, event:str, status_code:int, status:str, duration:int, redelivery:bool, delivered_at:datetime, guid:str, id:int):
+        ResponseBase.__init__(self)
+        self._repository_id = repository_id
+        self._installation_id = installation_id
+        self._action = action
+        self._event = event
+        self._status_code = status_code
+        self._status = status
+        self._duration = duration
+        self._redelivery = redelivery
+        self._delivered_at = delivered_at
+        self._guid = guid
+        self._id = id
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getrepository_id(self):
+        return self._repository_id
+        
+    repository_id = property(_getrepository_id, doc="""The id of the repository associated with this event. """)
+
+    ##
+    ##
+    def _getinstallation_id(self):
+        return self._installation_id
+        
+    installation_id = property(_getinstallation_id, doc="""The id of the GitHub App installation associated with this event. """)
+
+    ##
+    ##
+    def _getaction(self):
+        return self._action
+        
+    action = property(_getaction, doc="""The type of activity for the event that triggered the delivery. """)
+
+    ##
+    ##
+    def _getevent(self):
+        return self._event
+        
+    event = property(_getevent, doc="""The event that triggered the delivery. """)
+
+    ##
+    ##
+    def _getstatus_code(self):
+        return self._status_code
+        
+    status_code = property(_getstatus_code, doc="""Status code received when delivery was made. """)
+
+    ##
+    ##
+    def _getstatus(self):
+        return self._status
+        
+    status = property(_getstatus, doc="""Describes the response returned after attempting the delivery. """)
+
+    ##
+    ##
+    def _getduration(self):
+        return self._duration
+        
+    duration = property(_getduration, doc="""Time spent delivering. """)
+
+    ##
+    ##
+    def _getredelivery(self):
+        return self._redelivery
+        
+    redelivery = property(_getredelivery, doc="""Whether the webhook delivery is a redelivery. """)
+
+    ##
+    ##
+    def _getdelivered_at(self):
+        return self._delivered_at and datetime.fromisoformat(self._delivered_at[0:-1])
+        
+    delivered_at = property(_getdelivered_at, doc="""Time when the webhook delivery occurred. """)
+
+    ##
+    ##
+    def _getguid(self):
+        return self._guid
+        
+    guid = property(_getguid, doc="""Unique identifier for the event (shared with all deliveries for all webhooks that subscribe to this event). """)
+
+    ##
+    ##
+    def _getid(self):
+        return self._id
+        
+    id = property(_getid, doc="""Unique identifier of the webhook delivery. """)
+
+
+    ##
+##
+##
+class ScimError(ResponseBase):
+    """Scim Error """
+    def __init__(self, message:str=None, documentation_url:str=None, detail:str=None, status:int=None, scimType:str=None, schemas:list=None):
+        ResponseBase.__init__(self)
+        self._message = message
+        self._documentation_url = documentation_url
+        self._detail = detail
+        self._status = status
+        self._scimType = scimType
+        self._schemas = schemas
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getmessage(self):
+        return self._message
+        
+    message = property(_getmessage)
+
+    ##
+    ##
+    def _getdocumentation_url(self):
+        return self._documentation_url
+        
+    documentation_url = property(_getdocumentation_url)
+
+    ##
+    ##
+    def _getdetail(self):
+        return self._detail
+        
+    detail = property(_getdetail)
+
+    ##
+    ##
+    def _getstatus(self):
+        return self._status
+        
+    status = property(_getstatus)
+
+    ##
+    ##
+    def _getscimType(self):
+        return self._scimType
+        
+    scimType = property(_getscimType)
+
+    ##
+    ##
+    def _getschemas(self):
+        return self._schemas and [ entry for entry in self._schemas ]
+        
+    schemas = property(_getschemas)
+
+
+    ##
+##
+##
+class Validationerror_errors(ResponseBase):
+    def __init__(self, code:str, resource:str=None, field:str=None, message:str=None, index:int=None, value=None):
+        ResponseBase.__init__(self)
+        self._code = code
+        self._resource = resource
+        self._field = field
+        self._message = message
+        self._index = index
+        self._value = value
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getcode(self):
+        return self._code
+        
+    code = property(_getcode)
+
+    ##
+    ##
+    def _getresource(self):
+        return self._resource
+        
+    resource = property(_getresource)
+
+    ##
+    ##
+    def _getfield(self):
+        return self._field
+        
+    field = property(_getfield)
+
+    ##
+    ##
+    def _getmessage(self):
+        return self._message
+        
+    message = property(_getmessage)
+
+    ##
+    ##
+    def _getindex(self):
+        return self._index
+        
+    index = property(_getindex)
+
+    ##
+    ##
+    def _getvalue(self):
+        return self._value
+        
+    value = property(_getvalue)
+
+
+    ##
+##
+##
+class ValidationError(ResponseBase):
+    """Validation Error """
+    def __init__(self, documentation_url:str, message:str, errors:list=None):
+        ResponseBase.__init__(self)
+        self._documentation_url = documentation_url
+        self._message = message
+        self._errors = errors
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getdocumentation_url(self):
+        return self._documentation_url
+        
+    documentation_url = property(_getdocumentation_url)
+
+    ##
+    ##
+    def _getmessage(self):
+        return self._message
+        
+    message = property(_getmessage)
+
+    ##
+    ##
+    def _geterrors(self):
+        return self._errors and [ entry and Validationerror_errors(**entry) for entry in self._errors ]
+        
+    errors = property(_geterrors)
+
+
+    ##
+##
+##
+class Webhookdelivery_request(ResponseBase):
+    def __init__(self, payload:object, headers:object):
+        ResponseBase.__init__(self)
+        self._payload = payload
+        self._headers = headers
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getpayload(self):
+        return self._payload
+        
+    payload = property(_getpayload, doc="""The webhook payload. """)
+
+    ##
+    ##
+    def _getheaders(self):
+        return self._headers
+        
+    headers = property(_getheaders, doc="""The request headers sent with the webhook delivery. """)
+
+
+    ##
+##
+##
+class Webhookdelivery_response(ResponseBase):
+    def __init__(self, payload:str, headers:object):
+        ResponseBase.__init__(self)
+        self._payload = payload
+        self._headers = headers
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getpayload(self):
+        return self._payload
+        
+    payload = property(_getpayload, doc="""The response payload received. """)
+
+    ##
+    ##
+    def _getheaders(self):
+        return self._headers
+        
+    headers = property(_getheaders, doc="""The response headers received when the delivery was made. """)
+
+
+    ##
+##
+##
+class WebhookDelivery(ResponseBase):
+    """Delivery made by a webhook. """
+    def __init__(self, response:dict, request:dict, repository_id:int, installation_id:int, action:str, event:str, status_code:int, status:str, duration:int, redelivery:bool, delivered_at:datetime, guid:str, id:int, url:str=None):
+        ResponseBase.__init__(self)
+        self._response = response
+        self._request = request
+        self._repository_id = repository_id
+        self._installation_id = installation_id
+        self._action = action
+        self._event = event
+        self._status_code = status_code
+        self._status = status
+        self._duration = duration
+        self._redelivery = redelivery
+        self._delivered_at = delivered_at
+        self._guid = guid
+        self._id = id
+        self._url = url
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getresponse(self):
+        return self._response and Webhookdelivery_response(**self._response)
+        
+    response = property(_getresponse)
+
+    ##
+    ##
+    def _getrequest(self):
+        return self._request and Webhookdelivery_request(**self._request)
+        
+    request = property(_getrequest)
+
+    ##
+    ##
+    def _getrepository_id(self):
+        return self._repository_id
+        
+    repository_id = property(_getrepository_id, doc="""The id of the repository associated with this event. """)
+
+    ##
+    ##
+    def _getinstallation_id(self):
+        return self._installation_id
+        
+    installation_id = property(_getinstallation_id, doc="""The id of the GitHub App installation associated with this event. """)
+
+    ##
+    ##
+    def _getaction(self):
+        return self._action
+        
+    action = property(_getaction, doc="""The type of activity for the event that triggered the delivery. """)
+
+    ##
+    ##
+    def _getevent(self):
+        return self._event
+        
+    event = property(_getevent, doc="""The event that triggered the delivery. """)
+
+    ##
+    ##
+    def _getstatus_code(self):
+        return self._status_code
+        
+    status_code = property(_getstatus_code, doc="""Status code received when delivery was made. """)
+
+    ##
+    ##
+    def _getstatus(self):
+        return self._status
+        
+    status = property(_getstatus, doc="""Description of the status of the attempted delivery """)
+
+    ##
+    ##
+    def _getduration(self):
+        return self._duration
+        
+    duration = property(_getduration, doc="""Time spent delivering. """)
+
+    ##
+    ##
+    def _getredelivery(self):
+        return self._redelivery
+        
+    redelivery = property(_getredelivery, doc="""Whether the delivery is a redelivery. """)
+
+    ##
+    ##
+    def _getdelivered_at(self):
+        return self._delivered_at and datetime.fromisoformat(self._delivered_at[0:-1])
+        
+    delivered_at = property(_getdelivered_at, doc="""Time when the delivery was delivered. """)
+
+    ##
+    ##
+    def _getguid(self):
+        return self._guid
+        
+    guid = property(_getguid, doc="""Unique identifier for the event (shared with all deliveries for all webhooks that subscribe to this event). """)
+
+    ##
+    ##
+    def _getid(self):
+        return self._id
+        
+    id = property(_getid, doc="""Unique identifier of the delivery. """)
+
+    ##
+    ##
+    def _geturl(self):
+        return self._url
+        
+    url = property(_geturl, doc="""The URL target of the delivery. """)
+
+
+    ##
+##
+##
+class Enterprise(ResponseBase):
+    """An enterprise account """
+    def __init__(self, avatar_url:str, updated_at:datetime, created_at:datetime, slug:str, name:str, node_id:str, id:int, html_url:str, description:str=None, website_url:str=None):
+        ResponseBase.__init__(self)
+        self._avatar_url = avatar_url
+        self._updated_at = updated_at
+        self._created_at = created_at
+        self._slug = slug
+        self._name = name
+        self._node_id = node_id
+        self._id = id
+        self._html_url = html_url
+        self._description = description
+        self._website_url = website_url
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getavatar_url(self):
+        return self._avatar_url
+        
+    avatar_url = property(_getavatar_url)
+
+    ##
+    ##
+    def _getupdated_at(self):
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
+        
+    updated_at = property(_getupdated_at)
+
+    ##
+    ##
+    def _getcreated_at(self):
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
+        
+    created_at = property(_getcreated_at)
+
+    ##
+    ##
+    def _getslug(self):
+        return self._slug
+        
+    slug = property(_getslug, doc="""The slug url identifier for the enterprise. """)
+
+    ##
+    ##
+    def _getname(self):
+        return self._name
+        
+    name = property(_getname, doc="""The name of the enterprise. """)
+
+    ##
+    ##
+    def _getnode_id(self):
+        return self._node_id
+        
+    node_id = property(_getnode_id)
+
+    ##
+    ##
+    def _getid(self):
+        return self._id
+        
+    id = property(_getid, doc="""Unique identifier of the enterprise """)
+
+    ##
+    ##
+    def _gethtml_url(self):
+        return self._html_url
+        
+    html_url = property(_gethtml_url)
+
+    ##
+    ##
+    def _getdescription(self):
+        return self._description
+        
+    description = property(_getdescription, doc="""A short description of the enterprise. """)
+
+    ##
+    ##
+    def _getwebsite_url(self):
+        return self._website_url
+        
+    website_url = property(_getwebsite_url, doc="""The enterprise's website URL. """)
+
+
+    ##
+##
+##
+class Installation(ResponseBase):
     """Installation """
     def __init__(self, suspended_at:datetime, suspended_by:dict, app_slug:str, single_file_name:str, updated_at:datetime, created_at:datetime, events:list, permissions:dict, target_type:str, target_id:int, app_id:int, html_url:str, repositories_url:str, access_tokens_url:str, repository_selection:str, account, id:int, has_multiple_single_files:bool=None, single_file_paths:list=None, contact_email:str=None):
+        ResponseBase.__init__(self)
         self._suspended_at = suspended_at
         self._suspended_by = suspended_by
         self._app_slug = app_slug
@@ -1475,7 +3315,7 @@ class Installation(object):
     ##
     ##
     def _getsuspended_at(self):
-        return self._suspended_at and datetime.datetime.fromisoformat(self._suspended_at[0:-1])
+        return self._suspended_at and datetime.fromisoformat(self._suspended_at[0:-1])
         
     suspended_at = property(_getsuspended_at)
 
@@ -1503,14 +3343,14 @@ class Installation(object):
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -1616,9 +3456,10 @@ class Installation(object):
     ##
 ##
 ##
-class LicenseSimple(object):
+class LicenseSimple(ResponseBase):
     """License Simple """
     def __init__(self, node_id:str, spdx_id:str, url:str, name:str, key:str, html_url:str=None):
+        ResponseBase.__init__(self)
         self._node_id = node_id
         self._spdx_id = spdx_id
         self._url = url
@@ -1676,8 +3517,9 @@ class LicenseSimple(object):
     ##
 ##
 ##
-class Repository_permissions(object):
+class Repository_permissions(ResponseBase):
     def __init__(self, push:bool, pull:bool, admin:bool, triage:bool=None, maintain:bool=None):
+        ResponseBase.__init__(self)
         self._push = push
         self._pull = pull
         self._admin = admin
@@ -1727,8 +3569,9 @@ class Repository_permissions(object):
     ##
 ##
 ##
-class Repository_template_repository_owner(object):
+class Repository_template_repository_owner(ResponseBase):
     def __init__(self, login:str=None, id:int=None, node_id:str=None, avatar_url:str=None, gravatar_id:str=None, url:str=None, html_url:str=None, followers_url:str=None, following_url:str=None, gists_url:str=None, starred_url:str=None, subscriptions_url:str=None, organizations_url:str=None, repos_url:str=None, events_url:str=None, received_events_url:str=None, type:str=None, site_admin:bool=None):
+        ResponseBase.__init__(self)
         self._login = login
         self._id = id
         self._node_id = node_id
@@ -1882,10 +3725,13 @@ class Repository_template_repository_owner(object):
     ##
 ##
 ##
-class Repository_template_repository_permissions(object):
-    def __init__(self, admin:bool=None, push:bool=None, pull:bool=None):
+class Repository_template_repository_permissions(ResponseBase):
+    def __init__(self, admin:bool=None, maintain:bool=None, push:bool=None, triage:bool=None, pull:bool=None):
+        ResponseBase.__init__(self)
         self._admin = admin
+        self._maintain = maintain
         self._push = push
+        self._triage = triage
         self._pull = pull
         return
         
@@ -1901,10 +3747,24 @@ class Repository_template_repository_permissions(object):
 
     ##
     ##
+    def _getmaintain(self):
+        return self._maintain
+        
+    maintain = property(_getmaintain)
+
+    ##
+    ##
     def _getpush(self):
         return self._push
         
     push = property(_getpush)
+
+    ##
+    ##
+    def _gettriage(self):
+        return self._triage
+        
+    triage = property(_gettriage)
 
     ##
     ##
@@ -1917,8 +3777,9 @@ class Repository_template_repository_permissions(object):
     ##
 ##
 ##
-class Repository_template_repository(object):
-    def __init__(self, id:int=None, node_id:str=None, name:str=None, full_name:str=None, owner:dict=None, private:bool=None, html_url:str=None, description:str=None, fork:bool=None, url:str=None, archive_url:str=None, assignees_url:str=None, blobs_url:str=None, branches_url:str=None, collaborators_url:str=None, comments_url:str=None, commits_url:str=None, compare_url:str=None, contents_url:str=None, contributors_url:str=None, deployments_url:str=None, downloads_url:str=None, events_url:str=None, forks_url:str=None, git_commits_url:str=None, git_refs_url:str=None, git_tags_url:str=None, git_url:str=None, issue_comment_url:str=None, issue_events_url:str=None, issues_url:str=None, keys_url:str=None, labels_url:str=None, languages_url:str=None, merges_url:str=None, milestones_url:str=None, notifications_url:str=None, pulls_url:str=None, releases_url:str=None, ssh_url:str=None, stargazers_url:str=None, statuses_url:str=None, subscribers_url:str=None, subscription_url:str=None, tags_url:str=None, teams_url:str=None, trees_url:str=None, clone_url:str=None, mirror_url:str=None, hooks_url:str=None, svn_url:str=None, homepage:str=None, language:str=None, forks_count:int=None, stargazers_count:int=None, watchers_count:int=None, size:int=None, default_branch:str=None, open_issues_count:int=None, is_template:bool=None, topics:list=None, has_issues:bool=None, has_projects:bool=None, has_wiki:bool=None, has_pages:bool=None, has_downloads:bool=None, archived:bool=None, disabled:bool=None, visibility:str=None, pushed_at:str=None, created_at:str=None, updated_at:str=None, permissions:dict=None, allow_rebase_merge:bool=None, temp_clone_token:str=None, allow_squash_merge:bool=None, allow_auto_merge:bool=None, delete_branch_on_merge:bool=None, allow_merge_commit:bool=None, subscribers_count:int=None, network_count:int=None):
+class Repository_template_repository(ResponseBase):
+    def __init__(self, id:int=None, node_id:str=None, name:str=None, full_name:str=None, owner:dict=None, private:bool=None, html_url:str=None, description:str=None, fork:bool=None, url:str=None, archive_url:str=None, assignees_url:str=None, blobs_url:str=None, branches_url:str=None, collaborators_url:str=None, comments_url:str=None, commits_url:str=None, compare_url:str=None, contents_url:str=None, contributors_url:str=None, deployments_url:str=None, downloads_url:str=None, events_url:str=None, forks_url:str=None, git_commits_url:str=None, git_refs_url:str=None, git_tags_url:str=None, git_url:str=None, issue_comment_url:str=None, issue_events_url:str=None, issues_url:str=None, keys_url:str=None, labels_url:str=None, languages_url:str=None, merges_url:str=None, milestones_url:str=None, notifications_url:str=None, pulls_url:str=None, releases_url:str=None, ssh_url:str=None, stargazers_url:str=None, statuses_url:str=None, subscribers_url:str=None, subscription_url:str=None, tags_url:str=None, teams_url:str=None, trees_url:str=None, clone_url:str=None, mirror_url:str=None, hooks_url:str=None, svn_url:str=None, homepage:str=None, language:str=None, forks_count:int=None, stargazers_count:int=None, watchers_count:int=None, size:int=None, default_branch:str=None, open_issues_count:int=None, is_template:bool=None, topics:list=None, has_issues:bool=None, has_projects:bool=None, has_wiki:bool=None, has_pages:bool=None, has_downloads:bool=None, archived:bool=None, disabled:bool=None, visibility:str=None, pushed_at:str=None, created_at:str=None, updated_at:str=None, permissions:dict=None, allow_rebase_merge:bool=None, temp_clone_token:str=None, allow_squash_merge:bool=None, allow_auto_merge:bool=None, delete_branch_on_merge:bool=None, allow_update_branch:bool=None, allow_merge_commit:bool=None, subscribers_count:int=None, network_count:int=None):
+        ResponseBase.__init__(self)
         self._id = id
         self._node_id = node_id
         self._name = name
@@ -1997,6 +3858,7 @@ class Repository_template_repository(object):
         self._allow_squash_merge = allow_squash_merge
         self._allow_auto_merge = allow_auto_merge
         self._delete_branch_on_merge = delete_branch_on_merge
+        self._allow_update_branch = allow_update_branch
         self._allow_merge_commit = allow_merge_commit
         self._subscribers_count = subscribers_count
         self._network_count = network_count
@@ -2553,6 +4415,13 @@ class Repository_template_repository(object):
 
     ##
     ##
+    def _getallow_update_branch(self):
+        return self._allow_update_branch
+        
+    allow_update_branch = property(_getallow_update_branch)
+
+    ##
+    ##
     def _getallow_merge_commit(self):
         return self._allow_merge_commit
         
@@ -2576,9 +4445,10 @@ class Repository_template_repository(object):
     ##
 ##
 ##
-class Repository(object):
+class Repository(ResponseBase):
     """A git repository """
-    def __init__(self, watchers:int, open_issues:int, updated_at:datetime, created_at:datetime, pushed_at:datetime, disabled:bool, has_pages:bool, open_issues_count:int, default_branch:str, size:int, watchers_count:int, stargazers_count:int, forks_count:int, language:str, homepage:str, svn_url:str, hooks_url:str, mirror_url:str, clone_url:str, trees_url:str, teams_url:str, tags_url:str, subscription_url:str, subscribers_url:str, statuses_url:str, stargazers_url:str, ssh_url:str, releases_url:str, pulls_url:str, notifications_url:str, milestones_url:str, merges_url:str, languages_url:str, labels_url:str, keys_url:str, issues_url:str, issue_events_url:str, issue_comment_url:str, git_url:str, git_tags_url:str, git_refs_url:str, git_commits_url:str, forks_url:str, events_url:str, downloads_url:str, deployments_url:str, contributors_url:str, contents_url:str, compare_url:str, commits_url:str, comments_url:str, collaborators_url:str, branches_url:str, blobs_url:str, assignees_url:str, archive_url:str, url:str, fork:bool, description:str, html_url:str, owner:dict, forks:int, license:dict, full_name:str, name:str, node_id:str, id:int, organization:dict=None, permissions:dict=None, private:bool=False, is_template:bool=False, topics:list=None, has_issues:bool=True, has_projects:bool=True, has_wiki:bool=True, has_downloads:bool=True, archived:bool=False, visibility:str='public', allow_rebase_merge:bool=True, template_repository:dict=None, temp_clone_token:str=None, allow_squash_merge:bool=True, allow_auto_merge:bool=False, delete_branch_on_merge:bool=False, allow_merge_commit:bool=True, subscribers_count:int=None, network_count:int=None, master_branch:str=None, starred_at:str=None):
+    def __init__(self, watchers:int, open_issues:int, updated_at:datetime, created_at:datetime, pushed_at:datetime, disabled:bool, has_pages:bool, open_issues_count:int, default_branch:str, size:int, watchers_count:int, stargazers_count:int, forks_count:int, language:str, homepage:str, svn_url:str, hooks_url:str, mirror_url:str, clone_url:str, trees_url:str, teams_url:str, tags_url:str, subscription_url:str, subscribers_url:str, statuses_url:str, stargazers_url:str, ssh_url:str, releases_url:str, pulls_url:str, notifications_url:str, milestones_url:str, merges_url:str, languages_url:str, labels_url:str, keys_url:str, issues_url:str, issue_events_url:str, issue_comment_url:str, git_url:str, git_tags_url:str, git_refs_url:str, git_commits_url:str, forks_url:str, events_url:str, downloads_url:str, deployments_url:str, contributors_url:str, contents_url:str, compare_url:str, commits_url:str, comments_url:str, collaborators_url:str, branches_url:str, blobs_url:str, assignees_url:str, archive_url:str, url:str, fork:bool, description:str, html_url:str, owner:dict, forks:int, license:dict, full_name:str, name:str, node_id:str, id:int, organization:dict=None, permissions:dict=None, private:bool=False, is_template:bool=False, topics:list=None, has_issues:bool=True, has_projects:bool=True, has_wiki:bool=True, has_downloads:bool=True, archived:bool=False, visibility:str='public', allow_rebase_merge:bool=True, template_repository:dict=None, temp_clone_token:str=None, allow_squash_merge:bool=True, allow_auto_merge:bool=False, delete_branch_on_merge:bool=False, allow_merge_commit:bool=True, allow_forking:bool=None, subscribers_count:int=None, network_count:int=None, master_branch:str=None, starred_at:str=None):
+        ResponseBase.__init__(self)
         self._watchers = watchers
         self._open_issues = open_issues
         self._updated_at = updated_at
@@ -2664,6 +4534,7 @@ class Repository(object):
         self._allow_auto_merge = allow_auto_merge
         self._delete_branch_on_merge = delete_branch_on_merge
         self._allow_merge_commit = allow_merge_commit
+        self._allow_forking = allow_forking
         self._subscribers_count = subscribers_count
         self._network_count = network_count
         self._master_branch = master_branch
@@ -2690,21 +4561,21 @@ class Repository(object):
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
     ##
     ##
     def _getpushed_at(self):
-        return self._pushed_at and datetime.datetime.fromisoformat(self._pushed_at[0:-1])
+        return self._pushed_at and datetime.fromisoformat(self._pushed_at[0:-1])
         
     pushed_at = property(_getpushed_at)
 
@@ -3270,6 +5141,13 @@ class Repository(object):
 
     ##
     ##
+    def _getallow_forking(self):
+        return self._allow_forking
+        
+    allow_forking = property(_getallow_forking, doc="""Whether to allow forking this repo """)
+
+    ##
+    ##
     def _getsubscribers_count(self):
         return self._subscribers_count
         
@@ -3300,9 +5178,10 @@ class Repository(object):
     ##
 ##
 ##
-class InstallationToken(object):
+class InstallationToken(ResponseBase):
     """Authentication token for a GitHub App installed on a user or org. """
     def __init__(self, expires_at:str, token:str, permissions:dict=None, repository_selection:str=None, repositories:list=None, single_file:str=None, has_multiple_single_files:bool=None, single_file_paths:list=None):
+        ResponseBase.__init__(self)
         self._expires_at = expires_at
         self._token = token
         self._permissions = permissions
@@ -3376,8 +5255,9 @@ class InstallationToken(object):
     ##
 ##
 ##
-class Applicationgrant_app(object):
+class Applicationgrant_app(ResponseBase):
     def __init__(self, url:str, name:str, client_id:str):
+        ResponseBase.__init__(self)
         self._url = url
         self._name = name
         self._client_id = client_id
@@ -3411,9 +5291,10 @@ class Applicationgrant_app(object):
     ##
 ##
 ##
-class ApplicationGrant(object):
+class ApplicationGrant(ResponseBase):
     """The authorization associated with an OAuth Access. """
     def __init__(self, scopes:list, updated_at:datetime, created_at:datetime, app:dict, url:str, id:int, user:dict=None):
+        ResponseBase.__init__(self)
         self._scopes = scopes
         self._updated_at = updated_at
         self._created_at = created_at
@@ -3436,14 +5317,14 @@ class ApplicationGrant(object):
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -3479,111 +5360,11 @@ class ApplicationGrant(object):
     ##
 ##
 ##
-class ScopedInstallation(object):
-    def __init__(self, account:dict, repositories_url:str, single_file_name:str, repository_selection:str, permissions:dict, has_multiple_single_files:bool=None, single_file_paths:list=None):
-        self._account = account
-        self._repositories_url = repositories_url
-        self._single_file_name = single_file_name
-        self._repository_selection = repository_selection
-        self._permissions = permissions
-        self._has_multiple_single_files = has_multiple_single_files
-        self._single_file_paths = single_file_paths
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getaccount(self):
-        return self._account and SimpleUser(**self._account)
-        
-    account = property(_getaccount)
-
-    ##
-    ##
-    def _getrepositories_url(self):
-        return self._repositories_url
-        
-    repositories_url = property(_getrepositories_url)
-
-    ##
-    ##
-    def _getsingle_file_name(self):
-        return self._single_file_name
-        
-    single_file_name = property(_getsingle_file_name)
-
-    ##
-    ##
-    def _getrepository_selection(self):
-        return self._repository_selection
-        
-    repository_selection = property(_getrepository_selection, doc="""Describe whether all repositories have been selected or there's a selection involved """)
-
-    ##
-    ##
-    def _getpermissions(self):
-        return self._permissions and AppPermissions(**self._permissions)
-        
-    permissions = property(_getpermissions)
-
-    ##
-    ##
-    def _gethas_multiple_single_files(self):
-        return self._has_multiple_single_files
-        
-    has_multiple_single_files = property(_gethas_multiple_single_files)
-
-    ##
-    ##
-    def _getsingle_file_paths(self):
-        return self._single_file_paths and [ entry for entry in self._single_file_paths ]
-        
-    single_file_paths = property(_getsingle_file_paths)
-
-
-    ##
-##
-##
-class Authorization_app(object):
-    def __init__(self, url:str, name:str, client_id:str):
-        self._url = url
-        self._name = name
-        self._client_id = client_id
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _geturl(self):
-        return self._url
-        
-    url = property(_geturl)
-
-    ##
-    ##
-    def _getname(self):
-        return self._name
-        
-    name = property(_getname)
-
-    ##
-    ##
-    def _getclient_id(self):
-        return self._client_id
-        
-    client_id = property(_getclient_id)
-
-
-    ##
-##
-##
-class Authorization(object):
+class Authorization(ResponseBase):
     """The authorization for an OAuth app, GitHub App, or a Personal Access Token. """
-    def __init__(self, fingerprint:str, created_at:datetime, updated_at:datetime, note_url:str, note:str, app:dict, hashed_token:str, token_last_eight:str, token:str, scopes:list, url:str, id:int, user:dict=None, installation:dict=None):
+    def __init__(self, expires_at:datetime, fingerprint:str, created_at:datetime, updated_at:datetime, note_url:str, note:str, app:dict, hashed_token:str, token_last_eight:str, token:str, scopes:list, url:str, id:int, user:dict=None, installation:dict=None):
+        ResponseBase.__init__(self)
+        self._expires_at = expires_at
         self._fingerprint = fingerprint
         self._created_at = created_at
         self._updated_at = updated_at
@@ -3605,6 +5386,13 @@ class Authorization(object):
     
     ##
     ##
+    def _getexpires_at(self):
+        return self._expires_at and datetime.fromisoformat(self._expires_at[0:-1])
+        
+    expires_at = property(_getexpires_at)
+
+    ##
+    ##
     def _getfingerprint(self):
         return self._fingerprint
         
@@ -3613,14 +5401,14 @@ class Authorization(object):
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
@@ -3705,9 +5493,10 @@ class Authorization(object):
     ##
 ##
 ##
-class CodeOfConduct(object):
+class CodeOfConduct(ResponseBase):
     """Code Of Conduct """
     def __init__(self, html_url:str, url:str, name:str, key:str, body:str=None):
+        ResponseBase.__init__(self)
         self._html_url = html_url
         self._url = url
         self._name = name
@@ -3757,8 +5546,582 @@ class CodeOfConduct(object):
     ##
 ##
 ##
-class ActionsEnterprisePermissions(object):
+class EnterpriseAnnouncement(ResponseBase):
+    """Enterprise global announcement """
+    def __init__(self, announcement:str, expires_at:datetime=None):
+        ResponseBase.__init__(self)
+        self._announcement = announcement
+        self._expires_at = expires_at
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getannouncement(self):
+        return self._announcement
+        
+    announcement = property(_getannouncement)
+
+    ##
+    ##
+    def _getexpires_at(self):
+        return self._expires_at and datetime.fromisoformat(self._expires_at[0:-1])
+        
+    expires_at = property(_getexpires_at)
+
+
+    ##
+##
+##
+class LicenseInfo(ResponseBase):
+    def __init__(self, seats=None, seats_used:int=None, seats_available=None, kind:str=None, days_until_expiration:int=None, expire_at:str=None):
+        ResponseBase.__init__(self)
+        self._seats = seats
+        self._seats_used = seats_used
+        self._seats_available = seats_available
+        self._kind = kind
+        self._days_until_expiration = days_until_expiration
+        self._expire_at = expire_at
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getseats(self):
+        return self._seats
+        
+    seats = property(_getseats)
+
+    ##
+    ##
+    def _getseats_used(self):
+        return self._seats_used
+        
+    seats_used = property(_getseats_used)
+
+    ##
+    ##
+    def _getseats_available(self):
+        return self._seats_available
+        
+    seats_available = property(_getseats_available)
+
+    ##
+    ##
+    def _getkind(self):
+        return self._kind
+        
+    kind = property(_getkind)
+
+    ##
+    ##
+    def _getdays_until_expiration(self):
+        return self._days_until_expiration
+        
+    days_until_expiration = property(_getdays_until_expiration)
+
+    ##
+    ##
+    def _getexpire_at(self):
+        return self._expire_at
+        
+    expire_at = property(_getexpire_at)
+
+
+    ##
+##
+##
+class RepositoryEnterpriseStats(ResponseBase):
+    def __init__(self, total_wikis:int, total_pushes:int, org_repos:int, fork_repos:int, root_repos:int, total_repos:int):
+        ResponseBase.__init__(self)
+        self._total_wikis = total_wikis
+        self._total_pushes = total_pushes
+        self._org_repos = org_repos
+        self._fork_repos = fork_repos
+        self._root_repos = root_repos
+        self._total_repos = total_repos
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _gettotal_wikis(self):
+        return self._total_wikis
+        
+    total_wikis = property(_gettotal_wikis)
+
+    ##
+    ##
+    def _gettotal_pushes(self):
+        return self._total_pushes
+        
+    total_pushes = property(_gettotal_pushes)
+
+    ##
+    ##
+    def _getorg_repos(self):
+        return self._org_repos
+        
+    org_repos = property(_getorg_repos)
+
+    ##
+    ##
+    def _getfork_repos(self):
+        return self._fork_repos
+        
+    fork_repos = property(_getfork_repos)
+
+    ##
+    ##
+    def _getroot_repos(self):
+        return self._root_repos
+        
+    root_repos = property(_getroot_repos)
+
+    ##
+    ##
+    def _gettotal_repos(self):
+        return self._total_repos
+        
+    total_repos = property(_gettotal_repos)
+
+
+    ##
+##
+##
+class HooksEnterpriseStats(ResponseBase):
+    def __init__(self, inactive_hooks:int, active_hooks:int, total_hooks:int):
+        ResponseBase.__init__(self)
+        self._inactive_hooks = inactive_hooks
+        self._active_hooks = active_hooks
+        self._total_hooks = total_hooks
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getinactive_hooks(self):
+        return self._inactive_hooks
+        
+    inactive_hooks = property(_getinactive_hooks)
+
+    ##
+    ##
+    def _getactive_hooks(self):
+        return self._active_hooks
+        
+    active_hooks = property(_getactive_hooks)
+
+    ##
+    ##
+    def _gettotal_hooks(self):
+        return self._total_hooks
+        
+    total_hooks = property(_gettotal_hooks)
+
+
+    ##
+##
+##
+class EnterprisePagesStats(ResponseBase):
+    def __init__(self, total_pages:int):
+        ResponseBase.__init__(self)
+        self._total_pages = total_pages
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _gettotal_pages(self):
+        return self._total_pages
+        
+    total_pages = property(_gettotal_pages)
+
+
+    ##
+##
+##
+class EnterpriseOrganizationStats(ResponseBase):
+    def __init__(self, total_team_members:int, total_teams:int, disabled_orgs:int, total_orgs:int):
+        ResponseBase.__init__(self)
+        self._total_team_members = total_team_members
+        self._total_teams = total_teams
+        self._disabled_orgs = disabled_orgs
+        self._total_orgs = total_orgs
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _gettotal_team_members(self):
+        return self._total_team_members
+        
+    total_team_members = property(_gettotal_team_members)
+
+    ##
+    ##
+    def _gettotal_teams(self):
+        return self._total_teams
+        
+    total_teams = property(_gettotal_teams)
+
+    ##
+    ##
+    def _getdisabled_orgs(self):
+        return self._disabled_orgs
+        
+    disabled_orgs = property(_getdisabled_orgs)
+
+    ##
+    ##
+    def _gettotal_orgs(self):
+        return self._total_orgs
+        
+    total_orgs = property(_gettotal_orgs)
+
+
+    ##
+##
+##
+class EnterpriseUserStats(ResponseBase):
+    def __init__(self, suspended_users:int, admin_users:int, total_users:int):
+        ResponseBase.__init__(self)
+        self._suspended_users = suspended_users
+        self._admin_users = admin_users
+        self._total_users = total_users
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getsuspended_users(self):
+        return self._suspended_users
+        
+    suspended_users = property(_getsuspended_users)
+
+    ##
+    ##
+    def _getadmin_users(self):
+        return self._admin_users
+        
+    admin_users = property(_getadmin_users)
+
+    ##
+    ##
+    def _gettotal_users(self):
+        return self._total_users
+        
+    total_users = property(_gettotal_users)
+
+
+    ##
+##
+##
+class EnterprisePullRequestStats(ResponseBase):
+    def __init__(self, unmergeable_pulls:int, mergeable_pulls:int, merged_pulls:int, total_pulls:int):
+        ResponseBase.__init__(self)
+        self._unmergeable_pulls = unmergeable_pulls
+        self._mergeable_pulls = mergeable_pulls
+        self._merged_pulls = merged_pulls
+        self._total_pulls = total_pulls
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getunmergeable_pulls(self):
+        return self._unmergeable_pulls
+        
+    unmergeable_pulls = property(_getunmergeable_pulls)
+
+    ##
+    ##
+    def _getmergeable_pulls(self):
+        return self._mergeable_pulls
+        
+    mergeable_pulls = property(_getmergeable_pulls)
+
+    ##
+    ##
+    def _getmerged_pulls(self):
+        return self._merged_pulls
+        
+    merged_pulls = property(_getmerged_pulls)
+
+    ##
+    ##
+    def _gettotal_pulls(self):
+        return self._total_pulls
+        
+    total_pulls = property(_gettotal_pulls)
+
+
+    ##
+##
+##
+class EnterpriseIssueStats(ResponseBase):
+    def __init__(self, closed_issues:int, open_issues:int, total_issues:int):
+        ResponseBase.__init__(self)
+        self._closed_issues = closed_issues
+        self._open_issues = open_issues
+        self._total_issues = total_issues
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getclosed_issues(self):
+        return self._closed_issues
+        
+    closed_issues = property(_getclosed_issues)
+
+    ##
+    ##
+    def _getopen_issues(self):
+        return self._open_issues
+        
+    open_issues = property(_getopen_issues)
+
+    ##
+    ##
+    def _gettotal_issues(self):
+        return self._total_issues
+        
+    total_issues = property(_gettotal_issues)
+
+
+    ##
+##
+##
+class EnterpriseMilestoneStats(ResponseBase):
+    def __init__(self, closed_milestones:int, open_milestones:int, total_milestones:int):
+        ResponseBase.__init__(self)
+        self._closed_milestones = closed_milestones
+        self._open_milestones = open_milestones
+        self._total_milestones = total_milestones
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getclosed_milestones(self):
+        return self._closed_milestones
+        
+    closed_milestones = property(_getclosed_milestones)
+
+    ##
+    ##
+    def _getopen_milestones(self):
+        return self._open_milestones
+        
+    open_milestones = property(_getopen_milestones)
+
+    ##
+    ##
+    def _gettotal_milestones(self):
+        return self._total_milestones
+        
+    total_milestones = property(_gettotal_milestones)
+
+
+    ##
+##
+##
+class EnterpriseGistStats(ResponseBase):
+    def __init__(self, public_gists:int, private_gists:int, total_gists:int):
+        ResponseBase.__init__(self)
+        self._public_gists = public_gists
+        self._private_gists = private_gists
+        self._total_gists = total_gists
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getpublic_gists(self):
+        return self._public_gists
+        
+    public_gists = property(_getpublic_gists)
+
+    ##
+    ##
+    def _getprivate_gists(self):
+        return self._private_gists
+        
+    private_gists = property(_getprivate_gists)
+
+    ##
+    ##
+    def _gettotal_gists(self):
+        return self._total_gists
+        
+    total_gists = property(_gettotal_gists)
+
+
+    ##
+##
+##
+class EnterpriseCommentStats(ResponseBase):
+    def __init__(self, total_pull_request_comments:int, total_issue_comments:int, total_gist_comments:int, total_commit_comments:int):
+        ResponseBase.__init__(self)
+        self._total_pull_request_comments = total_pull_request_comments
+        self._total_issue_comments = total_issue_comments
+        self._total_gist_comments = total_gist_comments
+        self._total_commit_comments = total_commit_comments
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _gettotal_pull_request_comments(self):
+        return self._total_pull_request_comments
+        
+    total_pull_request_comments = property(_gettotal_pull_request_comments)
+
+    ##
+    ##
+    def _gettotal_issue_comments(self):
+        return self._total_issue_comments
+        
+    total_issue_comments = property(_gettotal_issue_comments)
+
+    ##
+    ##
+    def _gettotal_gist_comments(self):
+        return self._total_gist_comments
+        
+    total_gist_comments = property(_gettotal_gist_comments)
+
+    ##
+    ##
+    def _gettotal_commit_comments(self):
+        return self._total_commit_comments
+        
+    total_commit_comments = property(_gettotal_commit_comments)
+
+
+    ##
+##
+##
+class EnterpriseOverview(ResponseBase):
+    def __init__(self, repos:dict=None, hooks:dict=None, pages:dict=None, orgs:dict=None, users:dict=None, pulls:dict=None, issues:dict=None, milestones:dict=None, gists:dict=None, comments:dict=None):
+        ResponseBase.__init__(self)
+        self._repos = repos
+        self._hooks = hooks
+        self._pages = pages
+        self._orgs = orgs
+        self._users = users
+        self._pulls = pulls
+        self._issues = issues
+        self._milestones = milestones
+        self._gists = gists
+        self._comments = comments
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getrepos(self):
+        return self._repos and RepositoryEnterpriseStats(**self._repos)
+        
+    repos = property(_getrepos)
+
+    ##
+    ##
+    def _gethooks(self):
+        return self._hooks and HooksEnterpriseStats(**self._hooks)
+        
+    hooks = property(_gethooks)
+
+    ##
+    ##
+    def _getpages(self):
+        return self._pages and EnterprisePagesStats(**self._pages)
+        
+    pages = property(_getpages)
+
+    ##
+    ##
+    def _getorgs(self):
+        return self._orgs and EnterpriseOrganizationStats(**self._orgs)
+        
+    orgs = property(_getorgs)
+
+    ##
+    ##
+    def _getusers(self):
+        return self._users and EnterpriseUserStats(**self._users)
+        
+    users = property(_getusers)
+
+    ##
+    ##
+    def _getpulls(self):
+        return self._pulls and EnterprisePullRequestStats(**self._pulls)
+        
+    pulls = property(_getpulls)
+
+    ##
+    ##
+    def _getissues(self):
+        return self._issues and EnterpriseIssueStats(**self._issues)
+        
+    issues = property(_getissues)
+
+    ##
+    ##
+    def _getmilestones(self):
+        return self._milestones and EnterpriseMilestoneStats(**self._milestones)
+        
+    milestones = property(_getmilestones)
+
+    ##
+    ##
+    def _getgists(self):
+        return self._gists and EnterpriseGistStats(**self._gists)
+        
+    gists = property(_getgists)
+
+    ##
+    ##
+    def _getcomments(self):
+        return self._comments and EnterpriseCommentStats(**self._comments)
+        
+    comments = property(_getcomments)
+
+
+    ##
+##
+##
+class ActionsEnterprisePermissions(ResponseBase):
     def __init__(self, enabled_organizations:str, selected_organizations_url:str=None, allowed_actions:str=None, selected_actions_url:str=None):
+        ResponseBase.__init__(self)
         self._enabled_organizations = enabled_organizations
         self._selected_organizations_url = selected_organizations_url
         self._allowed_actions = allowed_actions
@@ -3800,138 +6163,16 @@ class ActionsEnterprisePermissions(object):
     ##
 ##
 ##
-class OrganizationSimple(object):
-    """Organization Simple """
-    def __init__(self, description:str, avatar_url:str, public_members_url:str, members_url:str, issues_url:str, hooks_url:str, events_url:str, repos_url:str, url:str, node_id:str, id:int, login:str):
-        self._description = description
-        self._avatar_url = avatar_url
-        self._public_members_url = public_members_url
-        self._members_url = members_url
-        self._issues_url = issues_url
-        self._hooks_url = hooks_url
-        self._events_url = events_url
-        self._repos_url = repos_url
-        self._url = url
-        self._node_id = node_id
-        self._id = id
-        self._login = login
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getdescription(self):
-        return self._description
-        
-    description = property(_getdescription)
-
-    ##
-    ##
-    def _getavatar_url(self):
-        return self._avatar_url
-        
-    avatar_url = property(_getavatar_url)
-
-    ##
-    ##
-    def _getpublic_members_url(self):
-        return self._public_members_url
-        
-    public_members_url = property(_getpublic_members_url)
-
-    ##
-    ##
-    def _getmembers_url(self):
-        return self._members_url
-        
-    members_url = property(_getmembers_url)
-
-    ##
-    ##
-    def _getissues_url(self):
-        return self._issues_url
-        
-    issues_url = property(_getissues_url)
-
-    ##
-    ##
-    def _gethooks_url(self):
-        return self._hooks_url
-        
-    hooks_url = property(_gethooks_url)
-
-    ##
-    ##
-    def _getevents_url(self):
-        return self._events_url
-        
-    events_url = property(_getevents_url)
-
-    ##
-    ##
-    def _getrepos_url(self):
-        return self._repos_url
-        
-    repos_url = property(_getrepos_url)
-
-    ##
-    ##
-    def _geturl(self):
-        return self._url
-        
-    url = property(_geturl)
-
-    ##
-    ##
-    def _getnode_id(self):
-        return self._node_id
-        
-    node_id = property(_getnode_id)
-
-    ##
-    ##
-    def _getid(self):
-        return self._id
-        
-    id = property(_getid)
-
-    ##
-    ##
-    def _getlogin(self):
-        return self._login
-        
-    login = property(_getlogin)
-
-
-    ##
-##
-##
-class SelectedActions(object):
-    def __init__(self, github_owned_allowed:bool=None, verified_allowed:bool=None, patterns_allowed:list=None):
-        self._github_owned_allowed = github_owned_allowed
-        self._verified_allowed = verified_allowed
+class SelectedActions(ResponseBase):
+    def __init__(self, patterns_allowed:list, github_owned_allowed:bool):
+        ResponseBase.__init__(self)
         self._patterns_allowed = patterns_allowed
+        self._github_owned_allowed = github_owned_allowed
         return
         
     
 
     
-    ##
-    ##
-    def _getgithub_owned_allowed(self):
-        return self._github_owned_allowed
-        
-    github_owned_allowed = property(_getgithub_owned_allowed, doc="""Whether GitHub-owned actions are allowed. For example, this includes the actions in the `actions` organization. """)
-
-    ##
-    ##
-    def _getverified_allowed(self):
-        return self._verified_allowed
-        
-    verified_allowed = property(_getverified_allowed, doc="""Whether actions in GitHub Marketplace from verified creators are allowed. Set to `true` to allow all GitHub Marketplace actions by verified creators. """)
-
     ##
     ##
     def _getpatterns_allowed(self):
@@ -3939,12 +6180,20 @@ class SelectedActions(object):
         
     patterns_allowed = property(_getpatterns_allowed, doc="""Specifies a list of string-matching patterns to allow specific action(s). Wildcards, tags, and SHAs are allowed. For example, `monalisa/octocat@*`, `monalisa/octocat@v2`, `monalisa/*`." """)
 
+    ##
+    ##
+    def _getgithub_owned_allowed(self):
+        return self._github_owned_allowed
+        
+    github_owned_allowed = property(_getgithub_owned_allowed, doc="""Whether GitHub-owned actions are allowed. For example, this includes the actions in the `actions` organization. """)
+
 
     ##
 ##
 ##
-class RunnerGroupsEnterprise(object):
+class RunnerGroupsEnterprise(ResponseBase):
     def __init__(self, allows_public_repositories:bool, runners_url:str, default:bool, visibility:str, name:str, id:int, selected_organizations_url:str=None):
+        ResponseBase.__init__(self)
         self._allows_public_repositories = allows_public_repositories
         self._runners_url = runners_url
         self._default = default
@@ -4010,10 +6259,12 @@ class RunnerGroupsEnterprise(object):
     ##
 ##
 ##
-class Selfhostedrunners_labels(object):
-    def __init__(self, id:int=None, name:str=None, type:str=None):
-        self._id = id
+class SelfHostedRunnerLabel(ResponseBase):
+    """A label for a self hosted runner """
+    def __init__(self, name:str, id:int=None, type:str=None):
+        ResponseBase.__init__(self)
         self._name = name
+        self._id = id
         self._type = type
         return
         
@@ -4022,17 +6273,17 @@ class Selfhostedrunners_labels(object):
     
     ##
     ##
-    def _getid(self):
-        return self._id
-        
-    id = property(_getid, doc="""Unique identifier of the label. """)
-
-    ##
-    ##
     def _getname(self):
         return self._name
         
     name = property(_getname, doc="""Name of the label. """)
+
+    ##
+    ##
+    def _getid(self):
+        return self._id
+        
+    id = property(_getid, doc="""Unique identifier of the label. """)
 
     ##
     ##
@@ -4045,9 +6296,10 @@ class Selfhostedrunners_labels(object):
     ##
 ##
 ##
-class SelfHostedRunners(object):
+class SelfHostedRunners(ResponseBase):
     """A self hosted runner """
     def __init__(self, labels:list, busy:bool, status:str, os:str, name:str, id:int):
+        ResponseBase.__init__(self)
         self._labels = labels
         self._busy = busy
         self._status = status
@@ -4062,7 +6314,7 @@ class SelfHostedRunners(object):
     ##
     ##
     def _getlabels(self):
-        return self._labels and [ entry and Selfhostedrunners_labels(**entry) for entry in self._labels ]
+        return self._labels and [ entry and SelfHostedRunnerLabel(**entry) for entry in self._labels ]
         
     labels = property(_getlabels)
 
@@ -4105,9 +6357,10 @@ class SelfHostedRunners(object):
     ##
 ##
 ##
-class RunnerApplication(object):
+class RunnerApplication(ResponseBase):
     """Runner Application """
     def __init__(self, filename:str, download_url:str, architecture:str, os:str, temp_download_token:str=None, sha256_checksum:str=None):
+        ResponseBase.__init__(self)
         self._filename = filename
         self._download_url = download_url
         self._architecture = architecture
@@ -4165,9 +6418,10 @@ class RunnerApplication(object):
     ##
 ##
 ##
-class AuthenticationToken(object):
+class AuthenticationToken(ResponseBase):
     """Authentication Token """
     def __init__(self, expires_at:datetime, token:str, permissions:object=None, repositories:list=None, single_file:str=None, repository_selection:str=None):
+        ResponseBase.__init__(self)
         self._expires_at = expires_at
         self._token = token
         self._permissions = permissions
@@ -4182,7 +6436,7 @@ class AuthenticationToken(object):
     ##
     ##
     def _getexpires_at(self):
-        return self._expires_at and datetime.datetime.fromisoformat(self._expires_at[0:-1])
+        return self._expires_at and datetime.fromisoformat(self._expires_at[0:-1])
         
     expires_at = property(_getexpires_at, doc="""The time this token expires """)
 
@@ -4225,8 +6479,9 @@ class AuthenticationToken(object):
     ##
 ##
 ##
-class Auditlogevent_actor_location(object):
+class Auditlogevent_actor_location(ResponseBase):
     def __init__(self, country_name:str=None):
+        ResponseBase.__init__(self)
         self._country_name = country_name
         return
         
@@ -4244,8 +6499,9 @@ class Auditlogevent_actor_location(object):
     ##
 ##
 ##
-class AuditLogEvent(object):
+class AuditLogEvent(ResponseBase):
     def __init__(self, timestamp:int=None, action:str=None, active:bool=None, active_was:bool=None, actor:str=None, actor_id:int=None, actor_location:dict=None, data:object=None, org_id:int=None, blocked_user:str=None, business:str=None, config:list=None, config_was:list=None, content_type:str=None, created_at:int=None, deploy_key_fingerprint:str=None, _document_id:str=None, emoji:str=None, events:list=None, events_were:list=None, explanation:str=None, fingerprint:str=None, hook_id:int=None, limited_availability:bool=None, message:str=None, name:str=None, old_user:str=None, openssh_public_key:str=None, org:str=None, previous_visibility:str=None, read_only:bool=None, repo:str=None, repository:str=None, repository_public:bool=None, target_login:str=None, team:str=None, transport_protocol:int=None, transport_protocol_name:str=None, user:str=None, visibility:str=None):
+        ResponseBase.__init__(self)
         self._timestamp = timestamp
         self._action = action
         self._active = active
@@ -4586,157 +6842,10 @@ class AuditLogEvent(object):
 ##
 ##
 ##
-class Actionsbillingusage_minutes_used_breakdown(object):
-    def __init__(self, UBUNTU:int=None, MACOS:int=None, WINDOWS:int=None):
-        self._UBUNTU = UBUNTU
-        self._MACOS = MACOS
-        self._WINDOWS = WINDOWS
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getUBUNTU(self):
-        return self._UBUNTU
-        
-    UBUNTU = property(_getUBUNTU, doc="""Total minutes used on Ubuntu runner machines. """)
-
-    ##
-    ##
-    def _getMACOS(self):
-        return self._MACOS
-        
-    MACOS = property(_getMACOS, doc="""Total minutes used on macOS runner machines. """)
-
-    ##
-    ##
-    def _getWINDOWS(self):
-        return self._WINDOWS
-        
-    WINDOWS = property(_getWINDOWS, doc="""Total minutes used on Windows runner machines. """)
-
-
-    ##
-##
-##
-class ActionsBillingUsage(object):
-    def __init__(self, minutes_used_breakdown:dict, included_minutes:int, total_paid_minutes_used:int, total_minutes_used:int):
-        self._minutes_used_breakdown = minutes_used_breakdown
-        self._included_minutes = included_minutes
-        self._total_paid_minutes_used = total_paid_minutes_used
-        self._total_minutes_used = total_minutes_used
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getminutes_used_breakdown(self):
-        return self._minutes_used_breakdown and Actionsbillingusage_minutes_used_breakdown(**self._minutes_used_breakdown)
-        
-    minutes_used_breakdown = property(_getminutes_used_breakdown)
-
-    ##
-    ##
-    def _getincluded_minutes(self):
-        return self._included_minutes
-        
-    included_minutes = property(_getincluded_minutes, doc="""The amount of free GitHub Actions minutes available. """)
-
-    ##
-    ##
-    def _gettotal_paid_minutes_used(self):
-        return self._total_paid_minutes_used
-        
-    total_paid_minutes_used = property(_gettotal_paid_minutes_used, doc="""The total paid GitHub Actions minutes used. """)
-
-    ##
-    ##
-    def _gettotal_minutes_used(self):
-        return self._total_minutes_used
-        
-    total_minutes_used = property(_gettotal_minutes_used, doc="""The sum of the free and paid GitHub Actions minutes used. """)
-
-
-    ##
-##
-##
-class PackagesBillingUsage(object):
-    def __init__(self, included_gigabytes_bandwidth:int, total_paid_gigabytes_bandwidth_used:int, total_gigabytes_bandwidth_used:int):
-        self._included_gigabytes_bandwidth = included_gigabytes_bandwidth
-        self._total_paid_gigabytes_bandwidth_used = total_paid_gigabytes_bandwidth_used
-        self._total_gigabytes_bandwidth_used = total_gigabytes_bandwidth_used
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getincluded_gigabytes_bandwidth(self):
-        return self._included_gigabytes_bandwidth
-        
-    included_gigabytes_bandwidth = property(_getincluded_gigabytes_bandwidth, doc="""Free storage space (GB) for GitHub Packages. """)
-
-    ##
-    ##
-    def _gettotal_paid_gigabytes_bandwidth_used(self):
-        return self._total_paid_gigabytes_bandwidth_used
-        
-    total_paid_gigabytes_bandwidth_used = property(_gettotal_paid_gigabytes_bandwidth_used, doc="""Total paid storage space (GB) for GitHuub Packages. """)
-
-    ##
-    ##
-    def _gettotal_gigabytes_bandwidth_used(self):
-        return self._total_gigabytes_bandwidth_used
-        
-    total_gigabytes_bandwidth_used = property(_gettotal_gigabytes_bandwidth_used, doc="""Sum of the free and paid storage space (GB) for GitHuub Packages. """)
-
-
-    ##
-##
-##
-class CombinedBillingUsage(object):
-    def __init__(self, estimated_storage_for_month:int, estimated_paid_storage_for_month:int, days_left_in_billing_cycle:int):
-        self._estimated_storage_for_month = estimated_storage_for_month
-        self._estimated_paid_storage_for_month = estimated_paid_storage_for_month
-        self._days_left_in_billing_cycle = days_left_in_billing_cycle
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getestimated_storage_for_month(self):
-        return self._estimated_storage_for_month
-        
-    estimated_storage_for_month = property(_getestimated_storage_for_month, doc="""Estimated sum of free and paid storage space (GB) used in billing cycle. """)
-
-    ##
-    ##
-    def _getestimated_paid_storage_for_month(self):
-        return self._estimated_paid_storage_for_month
-        
-    estimated_paid_storage_for_month = property(_getestimated_paid_storage_for_month, doc="""Estimated storage space (GB) used in billing cycle. """)
-
-    ##
-    ##
-    def _getdays_left_in_billing_cycle(self):
-        return self._days_left_in_billing_cycle
-        
-    days_left_in_billing_cycle = property(_getdays_left_in_billing_cycle, doc="""Numbers of days left in billing cycle. """)
-
-
-    ##
-##
-##
-class Actor(object):
+class Actor(ResponseBase):
     """Actor """
     def __init__(self, avatar_url:str, url:str, gravatar_id:str, login:str, id:int, display_login:str=None):
+        ResponseBase.__init__(self)
         self._avatar_url = avatar_url
         self._url = url
         self._gravatar_id = gravatar_id
@@ -4794,77 +6903,10 @@ class Actor(object):
     ##
 ##
 ##
-class Label(object):
-    """Color-coded labels help you categorize and filter your issues (just like labels in Gmail). """
-    def __init__(self, default:bool, color:str, description:str, name:str, url:str, node_id:str, id:int):
-        self._default = default
-        self._color = color
-        self._description = description
-        self._name = name
-        self._url = url
-        self._node_id = node_id
-        self._id = id
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getdefault(self):
-        return self._default
-        
-    default = property(_getdefault)
-
-    ##
-    ##
-    def _getcolor(self):
-        return self._color
-        
-    color = property(_getcolor, doc="""6-character hex code, without the leading #, identifying the color """)
-
-    ##
-    ##
-    def _getdescription(self):
-        return self._description
-        
-    description = property(_getdescription)
-
-    ##
-    ##
-    def _getname(self):
-        return self._name
-        
-    name = property(_getname, doc="""The name of the label. """)
-
-    ##
-    ##
-    def _geturl(self):
-        return self._url
-        
-    url = property(_geturl, doc="""URL for the label """)
-
-    ##
-    ##
-    def _getnode_id(self):
-        return self._node_id
-        
-    node_id = property(_getnode_id)
-
-    ##
-    ##
-    def _getid(self):
-        return self._id
-        
-    id = property(_getid)
-
-
-    ##
-##
-##
-class Milestone(object):
+class Milestone(ResponseBase):
     """A collection of related issues and pull requests. """
     def __init__(self, due_on:datetime, closed_at:datetime, updated_at:datetime, created_at:datetime, closed_issues:int, open_issues:int, creator:dict, description:str, title:str, number:int, node_id:str, id:int, labels_url:str, html_url:str, url:str, state:str='open'):
+        ResponseBase.__init__(self)
         self._due_on = due_on
         self._closed_at = closed_at
         self._updated_at = updated_at
@@ -4889,28 +6931,28 @@ class Milestone(object):
     ##
     ##
     def _getdue_on(self):
-        return self._due_on and datetime.datetime.fromisoformat(self._due_on[0:-1])
+        return self._due_on and datetime.fromisoformat(self._due_on[0:-1])
         
     due_on = property(_getdue_on)
 
     ##
     ##
     def _getclosed_at(self):
-        return self._closed_at and datetime.datetime.fromisoformat(self._closed_at[0:-1])
+        return self._closed_at and datetime.fromisoformat(self._closed_at[0:-1])
         
     closed_at = property(_getclosed_at)
 
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -5002,90 +7044,27 @@ class Milestone(object):
     ##
 ##
 ##
-class Issuesimple_pull_request(object):
-    def __init__(self, url:str, patch_url:str, html_url:str, diff_url:str, merged_at:datetime=None):
-        self._url = url
-        self._patch_url = patch_url
-        self._html_url = html_url
-        self._diff_url = diff_url
-        self._merged_at = merged_at
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _geturl(self):
-        return self._url
-        
-    url = property(_geturl)
-
-    ##
-    ##
-    def _getpatch_url(self):
-        return self._patch_url
-        
-    patch_url = property(_getpatch_url)
-
-    ##
-    ##
-    def _gethtml_url(self):
-        return self._html_url
-        
-    html_url = property(_gethtml_url)
-
-    ##
-    ##
-    def _getdiff_url(self):
-        return self._diff_url
-        
-    diff_url = property(_getdiff_url)
-
-    ##
-    ##
-    def _getmerged_at(self):
-        return self._merged_at and datetime.datetime.fromisoformat(self._merged_at[0:-1])
-        
-    merged_at = property(_getmerged_at)
-
-
-    ##
-##
-##
-class IssueSimple(object):
-    """Issue Simple """
-    def __init__(self, author_association:str, updated_at:datetime, created_at:datetime, closed_at:datetime, comments:int, locked:bool, milestone:dict, assignee:dict, labels:list, user:dict, title:str, state:str, number:int, html_url:str, events_url:str, comments_url:str, labels_url:str, repository_url:str, url:str, node_id:str, id:int, body:str=None, assignees:list=None, active_lock_reason:str=None, pull_request:dict=None, body_html:str=None, body_text:str=None, timeline_url:str=None, repository:dict=None, performed_via_github_app:dict=None):
-        self._author_association = author_association
+class GithubApp(ResponseBase):
+    """GitHub apps are a new way to extend GitHub. They can be installed directly on organizations and user accounts and granted access to specific repositories. They come with granular permissions and built-in webhooks. GitHub apps are first class actors within GitHub. """
+    def __init__(self, events:list, permissions:dict, updated_at:datetime, created_at:datetime, html_url:str, external_url:str, description:str, name:str, owner:dict, node_id:str, id:int, slug:str=None, installations_count:int=None, client_id:str=None, client_secret:str=None, webhook_secret:str=None, pem:str=None):
+        ResponseBase.__init__(self)
+        self._events = events
+        self._permissions = permissions
         self._updated_at = updated_at
         self._created_at = created_at
-        self._closed_at = closed_at
-        self._comments = comments
-        self._locked = locked
-        self._milestone = milestone
-        self._assignee = assignee
-        self._labels = labels
-        self._user = user
-        self._title = title
-        self._state = state
-        self._number = number
         self._html_url = html_url
-        self._events_url = events_url
-        self._comments_url = comments_url
-        self._labels_url = labels_url
-        self._repository_url = repository_url
-        self._url = url
+        self._external_url = external_url
+        self._description = description
+        self._name = name
+        self._owner = owner
         self._node_id = node_id
         self._id = id
-        self._body = body
-        self._assignees = assignees
-        self._active_lock_reason = active_lock_reason
-        self._pull_request = pull_request
-        self._body_html = body_html
-        self._body_text = body_text
-        self._timeline_url = timeline_url
-        self._repository = repository
-        self._performed_via_github_app = performed_via_github_app
+        self._slug = slug
+        self._installations_count = installations_count
+        self._client_id = client_id
+        self._client_secret = client_secret
+        self._webhook_secret = webhook_secret
+        self._pem = pem
         return
         
     
@@ -5093,94 +7072,31 @@ class IssueSimple(object):
     
     ##
     ##
-    def _getauthor_association(self):
-        return self._author_association
+    def _getevents(self):
+        return self._events and [ entry for entry in self._events ]
         
-    author_association = property(_getauthor_association)
+    events = property(_getevents, doc="""The list of events for the GitHub app """)
+
+    ##
+    ##
+    def _getpermissions(self):
+        return self._permissions and Githubapp_permissions(**self._permissions)
+        
+    permissions = property(_getpermissions, doc="""The set of permissions for the GitHub app """)
 
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
-
-    ##
-    ##
-    def _getclosed_at(self):
-        return self._closed_at and datetime.datetime.fromisoformat(self._closed_at[0:-1])
-        
-    closed_at = property(_getclosed_at)
-
-    ##
-    ##
-    def _getcomments(self):
-        return self._comments
-        
-    comments = property(_getcomments)
-
-    ##
-    ##
-    def _getlocked(self):
-        return self._locked
-        
-    locked = property(_getlocked)
-
-    ##
-    ##
-    def _getmilestone(self):
-        return self._milestone and Milestone(**self._milestone)
-        
-    milestone = property(_getmilestone)
-
-    ##
-    ##
-    def _getassignee(self):
-        return self._assignee and SimpleUser(**self._assignee)
-        
-    assignee = property(_getassignee)
-
-    ##
-    ##
-    def _getlabels(self):
-        return self._labels and [ entry and Label(**entry) for entry in self._labels ]
-        
-    labels = property(_getlabels)
-
-    ##
-    ##
-    def _getuser(self):
-        return self._user and SimpleUser(**self._user)
-        
-    user = property(_getuser)
-
-    ##
-    ##
-    def _gettitle(self):
-        return self._title
-        
-    title = property(_gettitle)
-
-    ##
-    ##
-    def _getstate(self):
-        return self._state
-        
-    state = property(_getstate)
-
-    ##
-    ##
-    def _getnumber(self):
-        return self._number
-        
-    number = property(_getnumber)
 
     ##
     ##
@@ -5191,38 +7107,31 @@ class IssueSimple(object):
 
     ##
     ##
-    def _getevents_url(self):
-        return self._events_url
+    def _getexternal_url(self):
+        return self._external_url
         
-    events_url = property(_getevents_url)
+    external_url = property(_getexternal_url)
 
     ##
     ##
-    def _getcomments_url(self):
-        return self._comments_url
+    def _getdescription(self):
+        return self._description
         
-    comments_url = property(_getcomments_url)
+    description = property(_getdescription)
 
     ##
     ##
-    def _getlabels_url(self):
-        return self._labels_url
+    def _getname(self):
+        return self._name
         
-    labels_url = property(_getlabels_url)
+    name = property(_getname, doc="""The name of the GitHub app """)
 
     ##
     ##
-    def _getrepository_url(self):
-        return self._repository_url
+    def _getowner(self):
+        return self._owner and SimpleUser(**self._owner)
         
-    repository_url = property(_getrepository_url)
-
-    ##
-    ##
-    def _geturl(self):
-        return self._url
-        
-    url = property(_geturl)
+    owner = property(_getowner)
 
     ##
     ##
@@ -5236,77 +7145,57 @@ class IssueSimple(object):
     def _getid(self):
         return self._id
         
-    id = property(_getid)
+    id = property(_getid, doc="""Unique identifier of the GitHub app """)
 
     ##
     ##
-    def _getbody(self):
-        return self._body
+    def _getslug(self):
+        return self._slug
         
-    body = property(_getbody)
+    slug = property(_getslug, doc="""The slug name of the GitHub app """)
 
     ##
     ##
-    def _getassignees(self):
-        return self._assignees and [ entry and SimpleUser(**entry) for entry in self._assignees ]
+    def _getinstallations_count(self):
+        return self._installations_count
         
-    assignees = property(_getassignees)
+    installations_count = property(_getinstallations_count, doc="""The number of installations associated with the GitHub app """)
 
     ##
     ##
-    def _getactive_lock_reason(self):
-        return self._active_lock_reason
+    def _getclient_id(self):
+        return self._client_id
         
-    active_lock_reason = property(_getactive_lock_reason)
+    client_id = property(_getclient_id)
 
     ##
     ##
-    def _getpull_request(self):
-        return self._pull_request and Issuesimple_pull_request(**self._pull_request)
+    def _getclient_secret(self):
+        return self._client_secret
         
-    pull_request = property(_getpull_request)
+    client_secret = property(_getclient_secret)
 
     ##
     ##
-    def _getbody_html(self):
-        return self._body_html
+    def _getwebhook_secret(self):
+        return self._webhook_secret
         
-    body_html = property(_getbody_html)
+    webhook_secret = property(_getwebhook_secret)
 
     ##
     ##
-    def _getbody_text(self):
-        return self._body_text
+    def _getpem(self):
+        return self._pem
         
-    body_text = property(_getbody_text)
-
-    ##
-    ##
-    def _gettimeline_url(self):
-        return self._timeline_url
-        
-    timeline_url = property(_gettimeline_url)
-
-    ##
-    ##
-    def _getrepository(self):
-        return self._repository and Repository(**self._repository)
-        
-    repository = property(_getrepository)
-
-    ##
-    ##
-    def _getperformed_via_github_app(self):
-        return self._performed_via_github_app and GithubApp(**self._performed_via_github_app)
-        
-    performed_via_github_app = property(_getperformed_via_github_app)
+    pem = property(_getpem)
 
 
     ##
 ##
 ##
-class ReactionRollup(object):
+class ReactionRollup(ResponseBase):
     def __init__(self, rocket:int, eyes:int, hooray:int, heart:int, confused:int, laugh:int, minusone:int, plusone:int, total_count:int, url:str):
+        ResponseBase.__init__(self)
         self._rocket = rocket
         self._eyes = eyes
         self._hooray = hooray
@@ -5415,9 +7304,407 @@ class ReactionRollup(object):
 ##
 ##
 ##
-class IssueComment(object):
+class Issue_labels(ResponseBase):
+    def __init__(self, id:int=None, node_id:str=None, url:str=None, name:str=None, description:str=None, color:str=None, default:bool=None):
+        ResponseBase.__init__(self)
+        self._id = id
+        self._node_id = node_id
+        self._url = url
+        self._name = name
+        self._description = description
+        self._color = color
+        self._default = default
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getid(self):
+        return self._id
+        
+    id = property(_getid)
+
+    ##
+    ##
+    def _getnode_id(self):
+        return self._node_id
+        
+    node_id = property(_getnode_id)
+
+    ##
+    ##
+    def _geturl(self):
+        return self._url
+        
+    url = property(_geturl)
+
+    ##
+    ##
+    def _getname(self):
+        return self._name
+        
+    name = property(_getname)
+
+    ##
+    ##
+    def _getdescription(self):
+        return self._description
+        
+    description = property(_getdescription)
+
+    ##
+    ##
+    def _getcolor(self):
+        return self._color
+        
+    color = property(_getcolor)
+
+    ##
+    ##
+    def _getdefault(self):
+        return self._default
+        
+    default = property(_getdefault)
+
+
+    ##
+##
+##
+class Issue_pull_request(ResponseBase):
+    def __init__(self, url:str, patch_url:str, html_url:str, diff_url:str, merged_at:datetime=None):
+        ResponseBase.__init__(self)
+        self._url = url
+        self._patch_url = patch_url
+        self._html_url = html_url
+        self._diff_url = diff_url
+        self._merged_at = merged_at
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _geturl(self):
+        return self._url
+        
+    url = property(_geturl)
+
+    ##
+    ##
+    def _getpatch_url(self):
+        return self._patch_url
+        
+    patch_url = property(_getpatch_url)
+
+    ##
+    ##
+    def _gethtml_url(self):
+        return self._html_url
+        
+    html_url = property(_gethtml_url)
+
+    ##
+    ##
+    def _getdiff_url(self):
+        return self._diff_url
+        
+    diff_url = property(_getdiff_url)
+
+    ##
+    ##
+    def _getmerged_at(self):
+        return self._merged_at and datetime.fromisoformat(self._merged_at[0:-1])
+        
+    merged_at = property(_getmerged_at)
+
+
+    ##
+##
+##
+class Issue(ResponseBase):
+    """Issues are a great way to keep track of tasks, enhancements, and bugs for your projects. """
+    def __init__(self, author_association:str, updated_at:datetime, created_at:datetime, closed_at:datetime, comments:int, locked:bool, milestone:dict, assignee:dict, labels, user:dict, title:str, state:str, number:int, html_url:str, events_url:str, comments_url:str, labels_url:str, repository_url:str, url:str, node_id:str, id:int, body:str=None, assignees:list=None, active_lock_reason:str=None, pull_request:dict=None, draft:bool=None, closed_by:dict=None, body_html:str=None, body_text:str=None, timeline_url:str=None, repository:dict=None, performed_via_github_app:dict=None, reactions:dict=None):
+        ResponseBase.__init__(self)
+        self._author_association = author_association
+        self._updated_at = updated_at
+        self._created_at = created_at
+        self._closed_at = closed_at
+        self._comments = comments
+        self._locked = locked
+        self._milestone = milestone
+        self._assignee = assignee
+        self._labels = labels
+        self._user = user
+        self._title = title
+        self._state = state
+        self._number = number
+        self._html_url = html_url
+        self._events_url = events_url
+        self._comments_url = comments_url
+        self._labels_url = labels_url
+        self._repository_url = repository_url
+        self._url = url
+        self._node_id = node_id
+        self._id = id
+        self._body = body
+        self._assignees = assignees
+        self._active_lock_reason = active_lock_reason
+        self._pull_request = pull_request
+        self._draft = draft
+        self._closed_by = closed_by
+        self._body_html = body_html
+        self._body_text = body_text
+        self._timeline_url = timeline_url
+        self._repository = repository
+        self._performed_via_github_app = performed_via_github_app
+        self._reactions = reactions
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getauthor_association(self):
+        return self._author_association
+        
+    author_association = property(_getauthor_association)
+
+    ##
+    ##
+    def _getupdated_at(self):
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
+        
+    updated_at = property(_getupdated_at)
+
+    ##
+    ##
+    def _getcreated_at(self):
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
+        
+    created_at = property(_getcreated_at)
+
+    ##
+    ##
+    def _getclosed_at(self):
+        return self._closed_at and datetime.fromisoformat(self._closed_at[0:-1])
+        
+    closed_at = property(_getclosed_at)
+
+    ##
+    ##
+    def _getcomments(self):
+        return self._comments
+        
+    comments = property(_getcomments)
+
+    ##
+    ##
+    def _getlocked(self):
+        return self._locked
+        
+    locked = property(_getlocked)
+
+    ##
+    ##
+    def _getmilestone(self):
+        return self._milestone and Milestone(**self._milestone)
+        
+    milestone = property(_getmilestone)
+
+    ##
+    ##
+    def _getassignee(self):
+        return self._assignee and SimpleUser(**self._assignee)
+        
+    assignee = property(_getassignee)
+
+    ##
+    ##
+    def _getlabels(self):
+        return self._labels
+        
+    labels = property(_getlabels, doc="""Labels to associate with this issue; pass one or more label names to replace the set of labels on this issue; send an empty array to clear all labels from the issue; note that the labels are silently dropped for users without push access to the repository """)
+
+    ##
+    ##
+    def _getuser(self):
+        return self._user and SimpleUser(**self._user)
+        
+    user = property(_getuser)
+
+    ##
+    ##
+    def _gettitle(self):
+        return self._title
+        
+    title = property(_gettitle, doc="""Title of the issue """)
+
+    ##
+    ##
+    def _getstate(self):
+        return self._state
+        
+    state = property(_getstate, doc="""State of the issue; either 'open' or 'closed' """)
+
+    ##
+    ##
+    def _getnumber(self):
+        return self._number
+        
+    number = property(_getnumber, doc="""Number uniquely identifying the issue within its repository """)
+
+    ##
+    ##
+    def _gethtml_url(self):
+        return self._html_url
+        
+    html_url = property(_gethtml_url)
+
+    ##
+    ##
+    def _getevents_url(self):
+        return self._events_url
+        
+    events_url = property(_getevents_url)
+
+    ##
+    ##
+    def _getcomments_url(self):
+        return self._comments_url
+        
+    comments_url = property(_getcomments_url)
+
+    ##
+    ##
+    def _getlabels_url(self):
+        return self._labels_url
+        
+    labels_url = property(_getlabels_url)
+
+    ##
+    ##
+    def _getrepository_url(self):
+        return self._repository_url
+        
+    repository_url = property(_getrepository_url)
+
+    ##
+    ##
+    def _geturl(self):
+        return self._url
+        
+    url = property(_geturl, doc="""URL for the issue """)
+
+    ##
+    ##
+    def _getnode_id(self):
+        return self._node_id
+        
+    node_id = property(_getnode_id)
+
+    ##
+    ##
+    def _getid(self):
+        return self._id
+        
+    id = property(_getid)
+
+    ##
+    ##
+    def _getbody(self):
+        return self._body
+        
+    body = property(_getbody, doc="""Contents of the issue """)
+
+    ##
+    ##
+    def _getassignees(self):
+        return self._assignees and [ entry and SimpleUser(**entry) for entry in self._assignees ]
+        
+    assignees = property(_getassignees)
+
+    ##
+    ##
+    def _getactive_lock_reason(self):
+        return self._active_lock_reason
+        
+    active_lock_reason = property(_getactive_lock_reason)
+
+    ##
+    ##
+    def _getpull_request(self):
+        return self._pull_request and Issue_pull_request(**self._pull_request)
+        
+    pull_request = property(_getpull_request)
+
+    ##
+    ##
+    def _getdraft(self):
+        return self._draft
+        
+    draft = property(_getdraft)
+
+    ##
+    ##
+    def _getclosed_by(self):
+        return self._closed_by and SimpleUser(**self._closed_by)
+        
+    closed_by = property(_getclosed_by)
+
+    ##
+    ##
+    def _getbody_html(self):
+        return self._body_html
+        
+    body_html = property(_getbody_html)
+
+    ##
+    ##
+    def _getbody_text(self):
+        return self._body_text
+        
+    body_text = property(_getbody_text)
+
+    ##
+    ##
+    def _gettimeline_url(self):
+        return self._timeline_url
+        
+    timeline_url = property(_gettimeline_url)
+
+    ##
+    ##
+    def _getrepository(self):
+        return self._repository and Repository(**self._repository)
+        
+    repository = property(_getrepository)
+
+    ##
+    ##
+    def _getperformed_via_github_app(self):
+        return self._performed_via_github_app and GithubApp(**self._performed_via_github_app)
+        
+    performed_via_github_app = property(_getperformed_via_github_app)
+
+    ##
+    ##
+    def _getreactions(self):
+        return self._reactions and ReactionRollup(**ReactionRollup.patchEntry(self._reactions))
+        
+    reactions = property(_getreactions)
+
+
+    ##
+##
+##
+class IssueComment(ResponseBase):
     """Comments provide a way for people to collaborate on an issue. """
     def __init__(self, author_association:str, issue_url:str, updated_at:datetime, created_at:datetime, user:dict, html_url:str, url:str, node_id:str, id:int, body:str=None, body_text:str=None, body_html:str=None, performed_via_github_app:dict=None, reactions:dict=None):
+        ResponseBase.__init__(self)
         self._author_association = author_association
         self._issue_url = issue_url
         self._updated_at = updated_at
@@ -5454,14 +7741,14 @@ class IssueComment(object):
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -5539,8 +7826,9 @@ class IssueComment(object):
     ##
 ##
 ##
-class Event_repo(object):
+class Event_repo(ResponseBase):
     def __init__(self, url:str, name:str, id:int):
+        ResponseBase.__init__(self)
         self._url = url
         self._name = name
         self._id = id
@@ -5574,8 +7862,9 @@ class Event_repo(object):
     ##
 ##
 ##
-class Event_payload_pages(object):
+class Event_payload_pages(ResponseBase):
     def __init__(self, page_name:str=None, title:str=None, summary:str=None, action:str=None, sha:str=None, html_url:str=None):
+        ResponseBase.__init__(self)
         self._page_name = page_name
         self._title = title
         self._summary = summary
@@ -5633,8 +7922,9 @@ class Event_payload_pages(object):
     ##
 ##
 ##
-class Event_payload(object):
+class Event_payload(ResponseBase):
     def __init__(self, action:str=None, issue:dict=None, comment:dict=None, pages:list=None):
+        ResponseBase.__init__(self)
         self._action = action
         self._issue = issue
         self._comment = comment
@@ -5654,7 +7944,7 @@ class Event_payload(object):
     ##
     ##
     def _getissue(self):
-        return self._issue and IssueSimple(**self._issue)
+        return self._issue and Issue(**self._issue)
         
     issue = property(_getissue)
 
@@ -5676,9 +7966,10 @@ class Event_payload(object):
     ##
 ##
 ##
-class Event(object):
+class Event(ResponseBase):
     """Event """
     def __init__(self, created_at:datetime, public:bool, payload:dict, repo:dict, actor:dict, type:str, id:str, org:dict=None):
+        ResponseBase.__init__(self)
         self._created_at = created_at
         self._public = public
         self._payload = payload
@@ -5695,7 +7986,7 @@ class Event(object):
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -5752,9 +8043,10 @@ class Event(object):
     ##
 ##
 ##
-class LinkWithType(object):
+class LinkWithType(ResponseBase):
     """Hypermedia Link with Type """
     def __init__(self, type:str, href:str):
+        ResponseBase.__init__(self)
         self._type = type
         self._href = href
         return
@@ -5780,8 +8072,9 @@ class LinkWithType(object):
     ##
 ##
 ##
-class Feed__links(object):
+class Feed__links(ResponseBase):
     def __init__(self, user:dict, timeline:dict, security_advisories:dict=None, current_user:dict=None, current_user_public:dict=None, current_user_actor:dict=None, current_user_organization:dict=None, current_user_organizations:list=None):
+        ResponseBase.__init__(self)
         self._user = user
         self._timeline = timeline
         self._security_advisories = security_advisories
@@ -5855,9 +8148,10 @@ class Feed__links(object):
     ##
 ##
 ##
-class Feed(object):
+class Feed(ResponseBase):
     """Feed """
     def __init__(self, _links:dict, user_url:str, timeline_url:str, current_user_public_url:str=None, current_user_url:str=None, current_user_actor_url:str=None, current_user_organization_url:str=None, current_user_organization_urls:list=None, security_advisories_url:str=None):
+        ResponseBase.__init__(self)
         self.__links = _links
         self._user_url = user_url
         self._timeline_url = timeline_url
@@ -5939,9 +8233,10 @@ class Feed(object):
     ##
 ##
 ##
-class BaseGist(object):
+class BaseGist(ResponseBase):
     """Base Gist """
     def __init__(self, comments_url:str, user:dict, comments:int, description:str, updated_at:datetime, created_at:datetime, public:bool, files:object, html_url:str, git_push_url:str, git_pull_url:str, node_id:str, id:str, commits_url:str, forks_url:str, url:str, owner:dict=None, truncated:bool=None, forks:list=None, history:list=None):
+        ResponseBase.__init__(self)
         self._comments_url = comments_url
         self._user = user
         self._comments = comments
@@ -5998,14 +8293,14 @@ class BaseGist(object):
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -6111,8 +8406,9 @@ class BaseGist(object):
     ##
 ##
 ##
-class Publicuser_plan(object):
+class Publicuser_plan(ResponseBase):
     def __init__(self, private_repos:int, space:int, name:str, collaborators:int):
+        ResponseBase.__init__(self)
         self._private_repos = private_repos
         self._space = space
         self._name = name
@@ -6154,9 +8450,10 @@ class Publicuser_plan(object):
     ##
 ##
 ##
-class PublicUser(object):
+class PublicUser(ResponseBase):
     """Public User """
     def __init__(self, updated_at:datetime, created_at:datetime, following:int, followers:int, public_gists:int, public_repos:int, bio:str, hireable:bool, email:str, location:str, blog:str, company:str, name:str, site_admin:bool, type:str, received_events_url:str, events_url:str, repos_url:str, organizations_url:str, subscriptions_url:str, starred_url:str, gists_url:str, following_url:str, followers_url:str, html_url:str, url:str, gravatar_id:str, avatar_url:str, node_id:str, id:int, login:str, twitter_username:str=None, plan:dict=None, suspended_at:datetime=None, private_gists:int=None, total_private_repos:int=None, owned_private_repos:int=None, disk_usage:int=None, collaborators:int=None):
+        ResponseBase.__init__(self)
         self._updated_at = updated_at
         self._created_at = created_at
         self._following = following
@@ -6204,14 +8501,14 @@ class PublicUser(object):
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -6435,7 +8732,7 @@ class PublicUser(object):
     ##
     ##
     def _getsuspended_at(self):
-        return self._suspended_at and datetime.datetime.fromisoformat(self._suspended_at[0:-1])
+        return self._suspended_at and datetime.fromisoformat(self._suspended_at[0:-1])
         
     suspended_at = property(_getsuspended_at)
 
@@ -6478,8 +8775,9 @@ class PublicUser(object):
     ##
 ##
 ##
-class Gisthistory_change_status(object):
+class Gisthistory_change_status(ResponseBase):
     def __init__(self, total:int=None, additions:int=None, deletions:int=None):
+        ResponseBase.__init__(self)
         self._total = total
         self._additions = additions
         self._deletions = deletions
@@ -6513,9 +8811,10 @@ class Gisthistory_change_status(object):
     ##
 ##
 ##
-class GistHistory(object):
+class GistHistory(ResponseBase):
     """Gist History """
     def __init__(self, user:dict=None, version:str=None, committed_at:datetime=None, change_status:dict=None, url:str=None):
+        ResponseBase.__init__(self)
         self._user = user
         self._version = version
         self._committed_at = committed_at
@@ -6543,7 +8842,7 @@ class GistHistory(object):
     ##
     ##
     def _getcommitted_at(self):
-        return self._committed_at and datetime.datetime.fromisoformat(self._committed_at[0:-1])
+        return self._committed_at and datetime.fromisoformat(self._committed_at[0:-1])
         
     committed_at = property(_getcommitted_at)
 
@@ -6565,9 +8864,10 @@ class GistHistory(object):
     ##
 ##
 ##
-class Gistsimple_fork_of(object):
+class Gistsimple_fork_of(ResponseBase):
     """Gist """
     def __init__(self, comments_url:str, user:dict, comments:int, description:str, updated_at:datetime, created_at:datetime, public:bool, files:object, html_url:str, git_push_url:str, git_pull_url:str, node_id:str, id:str, commits_url:str, forks_url:str, url:str, owner:dict=None, truncated:bool=None, forks:list=None, history:list=None):
+        ResponseBase.__init__(self)
         self._comments_url = comments_url
         self._user = user
         self._comments = comments
@@ -6624,14 +8924,14 @@ class Gistsimple_fork_of(object):
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -6737,9 +9037,10 @@ class Gistsimple_fork_of(object):
     ##
 ##
 ##
-class GistSimple(object):
+class GistSimple(ResponseBase):
     """Gist Simple """
     def __init__(self, forks=None, history=None, fork_of:dict=None, url:str=None, forks_url:str=None, commits_url:str=None, id:str=None, node_id:str=None, git_pull_url:str=None, git_push_url:str=None, html_url:str=None, files:object=None, public:bool=None, created_at:str=None, updated_at:str=None, description:str=None, comments:int=None, user:str=None, comments_url:str=None, owner:dict=None, truncated:bool=None):
+        ResponseBase.__init__(self)
         self._forks = forks
         self._history = history
         self._fork_of = fork_of
@@ -6917,9 +9218,10 @@ class GistSimple(object):
     ##
 ##
 ##
-class GistComment(object):
+class GistComment(ResponseBase):
     """A comment made to a gist. """
     def __init__(self, author_association:str, updated_at:datetime, created_at:datetime, user:dict, body:str, url:str, node_id:str, id:int):
+        ResponseBase.__init__(self)
         self._author_association = author_association
         self._updated_at = updated_at
         self._created_at = created_at
@@ -6943,14 +9245,14 @@ class GistComment(object):
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -6993,8 +9295,9 @@ class GistComment(object):
     ##
 ##
 ##
-class Gistcommit_change_status(object):
+class Gistcommit_change_status(ResponseBase):
     def __init__(self, total:int=None, additions:int=None, deletions:int=None):
+        ResponseBase.__init__(self)
         self._total = total
         self._additions = additions
         self._deletions = deletions
@@ -7028,9 +9331,10 @@ class Gistcommit_change_status(object):
     ##
 ##
 ##
-class GistCommit(object):
+class GistCommit(ResponseBase):
     """Gist Commit """
     def __init__(self, committed_at:datetime, change_status:dict, user:dict, version:str, url:str):
+        ResponseBase.__init__(self)
         self._committed_at = committed_at
         self._change_status = change_status
         self._user = user
@@ -7044,7 +9348,7 @@ class GistCommit(object):
     ##
     ##
     def _getcommitted_at(self):
-        return self._committed_at and datetime.datetime.fromisoformat(self._committed_at[0:-1])
+        return self._committed_at and datetime.fromisoformat(self._committed_at[0:-1])
         
     committed_at = property(_getcommitted_at)
 
@@ -7080,9 +9384,10 @@ class GistCommit(object):
     ##
 ##
 ##
-class GitignoreTemplate(object):
+class GitignoreTemplate(ResponseBase):
     """Gitignore Template """
     def __init__(self, source:str, name:str):
+        ResponseBase.__init__(self)
         self._source = source
         self._name = name
         return
@@ -7108,15 +9413,16 @@ class GitignoreTemplate(object):
     ##
 ##
 ##
-class Issue_labels(object):
-    def __init__(self, id:int=None, node_id:str=None, url:str=None, name:str=None, description:str=None, color:str=None, default:bool=None):
-        self._id = id
+class LicenseSimple(ResponseBase):
+    """License Simple """
+    def __init__(self, node_id:str, spdx_id:str, url:str, name:str, key:str, html_url:str=None):
+        ResponseBase.__init__(self)
         self._node_id = node_id
+        self._spdx_id = spdx_id
         self._url = url
         self._name = name
-        self._description = description
-        self._color = color
-        self._default = default
+        self._key = key
+        self._html_url = html_url
         return
         
     
@@ -7124,17 +9430,17 @@ class Issue_labels(object):
     
     ##
     ##
-    def _getid(self):
-        return self._id
-        
-    id = property(_getid)
-
-    ##
-    ##
     def _getnode_id(self):
         return self._node_id
         
     node_id = property(_getnode_id)
+
+    ##
+    ##
+    def _getspdx_id(self):
+        return self._spdx_id
+        
+    spdx_id = property(_getspdx_id)
 
     ##
     ##
@@ -7152,54 +9458,10 @@ class Issue_labels(object):
 
     ##
     ##
-    def _getdescription(self):
-        return self._description
+    def _getkey(self):
+        return self._key
         
-    description = property(_getdescription)
-
-    ##
-    ##
-    def _getcolor(self):
-        return self._color
-        
-    color = property(_getcolor)
-
-    ##
-    ##
-    def _getdefault(self):
-        return self._default
-        
-    default = property(_getdefault)
-
-
-    ##
-##
-##
-class Issue_pull_request(object):
-    def __init__(self, url:str, patch_url:str, html_url:str, diff_url:str, merged_at:datetime=None):
-        self._url = url
-        self._patch_url = patch_url
-        self._html_url = html_url
-        self._diff_url = diff_url
-        self._merged_at = merged_at
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _geturl(self):
-        return self._url
-        
-    url = property(_geturl)
-
-    ##
-    ##
-    def _getpatch_url(self):
-        return self._patch_url
-        
-    patch_url = property(_getpatch_url)
+    key = property(_getkey)
 
     ##
     ##
@@ -7208,295 +9470,14 @@ class Issue_pull_request(object):
         
     html_url = property(_gethtml_url)
 
-    ##
-    ##
-    def _getdiff_url(self):
-        return self._diff_url
-        
-    diff_url = property(_getdiff_url)
-
-    ##
-    ##
-    def _getmerged_at(self):
-        return self._merged_at and datetime.datetime.fromisoformat(self._merged_at[0:-1])
-        
-    merged_at = property(_getmerged_at)
-
 
     ##
 ##
 ##
-class Issue(object):
-    """Issues are a great way to keep track of tasks, enhancements, and bugs for your projects. """
-    def __init__(self, author_association:str, updated_at:datetime, created_at:datetime, closed_at:datetime, comments:int, locked:bool, milestone:dict, assignee:dict, labels, user:dict, title:str, state:str, number:int, html_url:str, events_url:str, comments_url:str, labels_url:str, repository_url:str, url:str, node_id:str, id:int, body:str=None, assignees:list=None, active_lock_reason:str=None, pull_request:dict=None, closed_by:dict=None, body_html:str=None, body_text:str=None, timeline_url:str=None, repository:dict=None, performed_via_github_app:dict=None, reactions:dict=None):
-        self._author_association = author_association
-        self._updated_at = updated_at
-        self._created_at = created_at
-        self._closed_at = closed_at
-        self._comments = comments
-        self._locked = locked
-        self._milestone = milestone
-        self._assignee = assignee
-        self._labels = labels
-        self._user = user
-        self._title = title
-        self._state = state
-        self._number = number
-        self._html_url = html_url
-        self._events_url = events_url
-        self._comments_url = comments_url
-        self._labels_url = labels_url
-        self._repository_url = repository_url
-        self._url = url
-        self._node_id = node_id
-        self._id = id
-        self._body = body
-        self._assignees = assignees
-        self._active_lock_reason = active_lock_reason
-        self._pull_request = pull_request
-        self._closed_by = closed_by
-        self._body_html = body_html
-        self._body_text = body_text
-        self._timeline_url = timeline_url
-        self._repository = repository
-        self._performed_via_github_app = performed_via_github_app
-        self._reactions = reactions
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getauthor_association(self):
-        return self._author_association
-        
-    author_association = property(_getauthor_association)
-
-    ##
-    ##
-    def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
-        
-    updated_at = property(_getupdated_at)
-
-    ##
-    ##
-    def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
-        
-    created_at = property(_getcreated_at)
-
-    ##
-    ##
-    def _getclosed_at(self):
-        return self._closed_at and datetime.datetime.fromisoformat(self._closed_at[0:-1])
-        
-    closed_at = property(_getclosed_at)
-
-    ##
-    ##
-    def _getcomments(self):
-        return self._comments
-        
-    comments = property(_getcomments)
-
-    ##
-    ##
-    def _getlocked(self):
-        return self._locked
-        
-    locked = property(_getlocked)
-
-    ##
-    ##
-    def _getmilestone(self):
-        return self._milestone and Milestone(**self._milestone)
-        
-    milestone = property(_getmilestone)
-
-    ##
-    ##
-    def _getassignee(self):
-        return self._assignee and SimpleUser(**self._assignee)
-        
-    assignee = property(_getassignee)
-
-    ##
-    ##
-    def _getlabels(self):
-        return self._labels
-        
-    labels = property(_getlabels, doc="""Labels to associate with this issue; pass one or more label names to replace the set of labels on this issue; send an empty array to clear all labels from the issue; note that the labels are silently dropped for users without push access to the repository """)
-
-    ##
-    ##
-    def _getuser(self):
-        return self._user and SimpleUser(**self._user)
-        
-    user = property(_getuser)
-
-    ##
-    ##
-    def _gettitle(self):
-        return self._title
-        
-    title = property(_gettitle, doc="""Title of the issue """)
-
-    ##
-    ##
-    def _getstate(self):
-        return self._state
-        
-    state = property(_getstate, doc="""State of the issue; either 'open' or 'closed' """)
-
-    ##
-    ##
-    def _getnumber(self):
-        return self._number
-        
-    number = property(_getnumber, doc="""Number uniquely identifying the issue within its repository """)
-
-    ##
-    ##
-    def _gethtml_url(self):
-        return self._html_url
-        
-    html_url = property(_gethtml_url)
-
-    ##
-    ##
-    def _getevents_url(self):
-        return self._events_url
-        
-    events_url = property(_getevents_url)
-
-    ##
-    ##
-    def _getcomments_url(self):
-        return self._comments_url
-        
-    comments_url = property(_getcomments_url)
-
-    ##
-    ##
-    def _getlabels_url(self):
-        return self._labels_url
-        
-    labels_url = property(_getlabels_url)
-
-    ##
-    ##
-    def _getrepository_url(self):
-        return self._repository_url
-        
-    repository_url = property(_getrepository_url)
-
-    ##
-    ##
-    def _geturl(self):
-        return self._url
-        
-    url = property(_geturl, doc="""URL for the issue """)
-
-    ##
-    ##
-    def _getnode_id(self):
-        return self._node_id
-        
-    node_id = property(_getnode_id)
-
-    ##
-    ##
-    def _getid(self):
-        return self._id
-        
-    id = property(_getid)
-
-    ##
-    ##
-    def _getbody(self):
-        return self._body
-        
-    body = property(_getbody, doc="""Contents of the issue """)
-
-    ##
-    ##
-    def _getassignees(self):
-        return self._assignees and [ entry and SimpleUser(**entry) for entry in self._assignees ]
-        
-    assignees = property(_getassignees)
-
-    ##
-    ##
-    def _getactive_lock_reason(self):
-        return self._active_lock_reason
-        
-    active_lock_reason = property(_getactive_lock_reason)
-
-    ##
-    ##
-    def _getpull_request(self):
-        return self._pull_request and Issue_pull_request(**self._pull_request)
-        
-    pull_request = property(_getpull_request)
-
-    ##
-    ##
-    def _getclosed_by(self):
-        return self._closed_by and SimpleUser(**self._closed_by)
-        
-    closed_by = property(_getclosed_by)
-
-    ##
-    ##
-    def _getbody_html(self):
-        return self._body_html
-        
-    body_html = property(_getbody_html)
-
-    ##
-    ##
-    def _getbody_text(self):
-        return self._body_text
-        
-    body_text = property(_getbody_text)
-
-    ##
-    ##
-    def _gettimeline_url(self):
-        return self._timeline_url
-        
-    timeline_url = property(_gettimeline_url)
-
-    ##
-    ##
-    def _getrepository(self):
-        return self._repository and Repository(**self._repository)
-        
-    repository = property(_getrepository)
-
-    ##
-    ##
-    def _getperformed_via_github_app(self):
-        return self._performed_via_github_app and GithubApp(**self._performed_via_github_app)
-        
-    performed_via_github_app = property(_getperformed_via_github_app)
-
-    ##
-    ##
-    def _getreactions(self):
-        return self._reactions and ReactionRollup(**ReactionRollup.patchEntry(self._reactions))
-        
-    reactions = property(_getreactions)
-
-
-    ##
-##
-##
-class License(object):
+class License(ResponseBase):
     """License """
     def __init__(self, featured:bool, body:str, limitations:list, conditions:list, permissions:list, implementation:str, description:str, html_url:str, node_id:str, url:str, spdx_id:str, name:str, key:str):
+        ResponseBase.__init__(self)
         self._featured = featured
         self._body = body
         self._limitations = limitations
@@ -7610,365 +9591,14 @@ class License(object):
     ##
 ##
 ##
-class MarketplaceListingPlan(object):
-    """Marketplace Listing Plan """
-    def __init__(self, bullets:list, state:str, unit_name:str, has_free_trial:bool, price_model:str, yearly_price_in_cents:int, monthly_price_in_cents:int, description:str, name:str, number:int, id:int, accounts_url:str, url:str):
-        self._bullets = bullets
-        self._state = state
-        self._unit_name = unit_name
-        self._has_free_trial = has_free_trial
-        self._price_model = price_model
-        self._yearly_price_in_cents = yearly_price_in_cents
-        self._monthly_price_in_cents = monthly_price_in_cents
-        self._description = description
-        self._name = name
-        self._number = number
-        self._id = id
-        self._accounts_url = accounts_url
-        self._url = url
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getbullets(self):
-        return self._bullets and [ entry for entry in self._bullets ]
-        
-    bullets = property(_getbullets)
-
-    ##
-    ##
-    def _getstate(self):
-        return self._state
-        
-    state = property(_getstate)
-
-    ##
-    ##
-    def _getunit_name(self):
-        return self._unit_name
-        
-    unit_name = property(_getunit_name)
-
-    ##
-    ##
-    def _gethas_free_trial(self):
-        return self._has_free_trial
-        
-    has_free_trial = property(_gethas_free_trial)
-
-    ##
-    ##
-    def _getprice_model(self):
-        return self._price_model
-        
-    price_model = property(_getprice_model)
-
-    ##
-    ##
-    def _getyearly_price_in_cents(self):
-        return self._yearly_price_in_cents
-        
-    yearly_price_in_cents = property(_getyearly_price_in_cents)
-
-    ##
-    ##
-    def _getmonthly_price_in_cents(self):
-        return self._monthly_price_in_cents
-        
-    monthly_price_in_cents = property(_getmonthly_price_in_cents)
-
-    ##
-    ##
-    def _getdescription(self):
-        return self._description
-        
-    description = property(_getdescription)
-
-    ##
-    ##
-    def _getname(self):
-        return self._name
-        
-    name = property(_getname)
-
-    ##
-    ##
-    def _getnumber(self):
-        return self._number
-        
-    number = property(_getnumber)
-
-    ##
-    ##
-    def _getid(self):
-        return self._id
-        
-    id = property(_getid)
-
-    ##
-    ##
-    def _getaccounts_url(self):
-        return self._accounts_url
-        
-    accounts_url = property(_getaccounts_url)
-
-    ##
-    ##
-    def _geturl(self):
-        return self._url
-        
-    url = property(_geturl)
-
-
-    ##
-##
-##
-class Marketplacepurchase_marketplace_pending_change(object):
-    def __init__(self, is_installed:bool=None, effective_date:str=None, unit_count:int=None, id:int=None, plan:dict=None):
-        self._is_installed = is_installed
-        self._effective_date = effective_date
-        self._unit_count = unit_count
-        self._id = id
-        self._plan = plan
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getis_installed(self):
-        return self._is_installed
-        
-    is_installed = property(_getis_installed)
-
-    ##
-    ##
-    def _geteffective_date(self):
-        return self._effective_date
-        
-    effective_date = property(_geteffective_date)
-
-    ##
-    ##
-    def _getunit_count(self):
-        return self._unit_count
-        
-    unit_count = property(_getunit_count)
-
-    ##
-    ##
-    def _getid(self):
-        return self._id
-        
-    id = property(_getid)
-
-    ##
-    ##
-    def _getplan(self):
-        return self._plan and MarketplaceListingPlan(**self._plan)
-        
-    plan = property(_getplan)
-
-
-    ##
-##
-##
-class Marketplacepurchase_marketplace_purchase(object):
-    def __init__(self, billing_cycle:str=None, next_billing_date:str=None, is_installed:bool=None, unit_count:int=None, on_free_trial:bool=None, free_trial_ends_on:str=None, updated_at:str=None, plan:dict=None):
-        self._billing_cycle = billing_cycle
-        self._next_billing_date = next_billing_date
-        self._is_installed = is_installed
-        self._unit_count = unit_count
-        self._on_free_trial = on_free_trial
-        self._free_trial_ends_on = free_trial_ends_on
-        self._updated_at = updated_at
-        self._plan = plan
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getbilling_cycle(self):
-        return self._billing_cycle
-        
-    billing_cycle = property(_getbilling_cycle)
-
-    ##
-    ##
-    def _getnext_billing_date(self):
-        return self._next_billing_date
-        
-    next_billing_date = property(_getnext_billing_date)
-
-    ##
-    ##
-    def _getis_installed(self):
-        return self._is_installed
-        
-    is_installed = property(_getis_installed)
-
-    ##
-    ##
-    def _getunit_count(self):
-        return self._unit_count
-        
-    unit_count = property(_getunit_count)
-
-    ##
-    ##
-    def _geton_free_trial(self):
-        return self._on_free_trial
-        
-    on_free_trial = property(_geton_free_trial)
-
-    ##
-    ##
-    def _getfree_trial_ends_on(self):
-        return self._free_trial_ends_on
-        
-    free_trial_ends_on = property(_getfree_trial_ends_on)
-
-    ##
-    ##
-    def _getupdated_at(self):
-        return self._updated_at
-        
-    updated_at = property(_getupdated_at)
-
-    ##
-    ##
-    def _getplan(self):
-        return self._plan and MarketplaceListingPlan(**self._plan)
-        
-    plan = property(_getplan)
-
-
-    ##
-##
-##
-class MarketplacePurchase(object):
-    """Marketplace Purchase """
-    def __init__(self, marketplace_purchase:dict, login:str, id:int, type:str, url:str, organization_billing_email:str=None, email:str=None, marketplace_pending_change:dict=None):
-        self._marketplace_purchase = marketplace_purchase
-        self._login = login
-        self._id = id
-        self._type = type
-        self._url = url
-        self._organization_billing_email = organization_billing_email
-        self._email = email
-        self._marketplace_pending_change = marketplace_pending_change
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getmarketplace_purchase(self):
-        return self._marketplace_purchase and Marketplacepurchase_marketplace_purchase(**self._marketplace_purchase)
-        
-    marketplace_purchase = property(_getmarketplace_purchase)
-
-    ##
-    ##
-    def _getlogin(self):
-        return self._login
-        
-    login = property(_getlogin)
-
-    ##
-    ##
-    def _getid(self):
-        return self._id
-        
-    id = property(_getid)
-
-    ##
-    ##
-    def _gettype(self):
-        return self._type
-        
-    type = property(_gettype)
-
-    ##
-    ##
-    def _geturl(self):
-        return self._url
-        
-    url = property(_geturl)
-
-    ##
-    ##
-    def _getorganization_billing_email(self):
-        return self._organization_billing_email
-        
-    organization_billing_email = property(_getorganization_billing_email)
-
-    ##
-    ##
-    def _getemail(self):
-        return self._email
-        
-    email = property(_getemail)
-
-    ##
-    ##
-    def _getmarketplace_pending_change(self):
-        return self._marketplace_pending_change and Marketplacepurchase_marketplace_pending_change(**self._marketplace_pending_change)
-        
-    marketplace_pending_change = property(_getmarketplace_pending_change)
-
-
-    ##
-##
-##
-class Apioverview_ssh_key_fingerprints(object):
-    def __init__(self, SHA256_RSA:str=None, SHA256_DSA:str=None):
-        self._SHA256_RSA = SHA256_RSA
-        self._SHA256_DSA = SHA256_DSA
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getSHA256_RSA(self):
-        return self._SHA256_RSA
-        
-    SHA256_RSA = property(_getSHA256_RSA)
-
-    ##
-    ##
-    def _getSHA256_DSA(self):
-        return self._SHA256_DSA
-        
-    SHA256_DSA = property(_getSHA256_DSA)
-
-
-    ##
-##
-##
-class ApiOverview(object):
+class ApiOverview(ResponseBase):
     """Api Overview """
-    def __init__(self, verifiable_password_authentication:bool, ssh_key_fingerprints:dict=None, hooks:list=None, web:list=None, api:list=None, git:list=None, packages:list=None, pages:list=None, importer:list=None, actions:list=None, dependabot:list=None):
+    def __init__(self, verifiable_password_authentication:bool, packages:list=None, dependabot:list=None, installed_version:str=None):
+        ResponseBase.__init__(self)
         self._verifiable_password_authentication = verifiable_password_authentication
-        self._ssh_key_fingerprints = ssh_key_fingerprints
-        self._hooks = hooks
-        self._web = web
-        self._api = api
-        self._git = git
         self._packages = packages
-        self._pages = pages
-        self._importer = importer
-        self._actions = actions
         self._dependabot = dependabot
+        self._installed_version = installed_version
         return
         
     
@@ -7983,66 +9613,10 @@ class ApiOverview(object):
 
     ##
     ##
-    def _getssh_key_fingerprints(self):
-        return self._ssh_key_fingerprints and Apioverview_ssh_key_fingerprints(**self._ssh_key_fingerprints)
-        
-    ssh_key_fingerprints = property(_getssh_key_fingerprints)
-
-    ##
-    ##
-    def _gethooks(self):
-        return self._hooks and [ entry for entry in self._hooks ]
-        
-    hooks = property(_gethooks)
-
-    ##
-    ##
-    def _getweb(self):
-        return self._web and [ entry for entry in self._web ]
-        
-    web = property(_getweb)
-
-    ##
-    ##
-    def _getapi(self):
-        return self._api and [ entry for entry in self._api ]
-        
-    api = property(_getapi)
-
-    ##
-    ##
-    def _getgit(self):
-        return self._git and [ entry for entry in self._git ]
-        
-    git = property(_getgit)
-
-    ##
-    ##
     def _getpackages(self):
         return self._packages and [ entry for entry in self._packages ]
         
     packages = property(_getpackages)
-
-    ##
-    ##
-    def _getpages(self):
-        return self._pages and [ entry for entry in self._pages ]
-        
-    pages = property(_getpages)
-
-    ##
-    ##
-    def _getimporter(self):
-        return self._importer and [ entry for entry in self._importer ]
-        
-    importer = property(_getimporter)
-
-    ##
-    ##
-    def _getactions(self):
-        return self._actions and [ entry for entry in self._actions ]
-        
-    actions = property(_getactions)
 
     ##
     ##
@@ -8051,17 +9625,758 @@ class ApiOverview(object):
         
     dependabot = property(_getdependabot)
 
+    ##
+    ##
+    def _getinstalled_version(self):
+        return self._installed_version
+        
+    installed_version = property(_getinstalled_version)
+
 
     ##
 ##
 ##
-class Minimalrepository_permissions(object):
-    def __init__(self, admin:bool=None, push:bool=None, pull:bool=None, maintain:bool=None, triage:bool=None):
+class Repository(ResponseBase):
+    """A git repository """
+    def __init__(self, watchers:int, open_issues:int, updated_at:datetime, created_at:datetime, pushed_at:datetime, disabled:bool, has_pages:bool, open_issues_count:int, default_branch:str, size:int, watchers_count:int, stargazers_count:int, forks_count:int, language:str, homepage:str, svn_url:str, hooks_url:str, mirror_url:str, clone_url:str, trees_url:str, teams_url:str, tags_url:str, subscription_url:str, subscribers_url:str, statuses_url:str, stargazers_url:str, ssh_url:str, releases_url:str, pulls_url:str, notifications_url:str, milestones_url:str, merges_url:str, languages_url:str, labels_url:str, keys_url:str, issues_url:str, issue_events_url:str, issue_comment_url:str, git_url:str, git_tags_url:str, git_refs_url:str, git_commits_url:str, forks_url:str, events_url:str, downloads_url:str, deployments_url:str, contributors_url:str, contents_url:str, compare_url:str, commits_url:str, comments_url:str, collaborators_url:str, branches_url:str, blobs_url:str, assignees_url:str, archive_url:str, url:str, fork:bool, description:str, html_url:str, owner:dict, forks:int, license:dict, full_name:str, name:str, node_id:str, id:int, organization:dict=None, permissions:dict=None, private:bool=False, is_template:bool=False, topics:list=None, has_issues:bool=True, has_projects:bool=True, has_wiki:bool=True, has_downloads:bool=True, archived:bool=False, visibility:str='public', allow_rebase_merge:bool=True, template_repository:dict=None, temp_clone_token:str=None, allow_squash_merge:bool=True, allow_auto_merge:bool=False, delete_branch_on_merge:bool=False, allow_merge_commit:bool=True, allow_forking:bool=None, subscribers_count:int=None, network_count:int=None, master_branch:str=None, starred_at:str=None):
+        ResponseBase.__init__(self)
+        self._watchers = watchers
+        self._open_issues = open_issues
+        self._updated_at = updated_at
+        self._created_at = created_at
+        self._pushed_at = pushed_at
+        self._disabled = disabled
+        self._has_pages = has_pages
+        self._open_issues_count = open_issues_count
+        self._default_branch = default_branch
+        self._size = size
+        self._watchers_count = watchers_count
+        self._stargazers_count = stargazers_count
+        self._forks_count = forks_count
+        self._language = language
+        self._homepage = homepage
+        self._svn_url = svn_url
+        self._hooks_url = hooks_url
+        self._mirror_url = mirror_url
+        self._clone_url = clone_url
+        self._trees_url = trees_url
+        self._teams_url = teams_url
+        self._tags_url = tags_url
+        self._subscription_url = subscription_url
+        self._subscribers_url = subscribers_url
+        self._statuses_url = statuses_url
+        self._stargazers_url = stargazers_url
+        self._ssh_url = ssh_url
+        self._releases_url = releases_url
+        self._pulls_url = pulls_url
+        self._notifications_url = notifications_url
+        self._milestones_url = milestones_url
+        self._merges_url = merges_url
+        self._languages_url = languages_url
+        self._labels_url = labels_url
+        self._keys_url = keys_url
+        self._issues_url = issues_url
+        self._issue_events_url = issue_events_url
+        self._issue_comment_url = issue_comment_url
+        self._git_url = git_url
+        self._git_tags_url = git_tags_url
+        self._git_refs_url = git_refs_url
+        self._git_commits_url = git_commits_url
+        self._forks_url = forks_url
+        self._events_url = events_url
+        self._downloads_url = downloads_url
+        self._deployments_url = deployments_url
+        self._contributors_url = contributors_url
+        self._contents_url = contents_url
+        self._compare_url = compare_url
+        self._commits_url = commits_url
+        self._comments_url = comments_url
+        self._collaborators_url = collaborators_url
+        self._branches_url = branches_url
+        self._blobs_url = blobs_url
+        self._assignees_url = assignees_url
+        self._archive_url = archive_url
+        self._url = url
+        self._fork = fork
+        self._description = description
+        self._html_url = html_url
+        self._owner = owner
+        self._forks = forks
+        self._license = license
+        self._full_name = full_name
+        self._name = name
+        self._node_id = node_id
+        self._id = id
+        self._organization = organization
+        self._permissions = permissions
+        self._private = private
+        self._is_template = is_template
+        self._topics = topics
+        self._has_issues = has_issues
+        self._has_projects = has_projects
+        self._has_wiki = has_wiki
+        self._has_downloads = has_downloads
+        self._archived = archived
+        self._visibility = visibility
+        self._allow_rebase_merge = allow_rebase_merge
+        self._template_repository = template_repository
+        self._temp_clone_token = temp_clone_token
+        self._allow_squash_merge = allow_squash_merge
+        self._allow_auto_merge = allow_auto_merge
+        self._delete_branch_on_merge = delete_branch_on_merge
+        self._allow_merge_commit = allow_merge_commit
+        self._allow_forking = allow_forking
+        self._subscribers_count = subscribers_count
+        self._network_count = network_count
+        self._master_branch = master_branch
+        self._starred_at = starred_at
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getwatchers(self):
+        return self._watchers
+        
+    watchers = property(_getwatchers)
+
+    ##
+    ##
+    def _getopen_issues(self):
+        return self._open_issues
+        
+    open_issues = property(_getopen_issues)
+
+    ##
+    ##
+    def _getupdated_at(self):
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
+        
+    updated_at = property(_getupdated_at)
+
+    ##
+    ##
+    def _getcreated_at(self):
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
+        
+    created_at = property(_getcreated_at)
+
+    ##
+    ##
+    def _getpushed_at(self):
+        return self._pushed_at and datetime.fromisoformat(self._pushed_at[0:-1])
+        
+    pushed_at = property(_getpushed_at)
+
+    ##
+    ##
+    def _getdisabled(self):
+        return self._disabled
+        
+    disabled = property(_getdisabled, doc="""Returns whether or not this repository disabled. """)
+
+    ##
+    ##
+    def _gethas_pages(self):
+        return self._has_pages
+        
+    has_pages = property(_gethas_pages)
+
+    ##
+    ##
+    def _getopen_issues_count(self):
+        return self._open_issues_count
+        
+    open_issues_count = property(_getopen_issues_count)
+
+    ##
+    ##
+    def _getdefault_branch(self):
+        return self._default_branch
+        
+    default_branch = property(_getdefault_branch, doc="""The default branch of the repository. """)
+
+    ##
+    ##
+    def _getsize(self):
+        return self._size
+        
+    size = property(_getsize)
+
+    ##
+    ##
+    def _getwatchers_count(self):
+        return self._watchers_count
+        
+    watchers_count = property(_getwatchers_count)
+
+    ##
+    ##
+    def _getstargazers_count(self):
+        return self._stargazers_count
+        
+    stargazers_count = property(_getstargazers_count)
+
+    ##
+    ##
+    def _getforks_count(self):
+        return self._forks_count
+        
+    forks_count = property(_getforks_count)
+
+    ##
+    ##
+    def _getlanguage(self):
+        return self._language
+        
+    language = property(_getlanguage)
+
+    ##
+    ##
+    def _gethomepage(self):
+        return self._homepage
+        
+    homepage = property(_gethomepage)
+
+    ##
+    ##
+    def _getsvn_url(self):
+        return self._svn_url
+        
+    svn_url = property(_getsvn_url)
+
+    ##
+    ##
+    def _gethooks_url(self):
+        return self._hooks_url
+        
+    hooks_url = property(_gethooks_url)
+
+    ##
+    ##
+    def _getmirror_url(self):
+        return self._mirror_url
+        
+    mirror_url = property(_getmirror_url)
+
+    ##
+    ##
+    def _getclone_url(self):
+        return self._clone_url
+        
+    clone_url = property(_getclone_url)
+
+    ##
+    ##
+    def _gettrees_url(self):
+        return self._trees_url
+        
+    trees_url = property(_gettrees_url)
+
+    ##
+    ##
+    def _getteams_url(self):
+        return self._teams_url
+        
+    teams_url = property(_getteams_url)
+
+    ##
+    ##
+    def _gettags_url(self):
+        return self._tags_url
+        
+    tags_url = property(_gettags_url)
+
+    ##
+    ##
+    def _getsubscription_url(self):
+        return self._subscription_url
+        
+    subscription_url = property(_getsubscription_url)
+
+    ##
+    ##
+    def _getsubscribers_url(self):
+        return self._subscribers_url
+        
+    subscribers_url = property(_getsubscribers_url)
+
+    ##
+    ##
+    def _getstatuses_url(self):
+        return self._statuses_url
+        
+    statuses_url = property(_getstatuses_url)
+
+    ##
+    ##
+    def _getstargazers_url(self):
+        return self._stargazers_url
+        
+    stargazers_url = property(_getstargazers_url)
+
+    ##
+    ##
+    def _getssh_url(self):
+        return self._ssh_url
+        
+    ssh_url = property(_getssh_url)
+
+    ##
+    ##
+    def _getreleases_url(self):
+        return self._releases_url
+        
+    releases_url = property(_getreleases_url)
+
+    ##
+    ##
+    def _getpulls_url(self):
+        return self._pulls_url
+        
+    pulls_url = property(_getpulls_url)
+
+    ##
+    ##
+    def _getnotifications_url(self):
+        return self._notifications_url
+        
+    notifications_url = property(_getnotifications_url)
+
+    ##
+    ##
+    def _getmilestones_url(self):
+        return self._milestones_url
+        
+    milestones_url = property(_getmilestones_url)
+
+    ##
+    ##
+    def _getmerges_url(self):
+        return self._merges_url
+        
+    merges_url = property(_getmerges_url)
+
+    ##
+    ##
+    def _getlanguages_url(self):
+        return self._languages_url
+        
+    languages_url = property(_getlanguages_url)
+
+    ##
+    ##
+    def _getlabels_url(self):
+        return self._labels_url
+        
+    labels_url = property(_getlabels_url)
+
+    ##
+    ##
+    def _getkeys_url(self):
+        return self._keys_url
+        
+    keys_url = property(_getkeys_url)
+
+    ##
+    ##
+    def _getissues_url(self):
+        return self._issues_url
+        
+    issues_url = property(_getissues_url)
+
+    ##
+    ##
+    def _getissue_events_url(self):
+        return self._issue_events_url
+        
+    issue_events_url = property(_getissue_events_url)
+
+    ##
+    ##
+    def _getissue_comment_url(self):
+        return self._issue_comment_url
+        
+    issue_comment_url = property(_getissue_comment_url)
+
+    ##
+    ##
+    def _getgit_url(self):
+        return self._git_url
+        
+    git_url = property(_getgit_url)
+
+    ##
+    ##
+    def _getgit_tags_url(self):
+        return self._git_tags_url
+        
+    git_tags_url = property(_getgit_tags_url)
+
+    ##
+    ##
+    def _getgit_refs_url(self):
+        return self._git_refs_url
+        
+    git_refs_url = property(_getgit_refs_url)
+
+    ##
+    ##
+    def _getgit_commits_url(self):
+        return self._git_commits_url
+        
+    git_commits_url = property(_getgit_commits_url)
+
+    ##
+    ##
+    def _getforks_url(self):
+        return self._forks_url
+        
+    forks_url = property(_getforks_url)
+
+    ##
+    ##
+    def _getevents_url(self):
+        return self._events_url
+        
+    events_url = property(_getevents_url)
+
+    ##
+    ##
+    def _getdownloads_url(self):
+        return self._downloads_url
+        
+    downloads_url = property(_getdownloads_url)
+
+    ##
+    ##
+    def _getdeployments_url(self):
+        return self._deployments_url
+        
+    deployments_url = property(_getdeployments_url)
+
+    ##
+    ##
+    def _getcontributors_url(self):
+        return self._contributors_url
+        
+    contributors_url = property(_getcontributors_url)
+
+    ##
+    ##
+    def _getcontents_url(self):
+        return self._contents_url
+        
+    contents_url = property(_getcontents_url)
+
+    ##
+    ##
+    def _getcompare_url(self):
+        return self._compare_url
+        
+    compare_url = property(_getcompare_url)
+
+    ##
+    ##
+    def _getcommits_url(self):
+        return self._commits_url
+        
+    commits_url = property(_getcommits_url)
+
+    ##
+    ##
+    def _getcomments_url(self):
+        return self._comments_url
+        
+    comments_url = property(_getcomments_url)
+
+    ##
+    ##
+    def _getcollaborators_url(self):
+        return self._collaborators_url
+        
+    collaborators_url = property(_getcollaborators_url)
+
+    ##
+    ##
+    def _getbranches_url(self):
+        return self._branches_url
+        
+    branches_url = property(_getbranches_url)
+
+    ##
+    ##
+    def _getblobs_url(self):
+        return self._blobs_url
+        
+    blobs_url = property(_getblobs_url)
+
+    ##
+    ##
+    def _getassignees_url(self):
+        return self._assignees_url
+        
+    assignees_url = property(_getassignees_url)
+
+    ##
+    ##
+    def _getarchive_url(self):
+        return self._archive_url
+        
+    archive_url = property(_getarchive_url)
+
+    ##
+    ##
+    def _geturl(self):
+        return self._url
+        
+    url = property(_geturl)
+
+    ##
+    ##
+    def _getfork(self):
+        return self._fork
+        
+    fork = property(_getfork)
+
+    ##
+    ##
+    def _getdescription(self):
+        return self._description
+        
+    description = property(_getdescription)
+
+    ##
+    ##
+    def _gethtml_url(self):
+        return self._html_url
+        
+    html_url = property(_gethtml_url)
+
+    ##
+    ##
+    def _getowner(self):
+        return self._owner and SimpleUser(**self._owner)
+        
+    owner = property(_getowner)
+
+    ##
+    ##
+    def _getforks(self):
+        return self._forks
+        
+    forks = property(_getforks)
+
+    ##
+    ##
+    def _getlicense(self):
+        return self._license and LicenseSimple(**self._license)
+        
+    license = property(_getlicense)
+
+    ##
+    ##
+    def _getfull_name(self):
+        return self._full_name
+        
+    full_name = property(_getfull_name)
+
+    ##
+    ##
+    def _getname(self):
+        return self._name
+        
+    name = property(_getname, doc="""The name of the repository. """)
+
+    ##
+    ##
+    def _getnode_id(self):
+        return self._node_id
+        
+    node_id = property(_getnode_id)
+
+    ##
+    ##
+    def _getid(self):
+        return self._id
+        
+    id = property(_getid, doc="""Unique identifier of the repository """)
+
+    ##
+    ##
+    def _getorganization(self):
+        return self._organization and SimpleUser(**self._organization)
+        
+    organization = property(_getorganization)
+
+    ##
+    ##
+    def _getpermissions(self):
+        return self._permissions and Repository_permissions(**self._permissions)
+        
+    permissions = property(_getpermissions)
+
+    ##
+    ##
+    def _getprivate(self):
+        return self._private
+        
+    private = property(_getprivate, doc="""Whether the repository is private or public. """)
+
+    ##
+    ##
+    def _getis_template(self):
+        return self._is_template
+        
+    is_template = property(_getis_template, doc="""Whether this repository acts as a template that can be used to generate new repositories. """)
+
+    ##
+    ##
+    def _gettopics(self):
+        return self._topics and [ entry for entry in self._topics ]
+        
+    topics = property(_gettopics)
+
+    ##
+    ##
+    def _gethas_issues(self):
+        return self._has_issues
+        
+    has_issues = property(_gethas_issues, doc="""Whether issues are enabled. """)
+
+    ##
+    ##
+    def _gethas_projects(self):
+        return self._has_projects
+        
+    has_projects = property(_gethas_projects, doc="""Whether projects are enabled. """)
+
+    ##
+    ##
+    def _gethas_wiki(self):
+        return self._has_wiki
+        
+    has_wiki = property(_gethas_wiki, doc="""Whether the wiki is enabled. """)
+
+    ##
+    ##
+    def _gethas_downloads(self):
+        return self._has_downloads
+        
+    has_downloads = property(_gethas_downloads, doc="""Whether downloads are enabled. """)
+
+    ##
+    ##
+    def _getarchived(self):
+        return self._archived
+        
+    archived = property(_getarchived, doc="""Whether the repository is archived. """)
+
+    ##
+    ##
+    def _getvisibility(self):
+        return self._visibility
+        
+    visibility = property(_getvisibility, doc="""The repository visibility: public, private, or internal. """)
+
+    ##
+    ##
+    def _getallow_rebase_merge(self):
+        return self._allow_rebase_merge
+        
+    allow_rebase_merge = property(_getallow_rebase_merge, doc="""Whether to allow rebase merges for pull requests. """)
+
+    ##
+    ##
+    def _gettemplate_repository(self):
+        return self._template_repository and Repository_template_repository(**self._template_repository)
+        
+    template_repository = property(_gettemplate_repository)
+
+    ##
+    ##
+    def _gettemp_clone_token(self):
+        return self._temp_clone_token
+        
+    temp_clone_token = property(_gettemp_clone_token)
+
+    ##
+    ##
+    def _getallow_squash_merge(self):
+        return self._allow_squash_merge
+        
+    allow_squash_merge = property(_getallow_squash_merge, doc="""Whether to allow squash merges for pull requests. """)
+
+    ##
+    ##
+    def _getallow_auto_merge(self):
+        return self._allow_auto_merge
+        
+    allow_auto_merge = property(_getallow_auto_merge, doc="""Whether to allow Auto-merge to be used on pull requests. """)
+
+    ##
+    ##
+    def _getdelete_branch_on_merge(self):
+        return self._delete_branch_on_merge
+        
+    delete_branch_on_merge = property(_getdelete_branch_on_merge, doc="""Whether to delete head branches when pull requests are merged """)
+
+    ##
+    ##
+    def _getallow_merge_commit(self):
+        return self._allow_merge_commit
+        
+    allow_merge_commit = property(_getallow_merge_commit, doc="""Whether to allow merge commits for pull requests. """)
+
+    ##
+    ##
+    def _getallow_forking(self):
+        return self._allow_forking
+        
+    allow_forking = property(_getallow_forking, doc="""Whether to allow forking this repo """)
+
+    ##
+    ##
+    def _getsubscribers_count(self):
+        return self._subscribers_count
+        
+    subscribers_count = property(_getsubscribers_count)
+
+    ##
+    ##
+    def _getnetwork_count(self):
+        return self._network_count
+        
+    network_count = property(_getnetwork_count)
+
+    ##
+    ##
+    def _getmaster_branch(self):
+        return self._master_branch
+        
+    master_branch = property(_getmaster_branch)
+
+    ##
+    ##
+    def _getstarred_at(self):
+        return self._starred_at
+        
+    starred_at = property(_getstarred_at)
+
+
+    ##
+##
+##
+class Minimalrepository_permissions(ResponseBase):
+    def __init__(self, admin:bool=None, maintain:bool=None, push:bool=None, triage:bool=None, pull:bool=None):
+        ResponseBase.__init__(self)
         self._admin = admin
-        self._push = push
-        self._pull = pull
         self._maintain = maintain
+        self._push = push
         self._triage = triage
+        self._pull = pull
         return
         
     
@@ -8076,24 +10391,17 @@ class Minimalrepository_permissions(object):
 
     ##
     ##
-    def _getpush(self):
-        return self._push
-        
-    push = property(_getpush)
-
-    ##
-    ##
-    def _getpull(self):
-        return self._pull
-        
-    pull = property(_getpull)
-
-    ##
-    ##
     def _getmaintain(self):
         return self._maintain
         
     maintain = property(_getmaintain)
+
+    ##
+    ##
+    def _getpush(self):
+        return self._push
+        
+    push = property(_getpush)
 
     ##
     ##
@@ -8102,12 +10410,20 @@ class Minimalrepository_permissions(object):
         
     triage = property(_gettriage)
 
+    ##
+    ##
+    def _getpull(self):
+        return self._pull
+        
+    pull = property(_getpull)
+
 
     ##
 ##
 ##
-class Minimalrepository_license(object):
+class Minimalrepository_license(ResponseBase):
     def __init__(self, key:str=None, name:str=None, spdx_id:str=None, url:str=None, node_id:str=None):
+        ResponseBase.__init__(self)
         self._key = key
         self._name = name
         self._spdx_id = spdx_id
@@ -8157,9 +10473,10 @@ class Minimalrepository_license(object):
     ##
 ##
 ##
-class MinimalRepository(object):
+class MinimalRepository(ResponseBase):
     """Minimal Repository """
-    def __init__(self, hooks_url:str, trees_url:str, teams_url:str, tags_url:str, subscription_url:str, subscribers_url:str, statuses_url:str, stargazers_url:str, releases_url:str, pulls_url:str, notifications_url:str, milestones_url:str, merges_url:str, languages_url:str, labels_url:str, keys_url:str, issues_url:str, issue_events_url:str, issue_comment_url:str, git_tags_url:str, git_refs_url:str, git_commits_url:str, forks_url:str, events_url:str, downloads_url:str, deployments_url:str, contributors_url:str, contents_url:str, compare_url:str, commits_url:str, comments_url:str, collaborators_url:str, branches_url:str, blobs_url:str, assignees_url:str, archive_url:str, url:str, fork:bool, description:str, html_url:str, private:bool, owner:dict, full_name:str, name:str, node_id:str, id:int, git_url:str=None, ssh_url:str=None, clone_url:str=None, mirror_url:str=None, svn_url:str=None, homepage:str=None, language:str=None, forks_count:int=None, stargazers_count:int=None, watchers_count:int=None, size:int=None, default_branch:str=None, open_issues_count:int=None, is_template:bool=None, topics:list=None, has_issues:bool=None, has_projects:bool=None, has_wiki:bool=None, has_pages:bool=None, has_downloads:bool=None, archived:bool=None, disabled:bool=None, visibility:str=None, pushed_at:datetime=None, created_at:datetime=None, updated_at:datetime=None, permissions:dict=None, template_repository:dict=None, temp_clone_token:str=None, delete_branch_on_merge:bool=None, subscribers_count:int=None, network_count:int=None, code_of_conduct:dict=None, license:dict=None, forks:int=None, open_issues:int=None, watchers:int=None):
+    def __init__(self, hooks_url:str, trees_url:str, teams_url:str, tags_url:str, subscription_url:str, subscribers_url:str, statuses_url:str, stargazers_url:str, releases_url:str, pulls_url:str, notifications_url:str, milestones_url:str, merges_url:str, languages_url:str, labels_url:str, keys_url:str, issues_url:str, issue_events_url:str, issue_comment_url:str, git_tags_url:str, git_refs_url:str, git_commits_url:str, forks_url:str, events_url:str, downloads_url:str, deployments_url:str, contributors_url:str, contents_url:str, compare_url:str, commits_url:str, comments_url:str, collaborators_url:str, branches_url:str, blobs_url:str, assignees_url:str, archive_url:str, url:str, fork:bool, description:str, html_url:str, private:bool, owner:dict, full_name:str, name:str, node_id:str, id:int, git_url:str=None, ssh_url:str=None, clone_url:str=None, mirror_url:str=None, svn_url:str=None, homepage:str=None, language:str=None, forks_count:int=None, stargazers_count:int=None, watchers_count:int=None, size:int=None, default_branch:str=None, open_issues_count:int=None, is_template:bool=None, topics:list=None, has_issues:bool=None, has_projects:bool=None, has_wiki:bool=None, has_pages:bool=None, has_downloads:bool=None, archived:bool=None, disabled:bool=None, visibility:str=None, pushed_at:datetime=None, created_at:datetime=None, updated_at:datetime=None, permissions:dict=None, template_repository:dict=None, temp_clone_token:str=None, delete_branch_on_merge:bool=None, subscribers_count:int=None, network_count:int=None, code_of_conduct:dict=None, license:dict=None, forks:int=None, open_issues:int=None, watchers:int=None, allow_forking:bool=None):
+        ResponseBase.__init__(self)
         self._hooks_url = hooks_url
         self._trees_url = trees_url
         self._teams_url = teams_url
@@ -8243,6 +10560,7 @@ class MinimalRepository(object):
         self._forks = forks
         self._open_issues = open_issues
         self._watchers = watchers
+        self._allow_forking = allow_forking
         return
         
     
@@ -8734,21 +11052,21 @@ class MinimalRepository(object):
     ##
     ##
     def _getpushed_at(self):
-        return self._pushed_at and datetime.datetime.fromisoformat(self._pushed_at[0:-1])
+        return self._pushed_at and datetime.fromisoformat(self._pushed_at[0:-1])
         
     pushed_at = property(_getpushed_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
@@ -8829,12 +11147,20 @@ class MinimalRepository(object):
         
     watchers = property(_getwatchers)
 
+    ##
+    ##
+    def _getallow_forking(self):
+        return self._allow_forking
+        
+    allow_forking = property(_getallow_forking)
+
 
     ##
 ##
 ##
-class Thread_subject(object):
+class Thread_subject(ResponseBase):
     def __init__(self, type:str, latest_comment_url:str, url:str, title:str):
+        ResponseBase.__init__(self)
         self._type = type
         self._latest_comment_url = latest_comment_url
         self._url = url
@@ -8876,9 +11202,10 @@ class Thread_subject(object):
     ##
 ##
 ##
-class Thread(object):
+class Thread(ResponseBase):
     """Thread """
     def __init__(self, subscription_url:str, url:str, last_read_at:str, updated_at:str, unread:bool, reason:str, subject:dict, repository:dict, id:str):
+        ResponseBase.__init__(self)
         self._subscription_url = subscription_url
         self._url = url
         self._last_read_at = last_read_at
@@ -8960,9 +11287,10 @@ class Thread(object):
     ##
 ##
 ##
-class ThreadSubscription(object):
+class ThreadSubscription(ResponseBase):
     """Thread Subscription """
     def __init__(self, url:str, created_at:datetime, reason:str, ignored:bool, subscribed:bool, thread_url:str=None, repository_url:str=None):
+        ResponseBase.__init__(self)
         self._url = url
         self._created_at = created_at
         self._reason = reason
@@ -8985,7 +11313,7 @@ class ThreadSubscription(object):
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -9028,8 +11356,9 @@ class ThreadSubscription(object):
     ##
 ##
 ##
-class Organizationfull_plan(object):
+class Organizationfull_plan(ResponseBase):
     def __init__(self, private_repos:int, space:int, name:str, filled_seats:int=None, seats:int=None):
+        ResponseBase.__init__(self)
         self._private_repos = private_repos
         self._space = space
         self._name = name
@@ -9079,9 +11408,10 @@ class Organizationfull_plan(object):
     ##
 ##
 ##
-class OrganizationFull(object):
+class OrganizationFull(ResponseBase):
     """Organization Full """
-    def __init__(self, updated_at:datetime, type:str, created_at:datetime, html_url:str, following:int, followers:int, public_gists:int, public_repos:int, has_repository_projects:bool, has_organization_projects:bool, description:str, avatar_url:str, public_members_url:str, members_url:str, issues_url:str, hooks_url:str, events_url:str, repos_url:str, url:str, node_id:str, id:int, login:str, name:str=None, company:str=None, blog:str=None, location:str=None, email:str=None, twitter_username:str=None, is_verified:bool=None, total_private_repos:int=None, owned_private_repos:int=None, private_gists:int=None, disk_usage:int=None, collaborators:int=None, billing_email:str=None, plan:dict=None, default_repository_permission:str=None, members_can_create_repositories:bool=None, two_factor_requirement_enabled:bool=None, members_allowed_repository_creation_type:str=None, members_can_create_public_repositories:bool=None, members_can_create_private_repositories:bool=None, members_can_create_internal_repositories:bool=None, members_can_create_pages:bool=None, members_can_create_public_pages:bool=None, members_can_create_private_pages:bool=None):
+    def __init__(self, updated_at:datetime, type:str, created_at:datetime, html_url:str, following:int, followers:int, public_gists:int, public_repos:int, has_repository_projects:bool, has_organization_projects:bool, description:str, avatar_url:str, public_members_url:str, members_url:str, issues_url:str, hooks_url:str, events_url:str, repos_url:str, url:str, node_id:str, id:int, login:str, name:str=None, company:str=None, blog:str=None, location:str=None, email:str=None, twitter_username:str=None, is_verified:bool=None, total_private_repos:int=None, owned_private_repos:int=None, private_gists:int=None, disk_usage:int=None, collaborators:int=None, billing_email:str=None, plan:dict=None, default_repository_permission:str=None, members_can_create_repositories:bool=None, two_factor_requirement_enabled:bool=None, members_allowed_repository_creation_type:str=None, members_can_create_public_repositories:bool=None, members_can_create_private_repositories:bool=None, members_can_create_internal_repositories:bool=None, members_can_create_pages:bool=None, members_can_create_public_pages:bool=None, members_can_create_private_pages:bool=None, members_can_fork_private_repositories:bool=None):
+        ResponseBase.__init__(self)
         self._updated_at = updated_at
         self._type = type
         self._created_at = created_at
@@ -9128,6 +11458,7 @@ class OrganizationFull(object):
         self._members_can_create_pages = members_can_create_pages
         self._members_can_create_public_pages = members_can_create_public_pages
         self._members_can_create_private_pages = members_can_create_private_pages
+        self._members_can_fork_private_repositories = members_can_fork_private_repositories
         return
         
     
@@ -9136,7 +11467,7 @@ class OrganizationFull(object):
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
@@ -9150,7 +11481,7 @@ class OrganizationFull(object):
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -9455,12 +11786,20 @@ class OrganizationFull(object):
         
     members_can_create_private_pages = property(_getmembers_can_create_private_pages)
 
+    ##
+    ##
+    def _getmembers_can_fork_private_repositories(self):
+        return self._members_can_fork_private_repositories
+        
+    members_can_fork_private_repositories = property(_getmembers_can_fork_private_repositories)
+
 
     ##
 ##
 ##
-class ActionsOrganizationPermissions(object):
+class ActionsOrganizationPermissions(ResponseBase):
     def __init__(self, enabled_repositories:str, selected_repositories_url:str=None, allowed_actions:str=None, selected_actions_url:str=None):
+        ResponseBase.__init__(self)
         self._enabled_repositories = enabled_repositories
         self._selected_repositories_url = selected_repositories_url
         self._allowed_actions = allowed_actions
@@ -9502,8 +11841,9 @@ class ActionsOrganizationPermissions(object):
     ##
 ##
 ##
-class RunnerGroupsOrg(object):
+class RunnerGroupsOrg(ResponseBase):
     def __init__(self, allows_public_repositories:bool, inherited:bool, runners_url:str, default:bool, visibility:str, name:str, id:int, selected_repositories_url:str=None, inherited_allows_public_repositories:bool=None):
+        ResponseBase.__init__(self)
         self._allows_public_repositories = allows_public_repositories
         self._inherited = inherited
         self._runners_url = runners_url
@@ -9585,9 +11925,10 @@ class RunnerGroupsOrg(object):
     ##
 ##
 ##
-class ActionsSecretForAnOrganization(object):
+class ActionsSecretForAnOrganization(ResponseBase):
     """Secrets for GitHub Actions for an organization. """
     def __init__(self, visibility:str, updated_at:datetime, created_at:datetime, name:str, selected_repositories_url:str=None):
+        ResponseBase.__init__(self)
         self._visibility = visibility
         self._updated_at = updated_at
         self._created_at = created_at
@@ -9608,14 +11949,14 @@ class ActionsSecretForAnOrganization(object):
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -9637,9 +11978,10 @@ class ActionsSecretForAnOrganization(object):
     ##
 ##
 ##
-class Actionspublickey(object):
+class Actionspublickey(ResponseBase):
     """The public key used for setting Actions Secrets. """
     def __init__(self, key:str, key_id:str, id:int=None, url:str=None, title:str=None, created_at:str=None):
+        ResponseBase.__init__(self)
         self._key = key
         self._key_id = key_id
         self._id = id
@@ -9697,9 +12039,10 @@ class Actionspublickey(object):
     ##
 ##
 ##
-class EmptyObject(object):
+class EmptyObject(ResponseBase):
     """An object without any properties. """
     def __init__(self):
+        ResponseBase.__init__(self)
         return
         
     
@@ -9709,208 +12052,9 @@ class EmptyObject(object):
     ##
 ##
 ##
-class CredentialAuthorization(object):
-    """Credential Authorization """
-    def __init__(self, credential_authorized_at:datetime, credential_type:str, credential_id:int, login:str, token_last_eight:str=None, scopes:list=None, fingerprint:str=None, credential_accessed_at:datetime=None, authorized_credential_id:int=None, authorized_credential_title:str=None, authorized_credential_note:str=None):
-        self._credential_authorized_at = credential_authorized_at
-        self._credential_type = credential_type
-        self._credential_id = credential_id
-        self._login = login
-        self._token_last_eight = token_last_eight
-        self._scopes = scopes
-        self._fingerprint = fingerprint
-        self._credential_accessed_at = credential_accessed_at
-        self._authorized_credential_id = authorized_credential_id
-        self._authorized_credential_title = authorized_credential_title
-        self._authorized_credential_note = authorized_credential_note
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getcredential_authorized_at(self):
-        return self._credential_authorized_at and datetime.datetime.fromisoformat(self._credential_authorized_at[0:-1])
-        
-    credential_authorized_at = property(_getcredential_authorized_at, doc="""Date when the credential was authorized for use. """)
-
-    ##
-    ##
-    def _getcredential_type(self):
-        return self._credential_type
-        
-    credential_type = property(_getcredential_type, doc="""Human-readable description of the credential type. """)
-
-    ##
-    ##
-    def _getcredential_id(self):
-        return self._credential_id
-        
-    credential_id = property(_getcredential_id, doc="""Unique identifier for the credential. """)
-
-    ##
-    ##
-    def _getlogin(self):
-        return self._login
-        
-    login = property(_getlogin, doc="""User login that owns the underlying credential. """)
-
-    ##
-    ##
-    def _gettoken_last_eight(self):
-        return self._token_last_eight
-        
-    token_last_eight = property(_gettoken_last_eight, doc="""Last eight characters of the credential. Only included in responses with credential_type of personal access token. """)
-
-    ##
-    ##
-    def _getscopes(self):
-        return self._scopes and [ entry for entry in self._scopes ]
-        
-    scopes = property(_getscopes, doc="""List of oauth scopes the token has been granted. """)
-
-    ##
-    ##
-    def _getfingerprint(self):
-        return self._fingerprint
-        
-    fingerprint = property(_getfingerprint, doc="""Unique string to distinguish the credential. Only included in responses with credential_type of SSH Key. """)
-
-    ##
-    ##
-    def _getcredential_accessed_at(self):
-        return self._credential_accessed_at and datetime.datetime.fromisoformat(self._credential_accessed_at[0:-1])
-        
-    credential_accessed_at = property(_getcredential_accessed_at, doc="""Date when the credential was last accessed. May be null if it was never accessed """)
-
-    ##
-    ##
-    def _getauthorized_credential_id(self):
-        return self._authorized_credential_id
-        
-    authorized_credential_id = property(_getauthorized_credential_id)
-
-    ##
-    ##
-    def _getauthorized_credential_title(self):
-        return self._authorized_credential_title
-        
-    authorized_credential_title = property(_getauthorized_credential_title, doc="""The title given to the ssh key. This will only be present when the credential is an ssh key. """)
-
-    ##
-    ##
-    def _getauthorized_credential_note(self):
-        return self._authorized_credential_note
-        
-    authorized_credential_note = property(_getauthorized_credential_note, doc="""The note given to the token. This will only be present when the credential is a token. """)
-
-
-    ##
-##
-##
-class OrganizationInvitation(object):
-    """Organization Invitation """
-    def __init__(self, invitation_teams_url:str, node_id:str, team_count:int, inviter:dict, created_at:str, role:str, email:str, login:str, id:int, failed_at:str=None, failed_reason:str=None):
-        self._invitation_teams_url = invitation_teams_url
-        self._node_id = node_id
-        self._team_count = team_count
-        self._inviter = inviter
-        self._created_at = created_at
-        self._role = role
-        self._email = email
-        self._login = login
-        self._id = id
-        self._failed_at = failed_at
-        self._failed_reason = failed_reason
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getinvitation_teams_url(self):
-        return self._invitation_teams_url
-        
-    invitation_teams_url = property(_getinvitation_teams_url)
-
-    ##
-    ##
-    def _getnode_id(self):
-        return self._node_id
-        
-    node_id = property(_getnode_id)
-
-    ##
-    ##
-    def _getteam_count(self):
-        return self._team_count
-        
-    team_count = property(_getteam_count)
-
-    ##
-    ##
-    def _getinviter(self):
-        return self._inviter and SimpleUser(**self._inviter)
-        
-    inviter = property(_getinviter)
-
-    ##
-    ##
-    def _getcreated_at(self):
-        return self._created_at
-        
-    created_at = property(_getcreated_at)
-
-    ##
-    ##
-    def _getrole(self):
-        return self._role
-        
-    role = property(_getrole)
-
-    ##
-    ##
-    def _getemail(self):
-        return self._email
-        
-    email = property(_getemail)
-
-    ##
-    ##
-    def _getlogin(self):
-        return self._login
-        
-    login = property(_getlogin)
-
-    ##
-    ##
-    def _getid(self):
-        return self._id
-        
-    id = property(_getid)
-
-    ##
-    ##
-    def _getfailed_at(self):
-        return self._failed_at
-        
-    failed_at = property(_getfailed_at)
-
-    ##
-    ##
-    def _getfailed_reason(self):
-        return self._failed_reason
-        
-    failed_reason = property(_getfailed_reason)
-
-
-    ##
-##
-##
-class Orghook_config(object):
+class Orghook_config(ResponseBase):
     def __init__(self, url:str=None, insecure_ssl:str=None, content_type:str=None, secret:str=None):
+        ResponseBase.__init__(self)
         self._url = url
         self._insecure_ssl = insecure_ssl
         self._content_type = content_type
@@ -9952,9 +12096,10 @@ class Orghook_config(object):
     ##
 ##
 ##
-class OrgHook(object):
+class OrgHook(ResponseBase):
     """Org Hook """
     def __init__(self, type:str, created_at:datetime, updated_at:datetime, config:dict, active:bool, events:list, name:str, ping_url:str, url:str, id:int, deliveries_url:str=None):
+        ResponseBase.__init__(self)
         self._type = type
         self._created_at = created_at
         self._updated_at = updated_at
@@ -9981,14 +12126,14 @@ class OrgHook(object):
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
@@ -10052,12 +12197,10 @@ class OrgHook(object):
     ##
 ##
 ##
-class InteractionLimits(object):
-    """Interaction limit settings. """
-    def __init__(self, expires_at:datetime, origin:str, limit:str):
-        self._expires_at = expires_at
-        self._origin = origin
-        self._limit = limit
+class Orgmembership_permissions(ResponseBase):
+    def __init__(self, can_create_repository:bool):
+        ResponseBase.__init__(self)
+        self._can_create_repository = can_create_repository
         return
         
     
@@ -10065,34 +12208,26 @@ class InteractionLimits(object):
     
     ##
     ##
-    def _getexpires_at(self):
-        return self._expires_at and datetime.datetime.fromisoformat(self._expires_at[0:-1])
+    def _getcan_create_repository(self):
+        return self._can_create_repository
         
-    expires_at = property(_getexpires_at)
-
-    ##
-    ##
-    def _getorigin(self):
-        return self._origin
-        
-    origin = property(_getorigin)
-
-    ##
-    ##
-    def _getlimit(self):
-        return self._limit
-        
-    limit = property(_getlimit)
+    can_create_repository = property(_getcan_create_repository)
 
 
     ##
 ##
 ##
-class InteractionRestrictions(object):
-    """Limit interactions to a specific type of user for a specified duration """
-    def __init__(self, limit:str, expiry:str=None):
-        self._limit = limit
-        self._expiry = expiry
+class OrgMembership(ResponseBase):
+    """Org Membership """
+    def __init__(self, user:dict, organization:dict, organization_url:str, role:str, state:str, url:str, permissions:dict=None):
+        ResponseBase.__init__(self)
+        self._user = user
+        self._organization = organization
+        self._organization_url = organization_url
+        self._role = role
+        self._state = state
+        self._url = url
+        self._permissions = permissions
         return
         
     
@@ -10100,25 +12235,354 @@ class InteractionRestrictions(object):
     
     ##
     ##
-    def _getlimit(self):
-        return self._limit
+    def _getuser(self):
+        return self._user and SimpleUser(**self._user)
         
-    limit = property(_getlimit)
+    user = property(_getuser)
 
     ##
     ##
-    def _getexpiry(self):
-        return self._expiry
+    def _getorganization(self):
+        return self._organization and OrganizationSimple(**self._organization)
         
-    expiry = property(_getexpiry)
+    organization = property(_getorganization)
+
+    ##
+    ##
+    def _getorganization_url(self):
+        return self._organization_url
+        
+    organization_url = property(_getorganization_url)
+
+    ##
+    ##
+    def _getrole(self):
+        return self._role
+        
+    role = property(_getrole, doc="""The user's membership type in the organization. """)
+
+    ##
+    ##
+    def _getstate(self):
+        return self._state
+        
+    state = property(_getstate, doc="""The state of the member in the organization. The `pending` state indicates the user has not yet accepted an invitation. """)
+
+    ##
+    ##
+    def _geturl(self):
+        return self._url
+        
+    url = property(_geturl)
+
+    ##
+    ##
+    def _getpermissions(self):
+        return self._permissions and Orgmembership_permissions(**self._permissions)
+        
+    permissions = property(_getpermissions)
 
 
     ##
 ##
 ##
-class TeamSimple(object):
+class OrgPreReceiveHook(ResponseBase):
+    def __init__(self, id:int=None, name:str=None, enforcement:str=None, configuration_url:str=None, allow_downstream_configuration:bool=None):
+        ResponseBase.__init__(self)
+        self._id = id
+        self._name = name
+        self._enforcement = enforcement
+        self._configuration_url = configuration_url
+        self._allow_downstream_configuration = allow_downstream_configuration
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getid(self):
+        return self._id
+        
+    id = property(_getid)
+
+    ##
+    ##
+    def _getname(self):
+        return self._name
+        
+    name = property(_getname)
+
+    ##
+    ##
+    def _getenforcement(self):
+        return self._enforcement
+        
+    enforcement = property(_getenforcement)
+
+    ##
+    ##
+    def _getconfiguration_url(self):
+        return self._configuration_url
+        
+    configuration_url = property(_getconfiguration_url)
+
+    ##
+    ##
+    def _getallow_downstream_configuration(self):
+        return self._allow_downstream_configuration
+        
+    allow_downstream_configuration = property(_getallow_downstream_configuration)
+
+
+    ##
+##
+##
+class Project(ResponseBase):
+    """Projects are a way to organize columns and cards of work. """
+    def __init__(self, updated_at:datetime, created_at:datetime, creator:dict, state:str, number:int, body:str, name:str, node_id:str, id:int, columns_url:str, html_url:str, url:str, owner_url:str, organization_permission:str=None, private:bool=None):
+        ResponseBase.__init__(self)
+        self._updated_at = updated_at
+        self._created_at = created_at
+        self._creator = creator
+        self._state = state
+        self._number = number
+        self._body = body
+        self._name = name
+        self._node_id = node_id
+        self._id = id
+        self._columns_url = columns_url
+        self._html_url = html_url
+        self._url = url
+        self._owner_url = owner_url
+        self._organization_permission = organization_permission
+        self._private = private
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getupdated_at(self):
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
+        
+    updated_at = property(_getupdated_at)
+
+    ##
+    ##
+    def _getcreated_at(self):
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
+        
+    created_at = property(_getcreated_at)
+
+    ##
+    ##
+    def _getcreator(self):
+        return self._creator and SimpleUser(**self._creator)
+        
+    creator = property(_getcreator)
+
+    ##
+    ##
+    def _getstate(self):
+        return self._state
+        
+    state = property(_getstate, doc="""State of the project; either 'open' or 'closed' """)
+
+    ##
+    ##
+    def _getnumber(self):
+        return self._number
+        
+    number = property(_getnumber)
+
+    ##
+    ##
+    def _getbody(self):
+        return self._body
+        
+    body = property(_getbody, doc="""Body of the project """)
+
+    ##
+    ##
+    def _getname(self):
+        return self._name
+        
+    name = property(_getname, doc="""Name of the project """)
+
+    ##
+    ##
+    def _getnode_id(self):
+        return self._node_id
+        
+    node_id = property(_getnode_id)
+
+    ##
+    ##
+    def _getid(self):
+        return self._id
+        
+    id = property(_getid)
+
+    ##
+    ##
+    def _getcolumns_url(self):
+        return self._columns_url
+        
+    columns_url = property(_getcolumns_url)
+
+    ##
+    ##
+    def _gethtml_url(self):
+        return self._html_url
+        
+    html_url = property(_gethtml_url)
+
+    ##
+    ##
+    def _geturl(self):
+        return self._url
+        
+    url = property(_geturl)
+
+    ##
+    ##
+    def _getowner_url(self):
+        return self._owner_url
+        
+    owner_url = property(_getowner_url)
+
+    ##
+    ##
+    def _getorganization_permission(self):
+        return self._organization_permission
+        
+    organization_permission = property(_getorganization_permission, doc="""The baseline permission that all organization members have on this project. Only present if owner is an organization. """)
+
+    ##
+    ##
+    def _getprivate(self):
+        return self._private
+        
+    private = property(_getprivate, doc="""Whether or not this project can be seen by everyone. Only present if owner is an organization. """)
+
+
+    ##
+##
+##
+class OrganizationSecretScanningAlert(ResponseBase):
+    def __init__(self, number:int=None, created_at:datetime=None, url:str=None, html_url:str=None, locations_url:str=None, state:str=None, resolution:str=None, resolved_at:datetime=None, resolved_by:dict=None, secret_type:str=None, secret:str=None, repository:dict=None):
+        ResponseBase.__init__(self)
+        self._number = number
+        self._created_at = created_at
+        self._url = url
+        self._html_url = html_url
+        self._locations_url = locations_url
+        self._state = state
+        self._resolution = resolution
+        self._resolved_at = resolved_at
+        self._resolved_by = resolved_by
+        self._secret_type = secret_type
+        self._secret = secret
+        self._repository = repository
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getnumber(self):
+        return self._number
+        
+    number = property(_getnumber)
+
+    ##
+    ##
+    def _getcreated_at(self):
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
+        
+    created_at = property(_getcreated_at)
+
+    ##
+    ##
+    def _geturl(self):
+        return self._url
+        
+    url = property(_geturl)
+
+    ##
+    ##
+    def _gethtml_url(self):
+        return self._html_url
+        
+    html_url = property(_gethtml_url)
+
+    ##
+    ##
+    def _getlocations_url(self):
+        return self._locations_url
+        
+    locations_url = property(_getlocations_url, doc="""The REST API URL of the code locations for this alert. """)
+
+    ##
+    ##
+    def _getstate(self):
+        return self._state
+        
+    state = property(_getstate)
+
+    ##
+    ##
+    def _getresolution(self):
+        return self._resolution
+        
+    resolution = property(_getresolution)
+
+    ##
+    ##
+    def _getresolved_at(self):
+        return self._resolved_at and datetime.fromisoformat(self._resolved_at[0:-1])
+        
+    resolved_at = property(_getresolved_at, doc="""The time that the alert was resolved in ISO 8601 format: `YYYY-MM-DDTHH:MM:SSZ`. """)
+
+    ##
+    ##
+    def _getresolved_by(self):
+        return self._resolved_by and SimpleUser(**self._resolved_by)
+        
+    resolved_by = property(_getresolved_by)
+
+    ##
+    ##
+    def _getsecret_type(self):
+        return self._secret_type
+        
+    secret_type = property(_getsecret_type, doc="""The type of secret that secret scanning detected. """)
+
+    ##
+    ##
+    def _getsecret(self):
+        return self._secret
+        
+    secret = property(_getsecret, doc="""The secret that was detected. """)
+
+    ##
+    ##
+    def _getrepository(self):
+        return self._repository and MinimalRepository(**self._repository)
+        
+    repository = property(_getrepository)
+
+
+    ##
+##
+##
+class TeamSimple(ResponseBase):
     """Groups of organization members that gives permissions on specified repositories. """
     def __init__(self, slug:str, repositories_url:str, html_url:str, permission:str, description:str, name:str, members_url:str, url:str, node_id:str, id:int, privacy:str=None, ldap_dn:str=None):
+        ResponseBase.__init__(self)
         self._slug = slug
         self._repositories_url = repositories_url
         self._html_url = html_url
@@ -10224,8 +12688,9 @@ class TeamSimple(object):
     ##
 ##
 ##
-class Team_permissions(object):
+class Team_permissions(ResponseBase):
     def __init__(self, admin:bool, maintain:bool, push:bool, triage:bool, pull:bool):
+        ResponseBase.__init__(self)
         self._admin = admin
         self._maintain = maintain
         self._push = push
@@ -10275,9 +12740,10 @@ class Team_permissions(object):
     ##
 ##
 ##
-class Team(object):
+class Team(ResponseBase):
     """Groups of organization members that gives permissions on specified repositories. """
     def __init__(self, parent:dict, repositories_url:str, members_url:str, html_url:str, url:str, permission:str, description:str, slug:str, name:str, node_id:str, id:int, privacy:str=None, permissions:dict=None):
+        ResponseBase.__init__(self)
         self._parent = parent
         self._repositories_url = repositories_url
         self._members_url = members_url
@@ -10391,688 +12857,10 @@ class Team(object):
     ##
 ##
 ##
-class Orgmembership_permissions(object):
-    def __init__(self, can_create_repository:bool):
-        self._can_create_repository = can_create_repository
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getcan_create_repository(self):
-        return self._can_create_repository
-        
-    can_create_repository = property(_getcan_create_repository)
-
-
-    ##
-##
-##
-class OrgMembership(object):
-    """Org Membership """
-    def __init__(self, user:dict, organization:dict, organization_url:str, role:str, state:str, url:str, permissions:dict=None):
-        self._user = user
-        self._organization = organization
-        self._organization_url = organization_url
-        self._role = role
-        self._state = state
-        self._url = url
-        self._permissions = permissions
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getuser(self):
-        return self._user and SimpleUser(**self._user)
-        
-    user = property(_getuser)
-
-    ##
-    ##
-    def _getorganization(self):
-        return self._organization and OrganizationSimple(**self._organization)
-        
-    organization = property(_getorganization)
-
-    ##
-    ##
-    def _getorganization_url(self):
-        return self._organization_url
-        
-    organization_url = property(_getorganization_url)
-
-    ##
-    ##
-    def _getrole(self):
-        return self._role
-        
-    role = property(_getrole, doc="""The user's membership type in the organization. """)
-
-    ##
-    ##
-    def _getstate(self):
-        return self._state
-        
-    state = property(_getstate, doc="""The state of the member in the organization. The `pending` state indicates the user has not yet accepted an invitation. """)
-
-    ##
-    ##
-    def _geturl(self):
-        return self._url
-        
-    url = property(_geturl)
-
-    ##
-    ##
-    def _getpermissions(self):
-        return self._permissions and Orgmembership_permissions(**self._permissions)
-        
-    permissions = property(_getpermissions)
-
-
-    ##
-##
-##
-class Migration(object):
-    """A migration. """
-    def __init__(self, node_id:str, updated_at:datetime, created_at:datetime, url:str, repositories:list, exclude_attachments:bool, lock_repositories:bool, state:str, guid:str, owner:dict, id:int, archive_url:str=None, exclude:list=None):
-        self._node_id = node_id
-        self._updated_at = updated_at
-        self._created_at = created_at
-        self._url = url
-        self._repositories = repositories
-        self._exclude_attachments = exclude_attachments
-        self._lock_repositories = lock_repositories
-        self._state = state
-        self._guid = guid
-        self._owner = owner
-        self._id = id
-        self._archive_url = archive_url
-        self._exclude = exclude
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getnode_id(self):
-        return self._node_id
-        
-    node_id = property(_getnode_id)
-
-    ##
-    ##
-    def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
-        
-    updated_at = property(_getupdated_at)
-
-    ##
-    ##
-    def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
-        
-    created_at = property(_getcreated_at)
-
-    ##
-    ##
-    def _geturl(self):
-        return self._url
-        
-    url = property(_geturl)
-
-    ##
-    ##
-    def _getrepositories(self):
-        return self._repositories and [ entry and Repository(**entry) for entry in self._repositories ]
-        
-    repositories = property(_getrepositories)
-
-    ##
-    ##
-    def _getexclude_attachments(self):
-        return self._exclude_attachments
-        
-    exclude_attachments = property(_getexclude_attachments)
-
-    ##
-    ##
-    def _getlock_repositories(self):
-        return self._lock_repositories
-        
-    lock_repositories = property(_getlock_repositories)
-
-    ##
-    ##
-    def _getstate(self):
-        return self._state
-        
-    state = property(_getstate)
-
-    ##
-    ##
-    def _getguid(self):
-        return self._guid
-        
-    guid = property(_getguid)
-
-    ##
-    ##
-    def _getowner(self):
-        return self._owner and SimpleUser(**self._owner)
-        
-    owner = property(_getowner)
-
-    ##
-    ##
-    def _getid(self):
-        return self._id
-        
-    id = property(_getid)
-
-    ##
-    ##
-    def _getarchive_url(self):
-        return self._archive_url
-        
-    archive_url = property(_getarchive_url)
-
-    ##
-    ##
-    def _getexclude(self):
-        return self._exclude and [ entry for entry in self._exclude ]
-        
-    exclude = property(_getexclude)
-
-
-    ##
-##
-##
-class Package(object):
-    """A software package """
-    def __init__(self, updated_at:datetime, created_at:datetime, visibility:str, version_count:int, html_url:str, url:str, package_type:str, name:str, id:int, owner:dict=None, repository:dict=None):
-        self._updated_at = updated_at
-        self._created_at = created_at
-        self._visibility = visibility
-        self._version_count = version_count
-        self._html_url = html_url
-        self._url = url
-        self._package_type = package_type
-        self._name = name
-        self._id = id
-        self._owner = owner
-        self._repository = repository
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
-        
-    updated_at = property(_getupdated_at)
-
-    ##
-    ##
-    def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
-        
-    created_at = property(_getcreated_at)
-
-    ##
-    ##
-    def _getvisibility(self):
-        return self._visibility
-        
-    visibility = property(_getvisibility)
-
-    ##
-    ##
-    def _getversion_count(self):
-        return self._version_count
-        
-    version_count = property(_getversion_count, doc="""The number of versions of the package. """)
-
-    ##
-    ##
-    def _gethtml_url(self):
-        return self._html_url
-        
-    html_url = property(_gethtml_url)
-
-    ##
-    ##
-    def _geturl(self):
-        return self._url
-        
-    url = property(_geturl)
-
-    ##
-    ##
-    def _getpackage_type(self):
-        return self._package_type
-        
-    package_type = property(_getpackage_type)
-
-    ##
-    ##
-    def _getname(self):
-        return self._name
-        
-    name = property(_getname, doc="""The name of the package. """)
-
-    ##
-    ##
-    def _getid(self):
-        return self._id
-        
-    id = property(_getid, doc="""Unique identifier of the package. """)
-
-    ##
-    ##
-    def _getowner(self):
-        return self._owner and SimpleUser(**self._owner)
-        
-    owner = property(_getowner)
-
-    ##
-    ##
-    def _getrepository(self):
-        return self._repository and MinimalRepository(**self._repository)
-        
-    repository = property(_getrepository)
-
-
-    ##
-##
-##
-class Packageversion_metadata_container(object):
-    def __init__(self, tags:list):
-        self._tags = tags
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _gettags(self):
-        return self._tags and [ entry for entry in self._tags ]
-        
-    tags = property(_gettags)
-
-
-    ##
-##
-##
-class Packageversion_metadata_docker(object):
-    def __init__(self, tag:list=None):
-        self._tag = tag
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _gettag(self):
-        return self._tag and [ entry for entry in self._tag ]
-        
-    tag = property(_gettag)
-
-
-    ##
-##
-##
-class Packageversion_metadata(object):
-    def __init__(self, package_type:str, container:dict=None, docker:dict=None):
-        self._package_type = package_type
-        self._container = container
-        self._docker = docker
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getpackage_type(self):
-        return self._package_type
-        
-    package_type = property(_getpackage_type)
-
-    ##
-    ##
-    def _getcontainer(self):
-        return self._container and Packageversion_metadata_container(**self._container)
-        
-    container = property(_getcontainer)
-
-    ##
-    ##
-    def _getdocker(self):
-        return self._docker and Packageversion_metadata_docker(**self._docker)
-        
-    docker = property(_getdocker)
-
-
-    ##
-##
-##
-class PackageVersion(object):
-    """A version of a software package """
-    def __init__(self, updated_at:datetime, created_at:datetime, package_html_url:str, url:str, name:str, id:int, html_url:str=None, license:str=None, description:str=None, deleted_at:datetime=None, metadata:dict=None):
-        self._updated_at = updated_at
-        self._created_at = created_at
-        self._package_html_url = package_html_url
-        self._url = url
-        self._name = name
-        self._id = id
-        self._html_url = html_url
-        self._license = license
-        self._description = description
-        self._deleted_at = deleted_at
-        self._metadata = metadata
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
-        
-    updated_at = property(_getupdated_at)
-
-    ##
-    ##
-    def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
-        
-    created_at = property(_getcreated_at)
-
-    ##
-    ##
-    def _getpackage_html_url(self):
-        return self._package_html_url
-        
-    package_html_url = property(_getpackage_html_url)
-
-    ##
-    ##
-    def _geturl(self):
-        return self._url
-        
-    url = property(_geturl)
-
-    ##
-    ##
-    def _getname(self):
-        return self._name
-        
-    name = property(_getname, doc="""The name of the package version. """)
-
-    ##
-    ##
-    def _getid(self):
-        return self._id
-        
-    id = property(_getid, doc="""Unique identifier of the package version. """)
-
-    ##
-    ##
-    def _gethtml_url(self):
-        return self._html_url
-        
-    html_url = property(_gethtml_url)
-
-    ##
-    ##
-    def _getlicense(self):
-        return self._license
-        
-    license = property(_getlicense)
-
-    ##
-    ##
-    def _getdescription(self):
-        return self._description
-        
-    description = property(_getdescription)
-
-    ##
-    ##
-    def _getdeleted_at(self):
-        return self._deleted_at and datetime.datetime.fromisoformat(self._deleted_at[0:-1])
-        
-    deleted_at = property(_getdeleted_at)
-
-    ##
-    ##
-    def _getmetadata(self):
-        return self._metadata and Packageversion_metadata(**self._metadata)
-        
-    metadata = property(_getmetadata)
-
-
-    ##
-##
-##
-class Project(object):
-    """Projects are a way to organize columns and cards of work. """
-    def __init__(self, updated_at:datetime, created_at:datetime, creator:dict, state:str, number:int, body:str, name:str, node_id:str, id:int, columns_url:str, html_url:str, url:str, owner_url:str, organization_permission:str=None, private:bool=None):
-        self._updated_at = updated_at
-        self._created_at = created_at
-        self._creator = creator
-        self._state = state
-        self._number = number
-        self._body = body
-        self._name = name
-        self._node_id = node_id
-        self._id = id
-        self._columns_url = columns_url
-        self._html_url = html_url
-        self._url = url
-        self._owner_url = owner_url
-        self._organization_permission = organization_permission
-        self._private = private
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
-        
-    updated_at = property(_getupdated_at)
-
-    ##
-    ##
-    def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
-        
-    created_at = property(_getcreated_at)
-
-    ##
-    ##
-    def _getcreator(self):
-        return self._creator and SimpleUser(**self._creator)
-        
-    creator = property(_getcreator)
-
-    ##
-    ##
-    def _getstate(self):
-        return self._state
-        
-    state = property(_getstate, doc="""State of the project; either 'open' or 'closed' """)
-
-    ##
-    ##
-    def _getnumber(self):
-        return self._number
-        
-    number = property(_getnumber)
-
-    ##
-    ##
-    def _getbody(self):
-        return self._body
-        
-    body = property(_getbody, doc="""Body of the project """)
-
-    ##
-    ##
-    def _getname(self):
-        return self._name
-        
-    name = property(_getname, doc="""Name of the project """)
-
-    ##
-    ##
-    def _getnode_id(self):
-        return self._node_id
-        
-    node_id = property(_getnode_id)
-
-    ##
-    ##
-    def _getid(self):
-        return self._id
-        
-    id = property(_getid)
-
-    ##
-    ##
-    def _getcolumns_url(self):
-        return self._columns_url
-        
-    columns_url = property(_getcolumns_url)
-
-    ##
-    ##
-    def _gethtml_url(self):
-        return self._html_url
-        
-    html_url = property(_gethtml_url)
-
-    ##
-    ##
-    def _geturl(self):
-        return self._url
-        
-    url = property(_geturl)
-
-    ##
-    ##
-    def _getowner_url(self):
-        return self._owner_url
-        
-    owner_url = property(_getowner_url)
-
-    ##
-    ##
-    def _getorganization_permission(self):
-        return self._organization_permission
-        
-    organization_permission = property(_getorganization_permission, doc="""The baseline permission that all organization members have on this project. Only present if owner is an organization. """)
-
-    ##
-    ##
-    def _getprivate(self):
-        return self._private
-        
-    private = property(_getprivate, doc="""Whether or not this project can be seen by everyone. Only present if owner is an organization. """)
-
-
-    ##
-##
-##
-class Groupmapping_groups(object):
-    def __init__(self, group_description:str, group_name:str, group_id:str, status:str=None, synced_at:str=None):
-        self._group_description = group_description
-        self._group_name = group_name
-        self._group_id = group_id
-        self._status = status
-        self._synced_at = synced_at
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getgroup_description(self):
-        return self._group_description
-        
-    group_description = property(_getgroup_description, doc="""a description of the group """)
-
-    ##
-    ##
-    def _getgroup_name(self):
-        return self._group_name
-        
-    group_name = property(_getgroup_name, doc="""The name of the group """)
-
-    ##
-    ##
-    def _getgroup_id(self):
-        return self._group_id
-        
-    group_id = property(_getgroup_id, doc="""The ID of the group """)
-
-    ##
-    ##
-    def _getstatus(self):
-        return self._status
-        
-    status = property(_getstatus, doc="""synchronization status for this group mapping """)
-
-    ##
-    ##
-    def _getsynced_at(self):
-        return self._synced_at
-        
-    synced_at = property(_getsynced_at, doc="""the time of the last sync for this group-mapping """)
-
-
-    ##
-##
-##
-class Groupmapping(object):
-    """External Groups to be mapped to a team for membership """
-    def __init__(self, groups:list=None):
-        self._groups = groups
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getgroups(self):
-        return self._groups and [ entry and Groupmapping_groups(**entry) for entry in self._groups ]
-        
-    groups = property(_getgroups, doc="""Array of groups to be mapped to this team """)
-
-
-    ##
-##
-##
-class FullTeam(object):
+class FullTeam(ResponseBase):
     """Groups of organization members that gives permissions on specified repositories. """
     def __init__(self, organization:dict, updated_at:datetime, created_at:datetime, repos_count:int, members_count:int, repositories_url:str, members_url:str, permission:str, description:str, slug:str, name:str, html_url:str, url:str, node_id:str, id:int, privacy:str=None, parent:dict=None, ldap_dn:str=None):
+        ResponseBase.__init__(self)
         self._organization = organization
         self._updated_at = updated_at
         self._created_at = created_at
@@ -11106,14 +12894,14 @@ class FullTeam(object):
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -11226,9 +13014,10 @@ class FullTeam(object):
     ##
 ##
 ##
-class TeamDiscussion(object):
+class TeamDiscussion(ResponseBase):
     """A team discussion is a persistent record of a free-form conversation within a team. """
     def __init__(self, url:str, updated_at:datetime, title:str, team_url:str, private:bool, pinned:bool, number:int, node_id:str, html_url:str, last_edited_at:datetime, created_at:datetime, comments_url:str, comments_count:int, body_version:str, body_html:str, body:str, author:dict, reactions:dict=None):
+        ResponseBase.__init__(self)
         self._url = url
         self._updated_at = updated_at
         self._title = title
@@ -11262,7 +13051,7 @@ class TeamDiscussion(object):
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
@@ -11318,14 +13107,14 @@ class TeamDiscussion(object):
     ##
     ##
     def _getlast_edited_at(self):
-        return self._last_edited_at and datetime.datetime.fromisoformat(self._last_edited_at[0:-1])
+        return self._last_edited_at and datetime.fromisoformat(self._last_edited_at[0:-1])
         
     last_edited_at = property(_getlast_edited_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -11382,9 +13171,10 @@ class TeamDiscussion(object):
     ##
 ##
 ##
-class TeamDiscussionComment(object):
+class TeamDiscussionComment(ResponseBase):
     """A reply to a discussion within a team. """
     def __init__(self, url:str, updated_at:datetime, number:int, node_id:str, html_url:str, discussion_url:str, last_edited_at:datetime, created_at:datetime, body_version:str, body_html:str, body:str, author:dict, reactions:dict=None):
+        ResponseBase.__init__(self)
         self._url = url
         self._updated_at = updated_at
         self._number = number
@@ -11413,7 +13203,7 @@ class TeamDiscussionComment(object):
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
@@ -11448,14 +13238,14 @@ class TeamDiscussionComment(object):
     ##
     ##
     def _getlast_edited_at(self):
-        return self._last_edited_at and datetime.datetime.fromisoformat(self._last_edited_at[0:-1])
+        return self._last_edited_at and datetime.fromisoformat(self._last_edited_at[0:-1])
         
     last_edited_at = property(_getlast_edited_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -11498,9 +13288,10 @@ class TeamDiscussionComment(object):
     ##
 ##
 ##
-class Reaction(object):
+class Reaction(ResponseBase):
     """Reactions to conversations provide a way to help people express their feelings more simply and effectively. """
     def __init__(self, created_at:datetime, content:str, user:dict, node_id:str, id:int):
+        ResponseBase.__init__(self)
         self._created_at = created_at
         self._content = content
         self._user = user
@@ -11514,7 +13305,7 @@ class Reaction(object):
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -11550,9 +13341,10 @@ class Reaction(object):
     ##
 ##
 ##
-class TeamMembership(object):
+class TeamMembership(ResponseBase):
     """Team Membership """
     def __init__(self, state:str, url:str, role:str='member'):
+        ResponseBase.__init__(self)
         self._state = state
         self._url = url
         self._role = role
@@ -11586,8 +13378,9 @@ class TeamMembership(object):
     ##
 ##
 ##
-class Teamproject_permissions(object):
+class Teamproject_permissions(ResponseBase):
     def __init__(self, admin:bool, write:bool, read:bool):
+        ResponseBase.__init__(self)
         self._admin = admin
         self._write = write
         self._read = read
@@ -11621,9 +13414,10 @@ class Teamproject_permissions(object):
     ##
 ##
 ##
-class TeamProject(object):
+class TeamProject(ResponseBase):
     """A team's access to a project. """
     def __init__(self, permissions:dict, updated_at:str, created_at:str, creator:dict, state:str, number:int, body:str, name:str, node_id:str, id:int, columns_url:str, html_url:str, url:str, owner_url:str, organization_permission:str=None, private:bool=None):
+        ResponseBase.__init__(self)
         self._permissions = permissions
         self._updated_at = updated_at
         self._created_at = created_at
@@ -11761,8 +13555,9 @@ class TeamProject(object):
     ##
 ##
 ##
-class Teamrepository_permissions(object):
+class Teamrepository_permissions(ResponseBase):
     def __init__(self, push:bool, pull:bool, admin:bool, triage:bool=None, maintain:bool=None):
+        ResponseBase.__init__(self)
         self._push = push
         self._pull = pull
         self._admin = admin
@@ -11812,9 +13607,10 @@ class Teamrepository_permissions(object):
     ##
 ##
 ##
-class TeamRepository(object):
+class TeamRepository(ResponseBase):
     """A team's access to a repository. """
-    def __init__(self, watchers:int, open_issues:int, updated_at:datetime, created_at:datetime, pushed_at:datetime, disabled:bool, has_pages:bool, open_issues_count:int, default_branch:str, size:int, watchers_count:int, stargazers_count:int, forks_count:int, language:str, homepage:str, svn_url:str, hooks_url:str, mirror_url:str, clone_url:str, trees_url:str, teams_url:str, tags_url:str, subscription_url:str, subscribers_url:str, statuses_url:str, stargazers_url:str, ssh_url:str, releases_url:str, pulls_url:str, notifications_url:str, milestones_url:str, merges_url:str, languages_url:str, labels_url:str, keys_url:str, issues_url:str, issue_events_url:str, issue_comment_url:str, git_url:str, git_tags_url:str, git_refs_url:str, git_commits_url:str, forks_url:str, events_url:str, downloads_url:str, deployments_url:str, contributors_url:str, contents_url:str, compare_url:str, commits_url:str, comments_url:str, collaborators_url:str, branches_url:str, blobs_url:str, assignees_url:str, archive_url:str, url:str, fork:bool, description:str, html_url:str, owner:dict, forks:int, license:dict, full_name:str, name:str, node_id:str, id:int, permissions:dict=None, private:bool=False, is_template:bool=False, topics:list=None, has_issues:bool=True, has_projects:bool=True, has_wiki:bool=True, has_downloads:bool=True, archived:bool=False, visibility:str='public', allow_rebase_merge:bool=True, template_repository:dict=None, temp_clone_token:str=None, allow_squash_merge:bool=True, allow_auto_merge:bool=False, delete_branch_on_merge:bool=False, allow_merge_commit:bool=True, subscribers_count:int=None, network_count:int=None, master_branch:str=None):
+    def __init__(self, watchers:int, open_issues:int, updated_at:datetime, created_at:datetime, pushed_at:datetime, disabled:bool, has_pages:bool, open_issues_count:int, default_branch:str, size:int, watchers_count:int, stargazers_count:int, forks_count:int, language:str, homepage:str, svn_url:str, hooks_url:str, mirror_url:str, clone_url:str, trees_url:str, teams_url:str, tags_url:str, subscription_url:str, subscribers_url:str, statuses_url:str, stargazers_url:str, ssh_url:str, releases_url:str, pulls_url:str, notifications_url:str, milestones_url:str, merges_url:str, languages_url:str, labels_url:str, keys_url:str, issues_url:str, issue_events_url:str, issue_comment_url:str, git_url:str, git_tags_url:str, git_refs_url:str, git_commits_url:str, forks_url:str, events_url:str, downloads_url:str, deployments_url:str, contributors_url:str, contents_url:str, compare_url:str, commits_url:str, comments_url:str, collaborators_url:str, branches_url:str, blobs_url:str, assignees_url:str, archive_url:str, url:str, fork:bool, description:str, html_url:str, owner:dict, forks:int, license:dict, full_name:str, name:str, node_id:str, id:int, permissions:dict=None, private:bool=False, is_template:bool=False, topics:list=None, has_issues:bool=True, has_projects:bool=True, has_wiki:bool=True, has_downloads:bool=True, archived:bool=False, visibility:str='public', allow_rebase_merge:bool=True, template_repository:dict=None, temp_clone_token:str=None, allow_squash_merge:bool=True, allow_auto_merge:bool=False, delete_branch_on_merge:bool=False, allow_merge_commit:bool=True, allow_forking:bool=False, subscribers_count:int=None, network_count:int=None, master_branch:str=None):
+        ResponseBase.__init__(self)
         self._watchers = watchers
         self._open_issues = open_issues
         self._updated_at = updated_at
@@ -11899,6 +13695,7 @@ class TeamRepository(object):
         self._allow_auto_merge = allow_auto_merge
         self._delete_branch_on_merge = delete_branch_on_merge
         self._allow_merge_commit = allow_merge_commit
+        self._allow_forking = allow_forking
         self._subscribers_count = subscribers_count
         self._network_count = network_count
         self._master_branch = master_branch
@@ -11924,21 +13721,21 @@ class TeamRepository(object):
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
     ##
     ##
     def _getpushed_at(self):
-        return self._pushed_at and datetime.datetime.fromisoformat(self._pushed_at[0:-1])
+        return self._pushed_at and datetime.fromisoformat(self._pushed_at[0:-1])
         
     pushed_at = property(_getpushed_at)
 
@@ -12497,6 +14294,13 @@ class TeamRepository(object):
 
     ##
     ##
+    def _getallow_forking(self):
+        return self._allow_forking
+        
+    allow_forking = property(_getallow_forking, doc="""Whether to allow forking this repo """)
+
+    ##
+    ##
     def _getsubscribers_count(self):
         return self._subscribers_count
         
@@ -12520,9 +14324,10 @@ class TeamRepository(object):
     ##
 ##
 ##
-class ProjectCard(object):
+class ProjectCard(ResponseBase):
     """Project cards represent a scope of work. """
     def __init__(self, project_url:str, column_url:str, updated_at:datetime, created_at:datetime, creator:dict, note:str, node_id:str, id:int, url:str, archived:bool=None, column_name:str=None, project_id:str=None, content_url:str=None):
+        ResponseBase.__init__(self)
         self._project_url = project_url
         self._column_url = column_url
         self._updated_at = updated_at
@@ -12558,14 +14363,14 @@ class ProjectCard(object):
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -12636,9 +14441,10 @@ class ProjectCard(object):
     ##
 ##
 ##
-class ProjectColumn(object):
+class ProjectColumn(ResponseBase):
     """Project columns contain cards of work. """
     def __init__(self, updated_at:datetime, created_at:datetime, name:str, node_id:str, id:int, cards_url:str, project_url:str, url:str):
+        ResponseBase.__init__(self)
         self._updated_at = updated_at
         self._created_at = created_at
         self._name = name
@@ -12655,14 +14461,14 @@ class ProjectColumn(object):
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -12712,9 +14518,10 @@ class ProjectColumn(object):
     ##
 ##
 ##
-class RepositoryCollaboratorPermission(object):
-    """Repository Collaborator Permission """
+class ProjectCollaboratorPermission(ResponseBase):
+    """Project Collaborator Permission """
     def __init__(self, user:dict, permission:str):
+        ResponseBase.__init__(self)
         self._user = user
         self._permission = permission
         return
@@ -12740,8 +14547,9 @@ class RepositoryCollaboratorPermission(object):
     ##
 ##
 ##
-class RateLimit(object):
+class RateLimit(ResponseBase):
     def __init__(self, used:int, reset:int, remaining:int, limit:int):
+        ResponseBase.__init__(self)
         self._used = used
         self._reset = reset
         self._remaining = remaining
@@ -12783,14 +14591,17 @@ class RateLimit(object):
     ##
 ##
 ##
-class Ratelimitoverview_resources(object):
-    def __init__(self, search:dict, core:dict, graphql:dict=None, source_import:dict=None, integration_manifest:dict=None, code_scanning_upload:dict=None):
+class Ratelimitoverview_resources(ResponseBase):
+    def __init__(self, search:dict, core:dict, graphql:dict=None, source_import:dict=None, integration_manifest:dict=None, code_scanning_upload:dict=None, actions_runner_registration:dict=None, scim:dict=None):
+        ResponseBase.__init__(self)
         self._search = search
         self._core = core
         self._graphql = graphql
         self._source_import = source_import
         self._integration_manifest = integration_manifest
         self._code_scanning_upload = code_scanning_upload
+        self._actions_runner_registration = actions_runner_registration
+        self._scim = scim
         return
         
     
@@ -12838,13 +14649,28 @@ class Ratelimitoverview_resources(object):
         
     code_scanning_upload = property(_getcode_scanning_upload)
 
+    ##
+    ##
+    def _getactions_runner_registration(self):
+        return self._actions_runner_registration and RateLimit(**self._actions_runner_registration)
+        
+    actions_runner_registration = property(_getactions_runner_registration)
+
+    ##
+    ##
+    def _getscim(self):
+        return self._scim and RateLimit(**self._scim)
+        
+    scim = property(_getscim)
+
 
     ##
 ##
 ##
-class RateLimitOverview(object):
+class RateLimitOverview(ResponseBase):
     """Rate Limit Overview """
     def __init__(self, rate:dict, resources:dict):
+        ResponseBase.__init__(self)
         self._rate = rate
         self._resources = resources
         return
@@ -12870,9 +14696,10 @@ class RateLimitOverview(object):
     ##
 ##
 ##
-class CodeOfConductSimple(object):
+class CodeOfConductSimple(ResponseBase):
     """Code of Conduct Simple """
     def __init__(self, html_url:str, name:str, key:str, url:str):
+        ResponseBase.__init__(self)
         self._html_url = html_url
         self._name = name
         self._key = key
@@ -12914,23 +14741,19 @@ class CodeOfConductSimple(object):
     ##
 ##
 ##
-class Fullrepository_permissions(object):
-    def __init__(self, push:bool, pull:bool, admin:bool):
-        self._push = push
+class Fullrepository_permissions(ResponseBase):
+    def __init__(self, pull:bool, push:bool, admin:bool, maintain:bool=None, triage:bool=None):
+        ResponseBase.__init__(self)
         self._pull = pull
+        self._push = push
         self._admin = admin
+        self._maintain = maintain
+        self._triage = triage
         return
         
     
 
     
-    ##
-    ##
-    def _getpush(self):
-        return self._push
-        
-    push = property(_getpush)
-
     ##
     ##
     def _getpull(self):
@@ -12940,17 +14763,39 @@ class Fullrepository_permissions(object):
 
     ##
     ##
+    def _getpush(self):
+        return self._push
+        
+    push = property(_getpush)
+
+    ##
+    ##
     def _getadmin(self):
         return self._admin
         
     admin = property(_getadmin)
 
+    ##
+    ##
+    def _getmaintain(self):
+        return self._maintain
+        
+    maintain = property(_getmaintain)
+
+    ##
+    ##
+    def _gettriage(self):
+        return self._triage
+        
+    triage = property(_gettriage)
+
 
     ##
 ##
 ##
-class Fullrepository_security_and_analysis_advanced_security(object):
+class Fullrepository_security_and_analysis_advanced_security(ResponseBase):
     def __init__(self, status:str=None):
+        ResponseBase.__init__(self)
         self._status = status
         return
         
@@ -12968,8 +14813,9 @@ class Fullrepository_security_and_analysis_advanced_security(object):
     ##
 ##
 ##
-class Fullrepository_security_and_analysis_secret_scanning(object):
+class Fullrepository_security_and_analysis_secret_scanning(ResponseBase):
     def __init__(self, status:str=None):
+        ResponseBase.__init__(self)
         self._status = status
         return
         
@@ -12987,8 +14833,9 @@ class Fullrepository_security_and_analysis_secret_scanning(object):
     ##
 ##
 ##
-class Fullrepository_security_and_analysis(object):
+class Fullrepository_security_and_analysis(ResponseBase):
     def __init__(self, advanced_security:dict=None, secret_scanning:dict=None):
+        ResponseBase.__init__(self)
         self._advanced_security = advanced_security
         self._secret_scanning = secret_scanning
         return
@@ -13014,9 +14861,10 @@ class Fullrepository_security_and_analysis(object):
     ##
 ##
 ##
-class FullRepository(object):
+class FullRepository(ResponseBase):
     """Full Repository """
-    def __init__(self, watchers:int, open_issues:int, forks:int, license:dict, network_count:int, subscribers_count:int, updated_at:datetime, created_at:datetime, pushed_at:datetime, disabled:bool, archived:bool, has_downloads:bool, has_pages:bool, has_wiki:bool, has_projects:bool, has_issues:bool, open_issues_count:int, default_branch:str, size:int, watchers_count:int, stargazers_count:int, forks_count:int, language:str, homepage:str, svn_url:str, hooks_url:str, mirror_url:str, clone_url:str, trees_url:str, teams_url:str, tags_url:str, subscription_url:str, subscribers_url:str, statuses_url:str, stargazers_url:str, ssh_url:str, releases_url:str, pulls_url:str, notifications_url:str, milestones_url:str, merges_url:str, languages_url:str, labels_url:str, keys_url:str, issues_url:str, issue_events_url:str, issue_comment_url:str, git_url:str, git_tags_url:str, git_refs_url:str, git_commits_url:str, forks_url:str, events_url:str, downloads_url:str, deployments_url:str, contributors_url:str, contents_url:str, compare_url:str, commits_url:str, comments_url:str, collaborators_url:str, branches_url:str, blobs_url:str, assignees_url:str, archive_url:str, url:str, fork:bool, description:str, html_url:str, private:bool, owner:dict, full_name:str, name:str, node_id:str, id:int, is_template:bool=None, topics:list=None, visibility:str=None, permissions:dict=None, allow_rebase_merge:bool=None, template_repository:dict=None, temp_clone_token:str=None, allow_squash_merge:bool=None, allow_auto_merge:bool=None, delete_branch_on_merge:bool=None, allow_merge_commit:bool=None, organization:dict=None, parent:dict=None, source:dict=None, master_branch:str=None, anonymous_access_enabled:bool=True, code_of_conduct:dict=None, security_and_analysis:dict=None):
+    def __init__(self, watchers:int, open_issues:int, forks:int, license:dict, network_count:int, subscribers_count:int, updated_at:datetime, created_at:datetime, pushed_at:datetime, disabled:bool, archived:bool, has_downloads:bool, has_pages:bool, has_wiki:bool, has_projects:bool, has_issues:bool, open_issues_count:int, default_branch:str, size:int, watchers_count:int, stargazers_count:int, forks_count:int, language:str, homepage:str, svn_url:str, hooks_url:str, mirror_url:str, clone_url:str, trees_url:str, teams_url:str, tags_url:str, subscription_url:str, subscribers_url:str, statuses_url:str, stargazers_url:str, ssh_url:str, releases_url:str, pulls_url:str, notifications_url:str, milestones_url:str, merges_url:str, languages_url:str, labels_url:str, keys_url:str, issues_url:str, issue_events_url:str, issue_comment_url:str, git_url:str, git_tags_url:str, git_refs_url:str, git_commits_url:str, forks_url:str, events_url:str, downloads_url:str, deployments_url:str, contributors_url:str, contents_url:str, compare_url:str, commits_url:str, comments_url:str, collaborators_url:str, branches_url:str, blobs_url:str, assignees_url:str, archive_url:str, url:str, fork:bool, description:str, html_url:str, private:bool, owner:dict, full_name:str, name:str, node_id:str, id:int, is_template:bool=None, topics:list=None, visibility:str=None, permissions:dict=None, allow_rebase_merge:bool=None, template_repository:dict=None, temp_clone_token:str=None, allow_squash_merge:bool=None, allow_auto_merge:bool=None, delete_branch_on_merge:bool=None, allow_merge_commit:bool=None, allow_forking:bool=None, organization:dict=None, parent:dict=None, source:dict=None, master_branch:str=None, anonymous_access_enabled:bool=True, code_of_conduct:dict=None, security_and_analysis:dict=None):
+        ResponseBase.__init__(self)
         self._watchers = watchers
         self._open_issues = open_issues
         self._forks = forks
@@ -13103,6 +14951,7 @@ class FullRepository(object):
         self._allow_auto_merge = allow_auto_merge
         self._delete_branch_on_merge = delete_branch_on_merge
         self._allow_merge_commit = allow_merge_commit
+        self._allow_forking = allow_forking
         self._organization = organization
         self._parent = parent
         self._source = source
@@ -13160,21 +15009,21 @@ class FullRepository(object):
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
     ##
     ##
     def _getpushed_at(self):
-        return self._pushed_at and datetime.datetime.fromisoformat(self._pushed_at[0:-1])
+        return self._pushed_at and datetime.fromisoformat(self._pushed_at[0:-1])
         
     pushed_at = property(_getpushed_at)
 
@@ -13719,6 +15568,13 @@ class FullRepository(object):
 
     ##
     ##
+    def _getallow_forking(self):
+        return self._allow_forking
+        
+    allow_forking = property(_getallow_forking)
+
+    ##
+    ##
     def _getorganization(self):
         return self._organization and SimpleUser(**self._organization)
         
@@ -13770,9 +15626,10 @@ class FullRepository(object):
     ##
 ##
 ##
-class Artifact(object):
+class Artifact(ResponseBase):
     """An artifact """
     def __init__(self, updated_at:datetime, expires_at:datetime, created_at:datetime, expired:bool, archive_download_url:str, url:str, size_in_bytes:int, name:str, node_id:str, id:int):
+        ResponseBase.__init__(self)
         self._updated_at = updated_at
         self._expires_at = expires_at
         self._created_at = created_at
@@ -13791,21 +15648,21 @@ class Artifact(object):
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
     ##
     ##
     def _getexpires_at(self):
-        return self._expires_at and datetime.datetime.fromisoformat(self._expires_at[0:-1])
+        return self._expires_at and datetime.fromisoformat(self._expires_at[0:-1])
         
     expires_at = property(_getexpires_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -13862,8 +15719,9 @@ class Artifact(object):
     ##
 ##
 ##
-class Job_steps(object):
+class Job_steps(ResponseBase):
     def __init__(self, number:int, name:str, conclusion:str, status:str, started_at:datetime=None, completed_at:datetime=None):
+        ResponseBase.__init__(self)
         self._number = number
         self._name = name
         self._conclusion = conclusion
@@ -13906,14 +15764,14 @@ class Job_steps(object):
     ##
     ##
     def _getstarted_at(self):
-        return self._started_at and datetime.datetime.fromisoformat(self._started_at[0:-1])
+        return self._started_at and datetime.fromisoformat(self._started_at[0:-1])
         
     started_at = property(_getstarted_at, doc="""The time that the step started, in ISO 8601 format. """)
 
     ##
     ##
     def _getcompleted_at(self):
-        return self._completed_at and datetime.datetime.fromisoformat(self._completed_at[0:-1])
+        return self._completed_at and datetime.fromisoformat(self._completed_at[0:-1])
         
     completed_at = property(_getcompleted_at, doc="""The time that the job finished, in ISO 8601 format. """)
 
@@ -13921,9 +15779,15 @@ class Job_steps(object):
     ##
 ##
 ##
-class Job(object):
+class Job(ResponseBase):
     """Information of a job execution in a workflow run """
-    def __init__(self, check_run_url:str, name:str, completed_at:datetime, started_at:datetime, conclusion:str, status:str, html_url:str, url:str, head_sha:str, node_id:str, run_url:str, run_id:int, id:int, steps:list=None):
+    def __init__(self, runner_group_name:str, runner_group_id:int, runner_name:str, runner_id:int, labels:list, check_run_url:str, name:str, completed_at:datetime, started_at:datetime, conclusion:str, status:str, html_url:str, url:str, head_sha:str, node_id:str, run_url:str, run_id:int, id:int, run_attempt:int=None, steps:list=None):
+        ResponseBase.__init__(self)
+        self._runner_group_name = runner_group_name
+        self._runner_group_id = runner_group_id
+        self._runner_name = runner_name
+        self._runner_id = runner_id
+        self._labels = labels
         self._check_run_url = check_run_url
         self._name = name
         self._completed_at = completed_at
@@ -13937,12 +15801,48 @@ class Job(object):
         self._run_url = run_url
         self._run_id = run_id
         self._id = id
+        self._run_attempt = run_attempt
         self._steps = steps
         return
         
     
 
     
+    ##
+    ##
+    def _getrunner_group_name(self):
+        return self._runner_group_name
+        
+    runner_group_name = property(_getrunner_group_name, doc="""The name of the runner group to which this job has been assigned. (If a runner hasn't yet been assigned, this will be null.) """)
+
+    ##
+    ##
+    def _getrunner_group_id(self):
+        return self._runner_group_id
+        
+    runner_group_id = property(_getrunner_group_id, doc="""The ID of the runner group to which this job has been assigned. (If a runner hasn't yet been assigned, this will be null.) """)
+
+    ##
+    ##
+    def _getrunner_name(self):
+        return self._runner_name
+        
+    runner_name = property(_getrunner_name, doc="""The name of the runner to which this job has been assigned. (If a runner hasn't yet been assigned, this will be null.) """)
+
+    ##
+    ##
+    def _getrunner_id(self):
+        return self._runner_id
+        
+    runner_id = property(_getrunner_id, doc="""The ID of the runner to which this job has been assigned. (If a runner hasn't yet been assigned, this will be null.) """)
+
+    ##
+    ##
+    def _getlabels(self):
+        return self._labels and [ entry for entry in self._labels ]
+        
+    labels = property(_getlabels, doc="""Labels for the workflow job. Specified by the "runs_on" attribute in the action's workflow file. """)
+
     ##
     ##
     def _getcheck_run_url(self):
@@ -13960,14 +15860,14 @@ class Job(object):
     ##
     ##
     def _getcompleted_at(self):
-        return self._completed_at and datetime.datetime.fromisoformat(self._completed_at[0:-1])
+        return self._completed_at and datetime.fromisoformat(self._completed_at[0:-1])
         
     completed_at = property(_getcompleted_at, doc="""The time that the job finished, in ISO 8601 format. """)
 
     ##
     ##
     def _getstarted_at(self):
-        return self._started_at and datetime.datetime.fromisoformat(self._started_at[0:-1])
+        return self._started_at and datetime.fromisoformat(self._started_at[0:-1])
         
     started_at = property(_getstarted_at, doc="""The time that the job started, in ISO 8601 format. """)
 
@@ -14036,6 +15936,13 @@ class Job(object):
 
     ##
     ##
+    def _getrun_attempt(self):
+        return self._run_attempt
+        
+    run_attempt = property(_getrun_attempt, doc="""Attempt number of the associated workflow run, 1 for first attempt and higher if the workflow was re-run. """)
+
+    ##
+    ##
     def _getsteps(self):
         return self._steps and [ entry and Job_steps(**entry) for entry in self._steps ]
         
@@ -14045,8 +15952,9 @@ class Job(object):
     ##
 ##
 ##
-class ActionsRepositoryPermissions(object):
+class ActionsRepositoryPermissions(ResponseBase):
     def __init__(self, enabled:bool, allowed_actions:str=None, selected_actions_url:str=None):
+        ResponseBase.__init__(self)
         self._enabled = enabled
         self._allowed_actions = allowed_actions
         self._selected_actions_url = selected_actions_url
@@ -14080,8 +15988,9 @@ class ActionsRepositoryPermissions(object):
     ##
 ##
 ##
-class Pullrequestminimal_head_repo(object):
+class Pullrequestminimal_head_repo(ResponseBase):
     def __init__(self, name:str, url:str, id:int):
+        ResponseBase.__init__(self)
         self._name = name
         self._url = url
         self._id = id
@@ -14115,8 +16024,9 @@ class Pullrequestminimal_head_repo(object):
     ##
 ##
 ##
-class Pullrequestminimal_head(object):
+class Pullrequestminimal_head(ResponseBase):
     def __init__(self, repo:dict, sha:str, ref:str):
+        ResponseBase.__init__(self)
         self._repo = repo
         self._sha = sha
         self._ref = ref
@@ -14150,8 +16060,9 @@ class Pullrequestminimal_head(object):
     ##
 ##
 ##
-class Pullrequestminimal_base_repo(object):
+class Pullrequestminimal_base_repo(ResponseBase):
     def __init__(self, name:str, url:str, id:int):
+        ResponseBase.__init__(self)
         self._name = name
         self._url = url
         self._id = id
@@ -14185,8 +16096,9 @@ class Pullrequestminimal_base_repo(object):
     ##
 ##
 ##
-class Pullrequestminimal_base(object):
+class Pullrequestminimal_base(ResponseBase):
     def __init__(self, repo:dict, sha:str, ref:str):
+        ResponseBase.__init__(self)
         self._repo = repo
         self._sha = sha
         self._ref = ref
@@ -14220,8 +16132,9 @@ class Pullrequestminimal_base(object):
     ##
 ##
 ##
-class PullRequestMinimal(object):
+class PullRequestMinimal(ResponseBase):
     def __init__(self, base:dict, head:dict, url:str, number:int, id:int):
+        ResponseBase.__init__(self)
         self._base = base
         self._head = head
         self._url = url
@@ -14271,8 +16184,9 @@ class PullRequestMinimal(object):
     ##
 ##
 ##
-class Simplecommit_author(object):
+class Simplecommit_author(ResponseBase):
     def __init__(self, email:str, name:str):
+        ResponseBase.__init__(self)
         self._email = email
         self._name = name
         return
@@ -14298,8 +16212,9 @@ class Simplecommit_author(object):
     ##
 ##
 ##
-class Simplecommit_committer(object):
+class Simplecommit_committer(ResponseBase):
     def __init__(self, email:str, name:str):
+        ResponseBase.__init__(self)
         self._email = email
         self._name = name
         return
@@ -14325,9 +16240,10 @@ class Simplecommit_committer(object):
     ##
 ##
 ##
-class SimpleCommit(object):
+class SimpleCommit(ResponseBase):
     """Simple Commit """
     def __init__(self, committer:dict, author:dict, timestamp:datetime, message:str, tree_id:str, id:str):
+        ResponseBase.__init__(self)
         self._committer = committer
         self._author = author
         self._timestamp = timestamp
@@ -14356,7 +16272,7 @@ class SimpleCommit(object):
     ##
     ##
     def _gettimestamp(self):
-        return self._timestamp and datetime.datetime.fromisoformat(self._timestamp[0:-1])
+        return self._timestamp and datetime.fromisoformat(self._timestamp[0:-1])
         
     timestamp = property(_gettimestamp)
 
@@ -14385,9 +16301,10 @@ class SimpleCommit(object):
     ##
 ##
 ##
-class WorkflowRun(object):
+class WorkflowRun(ResponseBase):
     """An invocation of a workflow """
-    def __init__(self, head_repository:dict, repository:dict, head_commit:dict, workflow_url:str, rerun_url:str, cancel_url:str, artifacts_url:str, check_suite_url:str, logs_url:str, jobs_url:str, updated_at:datetime, created_at:datetime, pull_requests:list, html_url:str, url:str, workflow_id:int, conclusion:str, status:str, event:str, run_number:int, head_sha:str, head_branch:str, node_id:str, id:int, name:str=None, check_suite_id:int=None, check_suite_node_id:str=None, head_repository_id:int=None):
+    def __init__(self, head_repository:dict, repository:dict, head_commit:dict, workflow_url:str, rerun_url:str, cancel_url:str, artifacts_url:str, check_suite_url:str, logs_url:str, jobs_url:str, updated_at:datetime, created_at:datetime, pull_requests:list, html_url:str, url:str, workflow_id:int, conclusion:str, status:str, event:str, run_number:int, head_sha:str, head_branch:str, node_id:str, id:int, name:str=None, check_suite_id:int=None, check_suite_node_id:str=None, run_attempt:int=None, run_started_at:datetime=None, previous_attempt_url:str=None, head_repository_id:int=None):
+        ResponseBase.__init__(self)
         self._head_repository = head_repository
         self._repository = repository
         self._head_commit = head_commit
@@ -14415,6 +16332,9 @@ class WorkflowRun(object):
         self._name = name
         self._check_suite_id = check_suite_id
         self._check_suite_node_id = check_suite_node_id
+        self._run_attempt = run_attempt
+        self._run_started_at = run_started_at
+        self._previous_attempt_url = previous_attempt_url
         self._head_repository_id = head_repository_id
         return
         
@@ -14494,14 +16414,14 @@ class WorkflowRun(object):
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -14612,6 +16532,27 @@ class WorkflowRun(object):
 
     ##
     ##
+    def _getrun_attempt(self):
+        return self._run_attempt
+        
+    run_attempt = property(_getrun_attempt, doc="""Attempt number of the run, 1 for first attempt and higher if the workflow was re-run. """)
+
+    ##
+    ##
+    def _getrun_started_at(self):
+        return self._run_started_at and datetime.fromisoformat(self._run_started_at[0:-1])
+        
+    run_started_at = property(_getrun_started_at, doc="""The start time of the latest run. Resets on re-run. """)
+
+    ##
+    ##
+    def _getprevious_attempt_url(self):
+        return self._previous_attempt_url
+        
+    previous_attempt_url = property(_getprevious_attempt_url, doc="""The URL to the previous attempted run of this workflow, if one exists. """)
+
+    ##
+    ##
     def _gethead_repository_id(self):
         return self._head_repository_id
         
@@ -14621,8 +16562,9 @@ class WorkflowRun(object):
     ##
 ##
 ##
-class Environmentapproval_environments(object):
+class Environmentapproval_environments(ResponseBase):
     def __init__(self, id:int=None, node_id:str=None, name:str=None, url:str=None, html_url:str=None, created_at:datetime=None, updated_at:datetime=None):
+        ResponseBase.__init__(self)
         self._id = id
         self._node_id = node_id
         self._name = name
@@ -14673,14 +16615,14 @@ class Environmentapproval_environments(object):
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at, doc="""The time that the environment was created, in ISO 8601 format. """)
 
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at, doc="""The time that the environment was last updated, in ISO 8601 format. """)
 
@@ -14688,9 +16630,10 @@ class Environmentapproval_environments(object):
     ##
 ##
 ##
-class EnvironmentApproval(object):
+class EnvironmentApproval(ResponseBase):
     """An entry in the reviews log for environment deployments """
     def __init__(self, comment:str, user:dict, state:str, environments:list):
+        ResponseBase.__init__(self)
         self._comment = comment
         self._user = user
         self._state = state
@@ -14732,8 +16675,9 @@ class EnvironmentApproval(object):
     ##
 ##
 ##
-class Pendingdeployment_environment(object):
+class Pendingdeployment_environment(ResponseBase):
     def __init__(self, id:int=None, node_id:str=None, name:str=None, url:str=None, html_url:str=None):
+        ResponseBase.__init__(self)
         self._id = id
         self._node_id = node_id
         self._name = name
@@ -14783,8 +16727,9 @@ class Pendingdeployment_environment(object):
     ##
 ##
 ##
-class Pendingdeployment_reviewers(object):
+class Pendingdeployment_reviewers(ResponseBase):
     def __init__(self, type:str=None, reviewer=None):
+        ResponseBase.__init__(self)
         self._type = type
         self._reviewer = reviewer
         return
@@ -14810,9 +16755,10 @@ class Pendingdeployment_reviewers(object):
     ##
 ##
 ##
-class PendingDeployment(object):
+class PendingDeployment(ResponseBase):
     """Details of a deployment that is waiting for protection rules to pass """
     def __init__(self, reviewers:list, current_user_can_approve:bool, wait_timer_started_at:datetime, wait_timer:int, environment:dict):
+        ResponseBase.__init__(self)
         self._reviewers = reviewers
         self._current_user_can_approve = current_user_can_approve
         self._wait_timer_started_at = wait_timer_started_at
@@ -14840,7 +16786,7 @@ class PendingDeployment(object):
     ##
     ##
     def _getwait_timer_started_at(self):
-        return self._wait_timer_started_at and datetime.datetime.fromisoformat(self._wait_timer_started_at[0:-1])
+        return self._wait_timer_started_at and datetime.fromisoformat(self._wait_timer_started_at[0:-1])
         
     wait_timer_started_at = property(_getwait_timer_started_at, doc="""The time that the wait timer began. """)
 
@@ -14862,9 +16808,10 @@ class PendingDeployment(object):
     ##
 ##
 ##
-class Deployment(object):
+class Deployment(ResponseBase):
     """A request for a specific ref(branch,sha,tag) to be deployed """
     def __init__(self, repository_url:str, statuses_url:str, updated_at:datetime, created_at:datetime, creator:dict, description:str, environment:str, payload, task:str, ref:str, sha:str, node_id:str, id:int, url:str, original_environment:str=None, transient_environment:bool=None, production_environment:bool=None, performed_via_github_app:dict=None):
+        ResponseBase.__init__(self)
         self._repository_url = repository_url
         self._statuses_url = statuses_url
         self._updated_at = updated_at
@@ -14905,14 +16852,14 @@ class Deployment(object):
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -15018,153 +16965,10 @@ class Deployment(object):
     ##
 ##
 ##
-class Workflowrunusage_billable_ubuntu(object):
-    def __init__(self, jobs:int, total_ms:int):
-        self._jobs = jobs
-        self._total_ms = total_ms
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getjobs(self):
-        return self._jobs
-        
-    jobs = property(_getjobs)
-
-    ##
-    ##
-    def _gettotal_ms(self):
-        return self._total_ms
-        
-    total_ms = property(_gettotal_ms)
-
-
-    ##
-##
-##
-class Workflowrunusage_billable_macos(object):
-    def __init__(self, jobs:int, total_ms:int):
-        self._jobs = jobs
-        self._total_ms = total_ms
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getjobs(self):
-        return self._jobs
-        
-    jobs = property(_getjobs)
-
-    ##
-    ##
-    def _gettotal_ms(self):
-        return self._total_ms
-        
-    total_ms = property(_gettotal_ms)
-
-
-    ##
-##
-##
-class Workflowrunusage_billable_windows(object):
-    def __init__(self, jobs:int, total_ms:int):
-        self._jobs = jobs
-        self._total_ms = total_ms
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getjobs(self):
-        return self._jobs
-        
-    jobs = property(_getjobs)
-
-    ##
-    ##
-    def _gettotal_ms(self):
-        return self._total_ms
-        
-    total_ms = property(_gettotal_ms)
-
-
-    ##
-##
-##
-class Workflowrunusage_billable(object):
-    def __init__(self, UBUNTU:dict=None, MACOS:dict=None, WINDOWS:dict=None):
-        self._UBUNTU = UBUNTU
-        self._MACOS = MACOS
-        self._WINDOWS = WINDOWS
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getUBUNTU(self):
-        return self._UBUNTU and Workflowrunusage_billable_ubuntu(**self._UBUNTU)
-        
-    UBUNTU = property(_getUBUNTU)
-
-    ##
-    ##
-    def _getMACOS(self):
-        return self._MACOS and Workflowrunusage_billable_macos(**self._MACOS)
-        
-    MACOS = property(_getMACOS)
-
-    ##
-    ##
-    def _getWINDOWS(self):
-        return self._WINDOWS and Workflowrunusage_billable_windows(**self._WINDOWS)
-        
-    WINDOWS = property(_getWINDOWS)
-
-
-    ##
-##
-##
-class WorkflowRunUsage(object):
-    """Workflow Run Usage """
-    def __init__(self, billable:dict, run_duration_ms:int=None):
-        self._billable = billable
-        self._run_duration_ms = run_duration_ms
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getbillable(self):
-        return self._billable and Workflowrunusage_billable(**self._billable)
-        
-    billable = property(_getbillable)
-
-    ##
-    ##
-    def _getrun_duration_ms(self):
-        return self._run_duration_ms
-        
-    run_duration_ms = property(_getrun_duration_ms)
-
-
-    ##
-##
-##
-class ActionsSecret(object):
+class ActionsSecret(ResponseBase):
     """Set secrets for GitHub Actions. """
     def __init__(self, updated_at:datetime, created_at:datetime, name:str):
+        ResponseBase.__init__(self)
         self._updated_at = updated_at
         self._created_at = created_at
         self._name = name
@@ -15176,14 +16980,14 @@ class ActionsSecret(object):
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -15198,9 +17002,10 @@ class ActionsSecret(object):
     ##
 ##
 ##
-class Workflow(object):
+class Workflow(ResponseBase):
     """A GitHub Actions workflow """
     def __init__(self, badge_url:str, html_url:str, url:str, updated_at:datetime, created_at:datetime, state:str, path:str, name:str, node_id:str, id:int, deleted_at:datetime=None):
+        ResponseBase.__init__(self)
         self._badge_url = badge_url
         self._html_url = html_url
         self._url = url
@@ -15241,14 +17046,14 @@ class Workflow(object):
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -15290,7 +17095,7 @@ class Workflow(object):
     ##
     ##
     def _getdeleted_at(self):
-        return self._deleted_at and datetime.datetime.fromisoformat(self._deleted_at[0:-1])
+        return self._deleted_at and datetime.fromisoformat(self._deleted_at[0:-1])
         
     deleted_at = property(_getdeleted_at)
 
@@ -15298,121 +17103,10 @@ class Workflow(object):
     ##
 ##
 ##
-class Workflowusage_billable_ubuntu(object):
-    def __init__(self, total_ms:int=None):
-        self._total_ms = total_ms
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _gettotal_ms(self):
-        return self._total_ms
-        
-    total_ms = property(_gettotal_ms)
-
-
-    ##
-##
-##
-class Workflowusage_billable_macos(object):
-    def __init__(self, total_ms:int=None):
-        self._total_ms = total_ms
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _gettotal_ms(self):
-        return self._total_ms
-        
-    total_ms = property(_gettotal_ms)
-
-
-    ##
-##
-##
-class Workflowusage_billable_windows(object):
-    def __init__(self, total_ms:int=None):
-        self._total_ms = total_ms
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _gettotal_ms(self):
-        return self._total_ms
-        
-    total_ms = property(_gettotal_ms)
-
-
-    ##
-##
-##
-class Workflowusage_billable(object):
-    def __init__(self, UBUNTU:dict=None, MACOS:dict=None, WINDOWS:dict=None):
-        self._UBUNTU = UBUNTU
-        self._MACOS = MACOS
-        self._WINDOWS = WINDOWS
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getUBUNTU(self):
-        return self._UBUNTU and Workflowusage_billable_ubuntu(**self._UBUNTU)
-        
-    UBUNTU = property(_getUBUNTU)
-
-    ##
-    ##
-    def _getMACOS(self):
-        return self._MACOS and Workflowusage_billable_macos(**self._MACOS)
-        
-    MACOS = property(_getMACOS)
-
-    ##
-    ##
-    def _getWINDOWS(self):
-        return self._WINDOWS and Workflowusage_billable_windows(**self._WINDOWS)
-        
-    WINDOWS = property(_getWINDOWS)
-
-
-    ##
-##
-##
-class WorkflowUsage(object):
-    """Workflow Usage """
-    def __init__(self, billable:dict):
-        self._billable = billable
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getbillable(self):
-        return self._billable and Workflowusage_billable(**self._billable)
-        
-    billable = property(_getbillable)
-
-
-    ##
-##
-##
-class AutolinkReference(object):
+class AutolinkReference(ResponseBase):
     """An autolink reference. """
     def __init__(self, url_template:str, key_prefix:str, id:int):
+        ResponseBase.__init__(self)
         self._url_template = url_template
         self._key_prefix = key_prefix
         self._id = id
@@ -15446,9 +17140,63 @@ class AutolinkReference(object):
     ##
 ##
 ##
-class ProtectedBranchAdminEnforced(object):
+class ProtectedBranchRequiredStatusCheck(ResponseBase):
+    """Protected Branch Required Status Check """
+    def __init__(self, contexts:list, url:str=None, enforcement_level:str=None, contexts_url:str=None, strict:bool=None):
+        ResponseBase.__init__(self)
+        self._contexts = contexts
+        self._url = url
+        self._enforcement_level = enforcement_level
+        self._contexts_url = contexts_url
+        self._strict = strict
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getcontexts(self):
+        return self._contexts and [ entry for entry in self._contexts ]
+        
+    contexts = property(_getcontexts)
+
+    ##
+    ##
+    def _geturl(self):
+        return self._url
+        
+    url = property(_geturl)
+
+    ##
+    ##
+    def _getenforcement_level(self):
+        return self._enforcement_level
+        
+    enforcement_level = property(_getenforcement_level)
+
+    ##
+    ##
+    def _getcontexts_url(self):
+        return self._contexts_url
+        
+    contexts_url = property(_getcontexts_url)
+
+    ##
+    ##
+    def _getstrict(self):
+        return self._strict
+        
+    strict = property(_getstrict)
+
+
+    ##
+##
+##
+class ProtectedBranchAdminEnforced(ResponseBase):
     """Protected Branch Admin Enforced """
     def __init__(self, enabled:bool, url:str):
+        ResponseBase.__init__(self)
         self._enabled = enabled
         self._url = url
         return
@@ -15474,8 +17222,9 @@ class ProtectedBranchAdminEnforced(object):
     ##
 ##
 ##
-class Protectedbranchpullrequestreview_dismissal_restrictions(object):
+class Protectedbranchpullrequestreview_dismissal_restrictions(ResponseBase):
     def __init__(self, users:list=None, teams:list=None, url:str=None, users_url:str=None, teams_url:str=None):
+        ResponseBase.__init__(self)
         self._users = users
         self._teams = teams
         self._url = url
@@ -15525,9 +17274,10 @@ class Protectedbranchpullrequestreview_dismissal_restrictions(object):
     ##
 ##
 ##
-class ProtectedBranchPullRequestReview(object):
+class ProtectedBranchPullRequestReview(ResponseBase):
     """Protected Branch Pull Request Review """
     def __init__(self, require_code_owner_reviews:bool, dismiss_stale_reviews:bool, url:str=None, dismissal_restrictions:dict=None, required_approving_review_count:int=None):
+        ResponseBase.__init__(self)
         self._require_code_owner_reviews = require_code_owner_reviews
         self._dismiss_stale_reviews = dismiss_stale_reviews
         self._url = url
@@ -15577,8 +17327,9 @@ class ProtectedBranchPullRequestReview(object):
     ##
 ##
 ##
-class Branchrestrictionpolicy_users(object):
+class Branchrestrictionpolicy_users(ResponseBase):
     def __init__(self, login:str=None, id:int=None, node_id:str=None, avatar_url:str=None, gravatar_id:str=None, url:str=None, html_url:str=None, followers_url:str=None, following_url:str=None, gists_url:str=None, starred_url:str=None, subscriptions_url:str=None, organizations_url:str=None, repos_url:str=None, events_url:str=None, received_events_url:str=None, type:str=None, site_admin:bool=None):
+        ResponseBase.__init__(self)
         self._login = login
         self._id = id
         self._node_id = node_id
@@ -15732,8 +17483,9 @@ class Branchrestrictionpolicy_users(object):
     ##
 ##
 ##
-class Branchrestrictionpolicy_teams(object):
+class Branchrestrictionpolicy_teams(ResponseBase):
     def __init__(self, id:int=None, node_id:str=None, url:str=None, html_url:str=None, name:str=None, slug:str=None, description:str=None, privacy:str=None, permission:str=None, members_url:str=None, repositories_url:str=None, parent:str=None):
+        ResponseBase.__init__(self)
         self._id = id
         self._node_id = node_id
         self._url = url
@@ -15839,8 +17591,9 @@ class Branchrestrictionpolicy_teams(object):
     ##
 ##
 ##
-class Branchrestrictionpolicy_apps_owner(object):
+class Branchrestrictionpolicy_apps_owner(ResponseBase):
     def __init__(self, login:str=None, id:int=None, node_id:str=None, url:str=None, repos_url:str=None, events_url:str=None, hooks_url:str=None, issues_url:str=None, members_url:str=None, public_members_url:str=None, avatar_url:str=None, description:str=None, gravatar_id:str=None, html_url:str=None, followers_url:str=None, following_url:str=None, gists_url:str=None, starred_url:str=None, subscriptions_url:str=None, organizations_url:str=None, received_events_url:str=None, type:str=None, site_admin:bool=None):
+        ResponseBase.__init__(self)
         self._login = login
         self._id = id
         self._node_id = node_id
@@ -16034,8 +17787,9 @@ class Branchrestrictionpolicy_apps_owner(object):
     ##
 ##
 ##
-class Branchrestrictionpolicy_apps_permissions(object):
+class Branchrestrictionpolicy_apps_permissions(ResponseBase):
     def __init__(self, metadata:str=None, contents:str=None, issues:str=None, single_file:str=None):
+        ResponseBase.__init__(self)
         self._metadata = metadata
         self._contents = contents
         self._issues = issues
@@ -16077,8 +17831,9 @@ class Branchrestrictionpolicy_apps_permissions(object):
     ##
 ##
 ##
-class Branchrestrictionpolicy_apps(object):
+class Branchrestrictionpolicy_apps(ResponseBase):
     def __init__(self, id:int=None, slug:str=None, node_id:str=None, owner:dict=None, name:str=None, description:str=None, external_url:str=None, html_url:str=None, created_at:str=None, updated_at:str=None, permissions:dict=None, events:list=None):
+        ResponseBase.__init__(self)
         self._id = id
         self._slug = slug
         self._node_id = node_id
@@ -16184,9 +17939,10 @@ class Branchrestrictionpolicy_apps(object):
     ##
 ##
 ##
-class BranchRestrictionPolicy(object):
+class BranchRestrictionPolicy(ResponseBase):
     """Branch Restriction Policy """
     def __init__(self, apps:list, teams:list, users:list, apps_url:str, teams_url:str, users_url:str, url:str):
+        ResponseBase.__init__(self)
         self._apps = apps
         self._teams = teams
         self._users = users
@@ -16252,59 +18008,9 @@ class BranchRestrictionPolicy(object):
     ##
 ##
 ##
-class Branchprotection_required_status_checks(object):
-    def __init__(self, contexts:list, url:str=None, enforcement_level:str=None, contexts_url:str=None, strict:bool=None):
-        self._contexts = contexts
-        self._url = url
-        self._enforcement_level = enforcement_level
-        self._contexts_url = contexts_url
-        self._strict = strict
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getcontexts(self):
-        return self._contexts and [ entry for entry in self._contexts ]
-        
-    contexts = property(_getcontexts)
-
-    ##
-    ##
-    def _geturl(self):
-        return self._url
-        
-    url = property(_geturl)
-
-    ##
-    ##
-    def _getenforcement_level(self):
-        return self._enforcement_level
-        
-    enforcement_level = property(_getenforcement_level)
-
-    ##
-    ##
-    def _getcontexts_url(self):
-        return self._contexts_url
-        
-    contexts_url = property(_getcontexts_url)
-
-    ##
-    ##
-    def _getstrict(self):
-        return self._strict
-        
-    strict = property(_getstrict)
-
-
-    ##
-##
-##
-class Branchprotection_required_linear_history(object):
+class Branchprotection_required_linear_history(ResponseBase):
     def __init__(self, enabled:bool=None):
+        ResponseBase.__init__(self)
         self._enabled = enabled
         return
         
@@ -16322,8 +18028,9 @@ class Branchprotection_required_linear_history(object):
     ##
 ##
 ##
-class Branchprotection_allow_force_pushes(object):
+class Branchprotection_allow_force_pushes(ResponseBase):
     def __init__(self, enabled:bool=None):
+        ResponseBase.__init__(self)
         self._enabled = enabled
         return
         
@@ -16341,8 +18048,9 @@ class Branchprotection_allow_force_pushes(object):
     ##
 ##
 ##
-class Branchprotection_allow_deletions(object):
+class Branchprotection_allow_deletions(ResponseBase):
     def __init__(self, enabled:bool=None):
+        ResponseBase.__init__(self)
         self._enabled = enabled
         return
         
@@ -16360,8 +18068,9 @@ class Branchprotection_allow_deletions(object):
     ##
 ##
 ##
-class Branchprotection_required_conversation_resolution(object):
+class Branchprotection_required_conversation_resolution(ResponseBase):
     def __init__(self, enabled:bool=None):
+        ResponseBase.__init__(self)
         self._enabled = enabled
         return
         
@@ -16379,8 +18088,9 @@ class Branchprotection_required_conversation_resolution(object):
     ##
 ##
 ##
-class Branchprotection_required_signatures(object):
+class Branchprotection_required_signatures(ResponseBase):
     def __init__(self, enabled:bool, url:str):
+        ResponseBase.__init__(self)
         self._enabled = enabled
         self._url = url
         return
@@ -16406,9 +18116,10 @@ class Branchprotection_required_signatures(object):
     ##
 ##
 ##
-class BranchProtection(object):
+class BranchProtection(ResponseBase):
     """Branch Protection """
     def __init__(self, url:str=None, enabled:bool=None, required_status_checks:dict=None, enforce_admins:dict=None, required_pull_request_reviews:dict=None, restrictions:dict=None, required_linear_history:dict=None, allow_force_pushes:dict=None, allow_deletions:dict=None, required_conversation_resolution:dict=None, name:str=None, protection_url:str=None, required_signatures:dict=None):
+        ResponseBase.__init__(self)
         self._url = url
         self._enabled = enabled
         self._required_status_checks = required_status_checks
@@ -16444,7 +18155,7 @@ class BranchProtection(object):
     ##
     ##
     def _getrequired_status_checks(self):
-        return self._required_status_checks and Branchprotection_required_status_checks(**self._required_status_checks)
+        return self._required_status_checks and ProtectedBranchRequiredStatusCheck(**self._required_status_checks)
         
     required_status_checks = property(_getrequired_status_checks)
 
@@ -16522,8 +18233,9 @@ class BranchProtection(object):
     ##
 ##
 ##
-class Shortbranch_commit(object):
+class Shortbranch_commit(ResponseBase):
     def __init__(self, url:str, sha:str):
+        ResponseBase.__init__(self)
         self._url = url
         self._sha = sha
         return
@@ -16549,9 +18261,10 @@ class Shortbranch_commit(object):
     ##
 ##
 ##
-class ShortBranch(object):
+class ShortBranch(ResponseBase):
     """Short Branch """
     def __init__(self, protected:bool, commit:dict, name:str, protection:dict=None, protection_url:str=None):
+        ResponseBase.__init__(self)
         self._protected = protected
         self._commit = commit
         self._name = name
@@ -16601,9 +18314,10 @@ class ShortBranch(object):
     ##
 ##
 ##
-class GitUser(object):
+class GitUser(ResponseBase):
     """Metaproperties for Git author/committer information. """
     def __init__(self, name:str=None, email:str=None, date:str=None):
+        ResponseBase.__init__(self)
         self._name = name
         self._email = email
         self._date = date
@@ -16637,8 +18351,9 @@ class GitUser(object):
     ##
 ##
 ##
-class Verification(object):
+class Verification(ResponseBase):
     def __init__(self, signature:str, payload:str, reason:str, verified:bool):
+        ResponseBase.__init__(self)
         self._signature = signature
         self._payload = payload
         self._reason = reason
@@ -16680,8 +18395,110 @@ class Verification(object):
     ##
 ##
 ##
-class Commit_commit_tree(object):
+class DiffEntry(ResponseBase):
+    """Diff Entry """
+    def __init__(self, contents_url:str, raw_url:str, blob_url:str, changes:int, deletions:int, additions:int, status:str, filename:str, sha:str, patch:str=None, previous_filename:str=None):
+        ResponseBase.__init__(self)
+        self._contents_url = contents_url
+        self._raw_url = raw_url
+        self._blob_url = blob_url
+        self._changes = changes
+        self._deletions = deletions
+        self._additions = additions
+        self._status = status
+        self._filename = filename
+        self._sha = sha
+        self._patch = patch
+        self._previous_filename = previous_filename
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getcontents_url(self):
+        return self._contents_url
+        
+    contents_url = property(_getcontents_url)
+
+    ##
+    ##
+    def _getraw_url(self):
+        return self._raw_url
+        
+    raw_url = property(_getraw_url)
+
+    ##
+    ##
+    def _getblob_url(self):
+        return self._blob_url
+        
+    blob_url = property(_getblob_url)
+
+    ##
+    ##
+    def _getchanges(self):
+        return self._changes
+        
+    changes = property(_getchanges)
+
+    ##
+    ##
+    def _getdeletions(self):
+        return self._deletions
+        
+    deletions = property(_getdeletions)
+
+    ##
+    ##
+    def _getadditions(self):
+        return self._additions
+        
+    additions = property(_getadditions)
+
+    ##
+    ##
+    def _getstatus(self):
+        return self._status
+        
+    status = property(_getstatus)
+
+    ##
+    ##
+    def _getfilename(self):
+        return self._filename
+        
+    filename = property(_getfilename)
+
+    ##
+    ##
+    def _getsha(self):
+        return self._sha
+        
+    sha = property(_getsha)
+
+    ##
+    ##
+    def _getpatch(self):
+        return self._patch
+        
+    patch = property(_getpatch)
+
+    ##
+    ##
+    def _getprevious_filename(self):
+        return self._previous_filename
+        
+    previous_filename = property(_getprevious_filename)
+
+
+    ##
+##
+##
+class Commit_commit_tree(ResponseBase):
     def __init__(self, url:str, sha:str):
+        ResponseBase.__init__(self)
         self._url = url
         self._sha = sha
         return
@@ -16707,8 +18524,9 @@ class Commit_commit_tree(object):
     ##
 ##
 ##
-class Commit_commit(object):
+class Commit_commit(ResponseBase):
     def __init__(self, tree:dict, comment_count:int, message:str, committer:dict, author:dict, url:str, verification:dict=None):
+        ResponseBase.__init__(self)
         self._tree = tree
         self._comment_count = comment_count
         self._message = message
@@ -16774,8 +18592,9 @@ class Commit_commit(object):
     ##
 ##
 ##
-class Commit_parents(object):
+class Commit_parents(ResponseBase):
     def __init__(self, url:str, sha:str, html_url:str=None):
+        ResponseBase.__init__(self)
         self._url = url
         self._sha = sha
         self._html_url = html_url
@@ -16809,8 +18628,9 @@ class Commit_parents(object):
     ##
 ##
 ##
-class Commit_stats(object):
+class Commit_stats(ResponseBase):
     def __init__(self, additions:int=None, deletions:int=None, total:int=None):
+        ResponseBase.__init__(self)
         self._additions = additions
         self._deletions = deletions
         self._total = total
@@ -16844,108 +18664,10 @@ class Commit_stats(object):
     ##
 ##
 ##
-class Commit_files(object):
-    def __init__(self, filename:str=None, additions:int=None, deletions:int=None, changes:int=None, status:str=None, raw_url:str=None, blob_url:str=None, patch:str=None, sha:str=None, contents_url:str=None, previous_filename:str=None):
-        self._filename = filename
-        self._additions = additions
-        self._deletions = deletions
-        self._changes = changes
-        self._status = status
-        self._raw_url = raw_url
-        self._blob_url = blob_url
-        self._patch = patch
-        self._sha = sha
-        self._contents_url = contents_url
-        self._previous_filename = previous_filename
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getfilename(self):
-        return self._filename
-        
-    filename = property(_getfilename)
-
-    ##
-    ##
-    def _getadditions(self):
-        return self._additions
-        
-    additions = property(_getadditions)
-
-    ##
-    ##
-    def _getdeletions(self):
-        return self._deletions
-        
-    deletions = property(_getdeletions)
-
-    ##
-    ##
-    def _getchanges(self):
-        return self._changes
-        
-    changes = property(_getchanges)
-
-    ##
-    ##
-    def _getstatus(self):
-        return self._status
-        
-    status = property(_getstatus)
-
-    ##
-    ##
-    def _getraw_url(self):
-        return self._raw_url
-        
-    raw_url = property(_getraw_url)
-
-    ##
-    ##
-    def _getblob_url(self):
-        return self._blob_url
-        
-    blob_url = property(_getblob_url)
-
-    ##
-    ##
-    def _getpatch(self):
-        return self._patch
-        
-    patch = property(_getpatch)
-
-    ##
-    ##
-    def _getsha(self):
-        return self._sha
-        
-    sha = property(_getsha)
-
-    ##
-    ##
-    def _getcontents_url(self):
-        return self._contents_url
-        
-    contents_url = property(_getcontents_url)
-
-    ##
-    ##
-    def _getprevious_filename(self):
-        return self._previous_filename
-        
-    previous_filename = property(_getprevious_filename)
-
-
-    ##
-##
-##
-class Commit(object):
+class Commit(ResponseBase):
     """Commit """
     def __init__(self, parents:list, committer:dict, author:dict, commit:dict, comments_url:str, html_url:str, node_id:str, sha:str, url:str, stats:dict=None, files:list=None):
+        ResponseBase.__init__(self)
         self._parents = parents
         self._committer = committer
         self._author = author
@@ -17035,7 +18757,7 @@ class Commit(object):
     ##
     ##
     def _getfiles(self):
-        return self._files and [ entry and Commit_files(**entry) for entry in self._files ]
+        return self._files and [ entry and DiffEntry(**entry) for entry in self._files ]
         
     files = property(_getfiles)
 
@@ -17043,8 +18765,9 @@ class Commit(object):
     ##
 ##
 ##
-class Branchwithprotection__links(object):
+class Branchwithprotection__links(ResponseBase):
     def __init__(self, Self:str, html:str):
+        ResponseBase.__init__(self)
         self._Self = Self
         self._html = html
         return
@@ -17081,9 +18804,10 @@ class Branchwithprotection__links(object):
 ##
 ##
 ##
-class BranchWithProtection(object):
+class BranchWithProtection(ResponseBase):
     """Branch With Protection """
     def __init__(self, protection_url:str, protection:dict, protected:bool, _links:dict, commit:dict, name:str, pattern:str=None, required_approving_review_count:int=None):
+        ResponseBase.__init__(self)
         self._protection_url = protection_url
         self._protection = protection
         self._protected = protected
@@ -17157,9 +18881,10 @@ class BranchWithProtection(object):
     ##
 ##
 ##
-class StatusCheckPolicy(object):
+class StatusCheckPolicy(ResponseBase):
     """Status Check Policy """
     def __init__(self, contexts_url:str, contexts:list, strict:bool, url:str):
+        ResponseBase.__init__(self)
         self._contexts_url = contexts_url
         self._contexts = contexts
         self._strict = strict
@@ -17201,8 +18926,9 @@ class StatusCheckPolicy(object):
     ##
 ##
 ##
-class Protectedbranch_required_pull_request_reviews_dismissal_restrictions(object):
+class Protectedbranch_required_pull_request_reviews_dismissal_restrictions(ResponseBase):
     def __init__(self, teams:list, users:list, teams_url:str, users_url:str, url:str):
+        ResponseBase.__init__(self)
         self._teams = teams
         self._users = users
         self._teams_url = teams_url
@@ -17252,8 +18978,9 @@ class Protectedbranch_required_pull_request_reviews_dismissal_restrictions(objec
     ##
 ##
 ##
-class Protectedbranch_required_pull_request_reviews(object):
+class Protectedbranch_required_pull_request_reviews(ResponseBase):
     def __init__(self, url:str, dismiss_stale_reviews:bool=None, require_code_owner_reviews:bool=None, required_approving_review_count:int=None, dismissal_restrictions:dict=None):
+        ResponseBase.__init__(self)
         self._url = url
         self._dismiss_stale_reviews = dismiss_stale_reviews
         self._require_code_owner_reviews = require_code_owner_reviews
@@ -17303,8 +19030,9 @@ class Protectedbranch_required_pull_request_reviews(object):
     ##
 ##
 ##
-class Protectedbranch_required_signatures(object):
+class Protectedbranch_required_signatures(ResponseBase):
     def __init__(self, enabled:bool, url:str):
+        ResponseBase.__init__(self)
         self._enabled = enabled
         self._url = url
         return
@@ -17330,8 +19058,9 @@ class Protectedbranch_required_signatures(object):
     ##
 ##
 ##
-class Protectedbranch_enforce_admins(object):
+class Protectedbranch_enforce_admins(ResponseBase):
     def __init__(self, enabled:bool, url:str):
+        ResponseBase.__init__(self)
         self._enabled = enabled
         self._url = url
         return
@@ -17357,8 +19086,9 @@ class Protectedbranch_enforce_admins(object):
     ##
 ##
 ##
-class Protectedbranch_required_linear_history(object):
+class Protectedbranch_required_linear_history(ResponseBase):
     def __init__(self, enabled:bool):
+        ResponseBase.__init__(self)
         self._enabled = enabled
         return
         
@@ -17376,8 +19106,9 @@ class Protectedbranch_required_linear_history(object):
     ##
 ##
 ##
-class Protectedbranch_allow_force_pushes(object):
+class Protectedbranch_allow_force_pushes(ResponseBase):
     def __init__(self, enabled:bool):
+        ResponseBase.__init__(self)
         self._enabled = enabled
         return
         
@@ -17395,8 +19126,9 @@ class Protectedbranch_allow_force_pushes(object):
     ##
 ##
 ##
-class Protectedbranch_allow_deletions(object):
+class Protectedbranch_allow_deletions(ResponseBase):
     def __init__(self, enabled:bool):
+        ResponseBase.__init__(self)
         self._enabled = enabled
         return
         
@@ -17414,8 +19146,9 @@ class Protectedbranch_allow_deletions(object):
     ##
 ##
 ##
-class Protectedbranch_required_conversation_resolution(object):
+class Protectedbranch_required_conversation_resolution(ResponseBase):
     def __init__(self, enabled:bool=None):
+        ResponseBase.__init__(self)
         self._enabled = enabled
         return
         
@@ -17433,9 +19166,10 @@ class Protectedbranch_required_conversation_resolution(object):
     ##
 ##
 ##
-class ProtectedBranch(object):
+class ProtectedBranch(ResponseBase):
     """Branch protections protect branches """
     def __init__(self, url:str, required_status_checks:dict=None, required_pull_request_reviews:dict=None, required_signatures:dict=None, enforce_admins:dict=None, required_linear_history:dict=None, allow_force_pushes:dict=None, allow_deletions:dict=None, restrictions:dict=None, required_conversation_resolution:dict=None):
+        ResponseBase.__init__(self)
         self._url = url
         self._required_status_checks = required_status_checks
         self._required_pull_request_reviews = required_pull_request_reviews
@@ -17525,9 +19259,10 @@ class ProtectedBranch(object):
     ##
 ##
 ##
-class Deployment(object):
+class Deployment(ResponseBase):
     """A deployment created as the result of an Actions check run from a workflow that references an environment """
     def __init__(self, repository_url:str, statuses_url:str, updated_at:datetime, created_at:datetime, description:str, environment:str, task:str, node_id:str, id:int, url:str, original_environment:str=None, transient_environment:bool=None, production_environment:bool=None, performed_via_github_app:dict=None):
+        ResponseBase.__init__(self)
         self._repository_url = repository_url
         self._statuses_url = statuses_url
         self._updated_at = updated_at
@@ -17564,14 +19299,14 @@ class Deployment(object):
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -17649,8 +19384,9 @@ class Deployment(object):
     ##
 ##
 ##
-class Checkrun_output(object):
+class Checkrun_output(ResponseBase):
     def __init__(self, annotations_url:str, annotations_count:int, text:str, summary:str, title:str):
+        ResponseBase.__init__(self)
         self._annotations_url = annotations_url
         self._annotations_count = annotations_count
         self._text = text
@@ -17700,8 +19436,9 @@ class Checkrun_output(object):
     ##
 ##
 ##
-class Checkrun_check_suite(object):
+class Checkrun_check_suite(ResponseBase):
     def __init__(self, id:int):
+        ResponseBase.__init__(self)
         self._id = id
         return
         
@@ -17719,9 +19456,10 @@ class Checkrun_check_suite(object):
     ##
 ##
 ##
-class Checkrun(object):
+class Checkrun(ResponseBase):
     """A check performed on the code of a given code change """
     def __init__(self, pull_requests:list, app:dict, check_suite:dict, name:str, output:dict, completed_at:datetime, started_at:datetime, conclusion:str, status:str, details_url:str, html_url:str, url:str, external_id:str, node_id:str, head_sha:str, id:int, deployment:dict=None):
+        ResponseBase.__init__(self)
         self._pull_requests = pull_requests
         self._app = app
         self._check_suite = check_suite
@@ -17782,14 +19520,14 @@ class Checkrun(object):
     ##
     ##
     def _getcompleted_at(self):
-        return self._completed_at and datetime.datetime.fromisoformat(self._completed_at[0:-1])
+        return self._completed_at and datetime.fromisoformat(self._completed_at[0:-1])
         
     completed_at = property(_getcompleted_at)
 
     ##
     ##
     def _getstarted_at(self):
-        return self._started_at and datetime.datetime.fromisoformat(self._started_at[0:-1])
+        return self._started_at and datetime.fromisoformat(self._started_at[0:-1])
         
     started_at = property(_getstarted_at)
 
@@ -17867,9 +19605,10 @@ class Checkrun(object):
     ##
 ##
 ##
-class CheckAnnotation(object):
+class CheckAnnotation(ResponseBase):
     """Check Annotation """
     def __init__(self, blob_href:str, raw_details:str, message:str, title:str, annotation_level:str, end_column:int, start_column:int, end_line:int, start_line:int, path:str):
+        ResponseBase.__init__(self)
         self._blob_href = blob_href
         self._raw_details = raw_details
         self._message = message
@@ -17959,9 +19698,71 @@ class CheckAnnotation(object):
     ##
 ##
 ##
-class Checksuite(object):
+class SimpleCommit(ResponseBase):
+    """Simple Commit """
+    def __init__(self, committer:dict, author:dict, timestamp:datetime, message:str, tree_id:str, id:str):
+        ResponseBase.__init__(self)
+        self._committer = committer
+        self._author = author
+        self._timestamp = timestamp
+        self._message = message
+        self._tree_id = tree_id
+        self._id = id
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getcommitter(self):
+        return self._committer and Simplecommit_committer(**self._committer)
+        
+    committer = property(_getcommitter)
+
+    ##
+    ##
+    def _getauthor(self):
+        return self._author and Simplecommit_author(**self._author)
+        
+    author = property(_getauthor)
+
+    ##
+    ##
+    def _gettimestamp(self):
+        return self._timestamp and datetime.fromisoformat(self._timestamp[0:-1])
+        
+    timestamp = property(_gettimestamp)
+
+    ##
+    ##
+    def _getmessage(self):
+        return self._message
+        
+    message = property(_getmessage)
+
+    ##
+    ##
+    def _gettree_id(self):
+        return self._tree_id
+        
+    tree_id = property(_gettree_id)
+
+    ##
+    ##
+    def _getid(self):
+        return self._id
+        
+    id = property(_getid)
+
+
+    ##
+##
+##
+class Checksuite(ResponseBase):
     """A suite of checks performed on the code of a given code change """
-    def __init__(self, check_runs_url:str, latest_check_runs_count:int, head_commit:dict, updated_at:datetime, created_at:datetime, repository:dict, app:dict, pull_requests:list, after:str, before:str, url:str, conclusion:str, status:str, head_sha:str, head_branch:str, node_id:str, id:int):
+    def __init__(self, check_runs_url:str, latest_check_runs_count:int, head_commit:dict, updated_at:datetime, created_at:datetime, repository:dict, app:dict, pull_requests:list, after:str, before:str, url:str, conclusion:str, status:str, head_sha:str, head_branch:str, node_id:str, id:int, rerequestable:bool=None, runs_rerequestable:bool=None):
+        ResponseBase.__init__(self)
         self._check_runs_url = check_runs_url
         self._latest_check_runs_count = latest_check_runs_count
         self._head_commit = head_commit
@@ -17979,6 +19780,8 @@ class Checksuite(object):
         self._head_branch = head_branch
         self._node_id = node_id
         self._id = id
+        self._rerequestable = rerequestable
+        self._runs_rerequestable = runs_rerequestable
         return
         
     
@@ -18008,14 +19811,14 @@ class Checksuite(object):
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -18103,12 +19906,27 @@ class Checksuite(object):
         
     id = property(_getid)
 
+    ##
+    ##
+    def _getrerequestable(self):
+        return self._rerequestable
+        
+    rerequestable = property(_getrerequestable)
+
+    ##
+    ##
+    def _getruns_rerequestable(self):
+        return self._runs_rerequestable
+        
+    runs_rerequestable = property(_getruns_rerequestable)
+
 
     ##
 ##
 ##
-class Checksuitepreference_preferences_auto_trigger_checks(object):
+class Checksuitepreference_preferences_auto_trigger_checks(ResponseBase):
     def __init__(self, setting:bool, app_id:int):
+        ResponseBase.__init__(self)
         self._setting = setting
         self._app_id = app_id
         return
@@ -18134,8 +19952,9 @@ class Checksuitepreference_preferences_auto_trigger_checks(object):
     ##
 ##
 ##
-class Checksuitepreference_preferences(object):
+class Checksuitepreference_preferences(ResponseBase):
     def __init__(self, auto_trigger_checks:list=None):
+        ResponseBase.__init__(self)
         self._auto_trigger_checks = auto_trigger_checks
         return
         
@@ -18153,9 +19972,10 @@ class Checksuitepreference_preferences(object):
     ##
 ##
 ##
-class CheckSuitePreference(object):
+class CheckSuitePreference(ResponseBase):
     """Check suite configuration preferences for a repository. """
     def __init__(self, repository:dict, preferences:dict):
+        ResponseBase.__init__(self)
         self._repository = repository
         self._preferences = preferences
         return
@@ -18181,8 +20001,9 @@ class CheckSuitePreference(object):
     ##
 ##
 ##
-class CodeScanningAlertRuleSummary(object):
+class CodeScanningAlertRuleSummary(ResponseBase):
     def __init__(self, id:str=None, name:str=None, severity:str=None, description:str=None):
+        ResponseBase.__init__(self)
         self._id = id
         self._name = name
         self._severity = severity
@@ -18224,8 +20045,9 @@ class CodeScanningAlertRuleSummary(object):
     ##
 ##
 ##
-class CodeScanningAnalysisTool(object):
+class CodeScanningAnalysisTool(ResponseBase):
     def __init__(self, name:str=None, version:str=None, guid:str=None):
+        ResponseBase.__init__(self)
         self._name = name
         self._version = version
         self._guid = guid
@@ -18259,9 +20081,10 @@ class CodeScanningAnalysisTool(object):
     ##
 ##
 ##
-class CodeScanningAlertLocation(object):
+class CodeScanningAlertLocation(ResponseBase):
     """Describe a region within a file for the alert. """
     def __init__(self, path:str=None, start_line:int=None, end_line:int=None, start_column:int=None, end_column:int=None):
+        ResponseBase.__init__(self)
         self._path = path
         self._start_line = start_line
         self._end_line = end_line
@@ -18311,8 +20134,9 @@ class CodeScanningAlertLocation(object):
     ##
 ##
 ##
-class Codescanningalertinstance_message(object):
+class Codescanningalertinstance_message(ResponseBase):
     def __init__(self, text:str=None):
+        ResponseBase.__init__(self)
         self._text = text
         return
         
@@ -18330,11 +20154,13 @@ class Codescanningalertinstance_message(object):
     ##
 ##
 ##
-class CodeScanningAlertInstance(object):
-    def __init__(self, ref:str=None, analysis_key:str=None, environment:str=None, state:str=None, commit_sha:str=None, message:dict=None, location:dict=None, html_url:str=None, classifications:list=None):
+class CodeScanningAlertInstance(ResponseBase):
+    def __init__(self, ref:str=None, analysis_key:str=None, environment:str=None, category:str=None, state:str=None, commit_sha:str=None, message:dict=None, location:dict=None, html_url:str=None, classifications:list=None):
+        ResponseBase.__init__(self)
         self._ref = ref
         self._analysis_key = analysis_key
         self._environment = environment
+        self._category = category
         self._state = state
         self._commit_sha = commit_sha
         self._message = message
@@ -18366,6 +20192,13 @@ class CodeScanningAlertInstance(object):
         return self._environment
         
     environment = property(_getenvironment)
+
+    ##
+    ##
+    def _getcategory(self):
+        return self._category
+        
+    category = property(_getcategory)
 
     ##
     ##
@@ -18414,8 +20247,9 @@ For example identifying it as documentation, or a generated file. """)
     ##
 ##
 ##
-class CodeScanningAlertItems(object):
+class CodeScanningAlertItems(ResponseBase):
     def __init__(self, most_recent_instance:dict, tool:dict, rule:dict, dismissed_reason:str, dismissed_at:datetime, dismissed_by:dict, state:str, instances_url:str, html_url:str, url:str, created_at:datetime, number:int):
+        ResponseBase.__init__(self)
         self._most_recent_instance = most_recent_instance
         self._tool = tool
         self._rule = rule
@@ -18464,7 +20298,7 @@ class CodeScanningAlertItems(object):
     ##
     ##
     def _getdismissed_at(self):
-        return self._dismissed_at and datetime.datetime.fromisoformat(self._dismissed_at[0:-1])
+        return self._dismissed_at and datetime.fromisoformat(self._dismissed_at[0:-1])
         
     dismissed_at = property(_getdismissed_at)
 
@@ -18506,7 +20340,7 @@ class CodeScanningAlertItems(object):
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -18521,8 +20355,9 @@ class CodeScanningAlertItems(object):
     ##
 ##
 ##
-class CodeScanningAlertRule(object):
+class CodeScanningAlertRule(ResponseBase):
     def __init__(self, id:str=None, name:str=None, severity:str=None, security_severity_level:str=None, description:str=None, full_description:str=None, tags:list=None, help:str=None):
+        ResponseBase.__init__(self)
         self._id = id
         self._name = name
         self._severity = severity
@@ -18596,8 +20431,9 @@ class CodeScanningAlertRule(object):
     ##
 ##
 ##
-class CodeScanningAlert(object):
-    def __init__(self, most_recent_instance:dict, tool:dict, rule:dict, dismissed_reason:str, dismissed_at:datetime, dismissed_by:dict, state:str, instances_url:str, html_url:str, url:str, created_at:datetime, number:int, instances=None):
+class CodeScanningAlert(ResponseBase):
+    def __init__(self, most_recent_instance:dict, tool:dict, rule:dict, dismissed_reason:str, dismissed_at:datetime, dismissed_by:dict, state:str, instances_url:str, html_url:str, url:str, created_at:datetime, number:int):
+        ResponseBase.__init__(self)
         self._most_recent_instance = most_recent_instance
         self._tool = tool
         self._rule = rule
@@ -18610,7 +20446,6 @@ class CodeScanningAlert(object):
         self._url = url
         self._created_at = created_at
         self._number = number
-        self._instances = instances
         return
         
     
@@ -18647,7 +20482,7 @@ class CodeScanningAlert(object):
     ##
     ##
     def _getdismissed_at(self):
-        return self._dismissed_at and datetime.datetime.fromisoformat(self._dismissed_at[0:-1])
+        return self._dismissed_at and datetime.fromisoformat(self._dismissed_at[0:-1])
         
     dismissed_at = property(_getdismissed_at)
 
@@ -18689,7 +20524,7 @@ class CodeScanningAlert(object):
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -18700,19 +20535,13 @@ class CodeScanningAlert(object):
         
     number = property(_getnumber)
 
-    ##
-    ##
-    def _getinstances(self):
-        return self._instances # deprecated
-        
-    instances = property(_getinstances)
-
 
     ##
 ##
 ##
-class CodeScanningAnalysis(object):
-    def __init__(self, warning:str, deletable:bool, tool:dict, sarif_id:str, url:str, id:int, rules_count:int, results_count:int, created_at:datetime, error:str, environment:str, analysis_key:str, commit_sha:str, ref:str, category:str=None, tool_name:str=None):
+class CodeScanningAnalysis(ResponseBase):
+    def __init__(self, warning:str, deletable:bool, tool:dict, sarif_id:str, url:str, id:int, rules_count:int, results_count:int, created_at:datetime, error:str, environment:str, analysis_key:str, commit_sha:str, ref:str, category:str=None):
+        ResponseBase.__init__(self)
         self._warning = warning
         self._deletable = deletable
         self._tool = tool
@@ -18728,7 +20557,6 @@ class CodeScanningAnalysis(object):
         self._commit_sha = commit_sha
         self._ref = ref
         self._category = category
-        self._tool_name = tool_name
         return
         
     
@@ -18793,7 +20621,7 @@ class CodeScanningAnalysis(object):
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -18839,20 +20667,14 @@ class CodeScanningAnalysis(object):
         
     category = property(_getcategory)
 
-    ##
-    ##
-    def _gettool_name(self):
-        return self._tool_name
-        
-    tool_name = property(_gettool_name)
-
 
     ##
 ##
 ##
-class AnalysisDeletion(object):
+class AnalysisDeletion(ResponseBase):
     """Successful deletion of a code scanning analysis """
     def __init__(self, confirm_delete_url:str, next_analysis_url:str):
+        ResponseBase.__init__(self)
         self._confirm_delete_url = confirm_delete_url
         self._next_analysis_url = next_analysis_url
         return
@@ -18878,8 +20700,9 @@ class AnalysisDeletion(object):
     ##
 ##
 ##
-class CodeScanningSarifsReceipt(object):
+class CodeScanningSarifsReceipt(ResponseBase):
     def __init__(self, id:str=None, url:str=None):
+        ResponseBase.__init__(self)
         self._id = id
         self._url = url
         return
@@ -18905,8 +20728,9 @@ class CodeScanningSarifsReceipt(object):
     ##
 ##
 ##
-class CodeScanningSarifsStatus(object):
+class CodeScanningSarifsStatus(ResponseBase):
     def __init__(self, processing_status:str=None, analyses_url:str=None):
+        ResponseBase.__init__(self)
         self._processing_status = processing_status
         self._analyses_url = analyses_url
         return
@@ -18932,11 +20756,14 @@ class CodeScanningSarifsStatus(object):
     ##
 ##
 ##
-class Collaborator_permissions(object):
-    def __init__(self, admin:bool, push:bool, pull:bool):
+class Collaborator_permissions(ResponseBase):
+    def __init__(self, admin:bool, push:bool, pull:bool, triage:bool=None, maintain:bool=None):
+        ResponseBase.__init__(self)
         self._admin = admin
         self._push = push
         self._pull = pull
+        self._triage = triage
+        self._maintain = maintain
         return
         
     
@@ -18963,13 +20790,28 @@ class Collaborator_permissions(object):
         
     pull = property(_getpull)
 
+    ##
+    ##
+    def _gettriage(self):
+        return self._triage
+        
+    triage = property(_gettriage)
+
+    ##
+    ##
+    def _getmaintain(self):
+        return self._maintain
+        
+    maintain = property(_getmaintain)
+
 
     ##
 ##
 ##
-class Collaborator(object):
+class Collaborator(ResponseBase):
     """Collaborator """
     def __init__(self, site_admin:bool, type:str, received_events_url:str, events_url:str, repos_url:str, organizations_url:str, subscriptions_url:str, starred_url:str, gists_url:str, following_url:str, followers_url:str, html_url:str, url:str, gravatar_id:str, avatar_url:str, node_id:str, id:int, login:str, email:str=None, name:str=None, permissions:dict=None):
+        ResponseBase.__init__(self)
         self._site_admin = site_admin
         self._type = type
         self._received_events_url = received_events_url
@@ -19147,9 +20989,10 @@ class Collaborator(object):
     ##
 ##
 ##
-class RepositoryInvitation(object):
+class RepositoryInvitation(ResponseBase):
     """Repository invitations let you manage who you collaborate with. """
     def __init__(self, node_id:str, html_url:str, url:str, created_at:datetime, permissions:str, inviter:dict, invitee:dict, repository:dict, id:int, expired:bool=None):
+        ResponseBase.__init__(self)
         self._node_id = node_id
         self._html_url = html_url
         self._url = url
@@ -19189,7 +21032,7 @@ class RepositoryInvitation(object):
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -19239,9 +21082,220 @@ class RepositoryInvitation(object):
     ##
 ##
 ##
-class CommitComment(object):
+class Collaborator(ResponseBase):
+    """Collaborator """
+    def __init__(self, site_admin:bool, type:str, received_events_url:str, events_url:str, repos_url:str, organizations_url:str, subscriptions_url:str, starred_url:str, gists_url:str, following_url:str, followers_url:str, html_url:str, url:str, gravatar_id:str, avatar_url:str, node_id:str, id:int, login:str, email:str=None, name:str=None, permissions:dict=None):
+        ResponseBase.__init__(self)
+        self._site_admin = site_admin
+        self._type = type
+        self._received_events_url = received_events_url
+        self._events_url = events_url
+        self._repos_url = repos_url
+        self._organizations_url = organizations_url
+        self._subscriptions_url = subscriptions_url
+        self._starred_url = starred_url
+        self._gists_url = gists_url
+        self._following_url = following_url
+        self._followers_url = followers_url
+        self._html_url = html_url
+        self._url = url
+        self._gravatar_id = gravatar_id
+        self._avatar_url = avatar_url
+        self._node_id = node_id
+        self._id = id
+        self._login = login
+        self._email = email
+        self._name = name
+        self._permissions = permissions
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getsite_admin(self):
+        return self._site_admin
+        
+    site_admin = property(_getsite_admin)
+
+    ##
+    ##
+    def _gettype(self):
+        return self._type
+        
+    type = property(_gettype)
+
+    ##
+    ##
+    def _getreceived_events_url(self):
+        return self._received_events_url
+        
+    received_events_url = property(_getreceived_events_url)
+
+    ##
+    ##
+    def _getevents_url(self):
+        return self._events_url
+        
+    events_url = property(_getevents_url)
+
+    ##
+    ##
+    def _getrepos_url(self):
+        return self._repos_url
+        
+    repos_url = property(_getrepos_url)
+
+    ##
+    ##
+    def _getorganizations_url(self):
+        return self._organizations_url
+        
+    organizations_url = property(_getorganizations_url)
+
+    ##
+    ##
+    def _getsubscriptions_url(self):
+        return self._subscriptions_url
+        
+    subscriptions_url = property(_getsubscriptions_url)
+
+    ##
+    ##
+    def _getstarred_url(self):
+        return self._starred_url
+        
+    starred_url = property(_getstarred_url)
+
+    ##
+    ##
+    def _getgists_url(self):
+        return self._gists_url
+        
+    gists_url = property(_getgists_url)
+
+    ##
+    ##
+    def _getfollowing_url(self):
+        return self._following_url
+        
+    following_url = property(_getfollowing_url)
+
+    ##
+    ##
+    def _getfollowers_url(self):
+        return self._followers_url
+        
+    followers_url = property(_getfollowers_url)
+
+    ##
+    ##
+    def _gethtml_url(self):
+        return self._html_url
+        
+    html_url = property(_gethtml_url)
+
+    ##
+    ##
+    def _geturl(self):
+        return self._url
+        
+    url = property(_geturl)
+
+    ##
+    ##
+    def _getgravatar_id(self):
+        return self._gravatar_id
+        
+    gravatar_id = property(_getgravatar_id)
+
+    ##
+    ##
+    def _getavatar_url(self):
+        return self._avatar_url
+        
+    avatar_url = property(_getavatar_url)
+
+    ##
+    ##
+    def _getnode_id(self):
+        return self._node_id
+        
+    node_id = property(_getnode_id)
+
+    ##
+    ##
+    def _getid(self):
+        return self._id
+        
+    id = property(_getid)
+
+    ##
+    ##
+    def _getlogin(self):
+        return self._login
+        
+    login = property(_getlogin)
+
+    ##
+    ##
+    def _getemail(self):
+        return self._email
+        
+    email = property(_getemail)
+
+    ##
+    ##
+    def _getname(self):
+        return self._name
+        
+    name = property(_getname)
+
+    ##
+    ##
+    def _getpermissions(self):
+        return self._permissions and Collaborator_permissions(**self._permissions)
+        
+    permissions = property(_getpermissions)
+
+
+    ##
+##
+##
+class RepositoryCollaboratorPermission(ResponseBase):
+    """Repository Collaborator Permission """
+    def __init__(self, user:dict, permission:str):
+        ResponseBase.__init__(self)
+        self._user = user
+        self._permission = permission
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getuser(self):
+        return self._user and Collaborator(**self._user)
+        
+    user = property(_getuser)
+
+    ##
+    ##
+    def _getpermission(self):
+        return self._permission
+        
+    permission = property(_getpermission)
+
+
+    ##
+##
+##
+class CommitComment(ResponseBase):
     """Commit Comment """
     def __init__(self, author_association:str, updated_at:datetime, created_at:datetime, user:dict, commit_id:str, line:int, position:int, path:str, body:str, node_id:str, id:int, url:str, html_url:str, reactions:dict=None):
+        ResponseBase.__init__(self)
         self._author_association = author_association
         self._updated_at = updated_at
         self._created_at = created_at
@@ -19271,14 +21325,14 @@ class CommitComment(object):
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -19363,8 +21417,9 @@ class CommitComment(object):
     ##
 ##
 ##
-class Branchshort_commit(object):
+class Branchshort_commit(ResponseBase):
     def __init__(self, url:str, sha:str):
+        ResponseBase.__init__(self)
         self._url = url
         self._sha = sha
         return
@@ -19390,9 +21445,10 @@ class Branchshort_commit(object):
     ##
 ##
 ##
-class BranchShort(object):
+class BranchShort(ResponseBase):
     """Branch Short """
     def __init__(self, protected:bool, commit:dict, name:str):
+        ResponseBase.__init__(self)
         self._protected = protected
         self._commit = commit
         self._name = name
@@ -19426,9 +21482,10 @@ class BranchShort(object):
     ##
 ##
 ##
-class Link(object):
+class Link(ResponseBase):
     """Hypermedia Link """
     def __init__(self, href:str):
+        ResponseBase.__init__(self)
         self._href = href
         return
         
@@ -19446,9 +21503,10 @@ class Link(object):
     ##
 ##
 ##
-class AutoMerge(object):
+class AutoMerge(ResponseBase):
     """The status of auto merging a pull request. """
     def __init__(self, commit_message:str, commit_title:str, merge_method:str, enabled_by:dict):
+        ResponseBase.__init__(self)
         self._commit_message = commit_message
         self._commit_title = commit_title
         self._merge_method = merge_method
@@ -19490,15 +21548,16 @@ class AutoMerge(object):
     ##
 ##
 ##
-class Pullrequestsimple_labels(object):
-    def __init__(self, id:int=None, node_id:str=None, url:str=None, name:str=None, description:str=None, color:str=None, default:bool=None):
-        self._id = id
-        self._node_id = node_id
-        self._url = url
-        self._name = name
-        self._description = description
-        self._color = color
+class Pullrequestsimple_labels(ResponseBase):
+    def __init__(self, default:bool, color:str, description:str, name:str, url:str, node_id:str, id:int):
+        ResponseBase.__init__(self)
         self._default = default
+        self._color = color
+        self._description = description
+        self._name = name
+        self._url = url
+        self._node_id = node_id
+        self._id = id
         return
         
     
@@ -19506,38 +21565,10 @@ class Pullrequestsimple_labels(object):
     
     ##
     ##
-    def _getid(self):
-        return self._id
+    def _getdefault(self):
+        return self._default
         
-    id = property(_getid)
-
-    ##
-    ##
-    def _getnode_id(self):
-        return self._node_id
-        
-    node_id = property(_getnode_id)
-
-    ##
-    ##
-    def _geturl(self):
-        return self._url
-        
-    url = property(_geturl)
-
-    ##
-    ##
-    def _getname(self):
-        return self._name
-        
-    name = property(_getname)
-
-    ##
-    ##
-    def _getdescription(self):
-        return self._description
-        
-    description = property(_getdescription)
+    default = property(_getdefault)
 
     ##
     ##
@@ -19548,17 +21579,46 @@ class Pullrequestsimple_labels(object):
 
     ##
     ##
-    def _getdefault(self):
-        return self._default
+    def _getdescription(self):
+        return self._description
         
-    default = property(_getdefault)
+    description = property(_getdescription)
+
+    ##
+    ##
+    def _getname(self):
+        return self._name
+        
+    name = property(_getname)
+
+    ##
+    ##
+    def _geturl(self):
+        return self._url
+        
+    url = property(_geturl)
+
+    ##
+    ##
+    def _getnode_id(self):
+        return self._node_id
+        
+    node_id = property(_getnode_id)
+
+    ##
+    ##
+    def _getid(self):
+        return self._id
+        
+    id = property(_getid)
 
 
     ##
 ##
 ##
-class Pullrequestsimple_head(object):
+class Pullrequestsimple_head(ResponseBase):
     def __init__(self, user:dict, sha:str, repo:dict, ref:str, label:str):
+        ResponseBase.__init__(self)
         self._user = user
         self._sha = sha
         self._repo = repo
@@ -19608,8 +21668,9 @@ class Pullrequestsimple_head(object):
     ##
 ##
 ##
-class Pullrequestsimple_base(object):
+class Pullrequestsimple_base(ResponseBase):
     def __init__(self, user:dict, sha:str, repo:dict, ref:str, label:str):
+        ResponseBase.__init__(self)
         self._user = user
         self._sha = sha
         self._repo = repo
@@ -19659,8 +21720,9 @@ class Pullrequestsimple_base(object):
     ##
 ##
 ##
-class Pullrequestsimple__links(object):
+class Pullrequestsimple__links(ResponseBase):
     def __init__(self, Self:dict, review_comment:dict, review_comments:dict, issue:dict, html:dict, statuses:dict, commits:dict, comments:dict):
+        ResponseBase.__init__(self)
         self._Self = Self
         self._review_comment = review_comment
         self._review_comments = review_comments
@@ -19745,9 +21807,10 @@ class Pullrequestsimple__links(object):
 ##
 ##
 ##
-class PullRequestSimple(object):
+class PullRequestSimple(ResponseBase):
     """Pull Request Simple """
     def __init__(self, auto_merge:dict, author_association:str, _links:dict, base:dict, head:dict, assignee:dict, merge_commit_sha:str, merged_at:datetime, closed_at:datetime, updated_at:datetime, created_at:datetime, milestone:dict, labels:list, body:str, user:dict, title:str, locked:bool, state:str, number:int, statuses_url:str, comments_url:str, review_comment_url:str, review_comments_url:str, commits_url:str, issue_url:str, patch_url:str, diff_url:str, html_url:str, node_id:str, id:int, url:str, active_lock_reason:str=None, assignees:list=None, requested_reviewers:list=None, requested_teams:list=None, draft:bool=None):
+        ResponseBase.__init__(self)
         self._auto_merge = auto_merge
         self._author_association = author_association
         self.__links = _links
@@ -19841,28 +21904,28 @@ class PullRequestSimple(object):
     ##
     ##
     def _getmerged_at(self):
-        return self._merged_at and datetime.datetime.fromisoformat(self._merged_at[0:-1])
+        return self._merged_at and datetime.fromisoformat(self._merged_at[0:-1])
         
     merged_at = property(_getmerged_at)
 
     ##
     ##
     def _getclosed_at(self):
-        return self._closed_at and datetime.datetime.fromisoformat(self._closed_at[0:-1])
+        return self._closed_at and datetime.fromisoformat(self._closed_at[0:-1])
         
     closed_at = property(_getclosed_at)
 
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -20045,8 +22108,9 @@ class PullRequestSimple(object):
     ##
 ##
 ##
-class SimpleCommitStatus(object):
+class SimpleCommitStatus(ResponseBase):
     def __init__(self, updated_at:datetime, created_at:datetime, url:str, avatar_url:str, target_url:str, context:str, state:str, node_id:str, id:int, description:str, required:bool=None):
+        ResponseBase.__init__(self)
         self._updated_at = updated_at
         self._created_at = created_at
         self._url = url
@@ -20066,14 +22130,14 @@ class SimpleCommitStatus(object):
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -20144,9 +22208,10 @@ class SimpleCommitStatus(object):
     ##
 ##
 ##
-class CombinedCommitStatus(object):
+class CombinedCommitStatus(ResponseBase):
     """Combined Commit Status """
     def __init__(self, url:str, commit_url:str, repository:dict, total_count:int, sha:str, statuses:list, state:str):
+        ResponseBase.__init__(self)
         self._url = url
         self._commit_url = commit_url
         self._repository = repository
@@ -20212,9 +22277,10 @@ class CombinedCommitStatus(object):
     ##
 ##
 ##
-class Status(object):
+class Status(ResponseBase):
     """The status of a commit. """
     def __init__(self, creator:dict, updated_at:str, created_at:str, context:str, target_url:str, description:str, state:str, node_id:str, id:int, avatar_url:str, url:str):
+        ResponseBase.__init__(self)
         self._creator = creator
         self._updated_at = updated_at
         self._created_at = created_at
@@ -20312,263 +22378,10 @@ class Status(object):
     ##
 ##
 ##
-class CommunityHealthFile(object):
-    def __init__(self, html_url:str, url:str):
-        self._html_url = html_url
-        self._url = url
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _gethtml_url(self):
-        return self._html_url
-        
-    html_url = property(_gethtml_url)
-
-    ##
-    ##
-    def _geturl(self):
-        return self._url
-        
-    url = property(_geturl)
-
-
-    ##
-##
-##
-class Communityprofile_files(object):
-    def __init__(self, pull_request_template:dict, issue_template:dict, readme:dict, contributing:dict, license:dict, code_of_conduct_file:dict, code_of_conduct:dict):
-        self._pull_request_template = pull_request_template
-        self._issue_template = issue_template
-        self._readme = readme
-        self._contributing = contributing
-        self._license = license
-        self._code_of_conduct_file = code_of_conduct_file
-        self._code_of_conduct = code_of_conduct
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getpull_request_template(self):
-        return self._pull_request_template and CommunityHealthFile(**self._pull_request_template)
-        
-    pull_request_template = property(_getpull_request_template)
-
-    ##
-    ##
-    def _getissue_template(self):
-        return self._issue_template and CommunityHealthFile(**self._issue_template)
-        
-    issue_template = property(_getissue_template)
-
-    ##
-    ##
-    def _getreadme(self):
-        return self._readme and CommunityHealthFile(**self._readme)
-        
-    readme = property(_getreadme)
-
-    ##
-    ##
-    def _getcontributing(self):
-        return self._contributing and CommunityHealthFile(**self._contributing)
-        
-    contributing = property(_getcontributing)
-
-    ##
-    ##
-    def _getlicense(self):
-        return self._license and LicenseSimple(**self._license)
-        
-    license = property(_getlicense)
-
-    ##
-    ##
-    def _getcode_of_conduct_file(self):
-        return self._code_of_conduct_file and CommunityHealthFile(**self._code_of_conduct_file)
-        
-    code_of_conduct_file = property(_getcode_of_conduct_file)
-
-    ##
-    ##
-    def _getcode_of_conduct(self):
-        return self._code_of_conduct and CodeOfConductSimple(**self._code_of_conduct)
-        
-    code_of_conduct = property(_getcode_of_conduct)
-
-
-    ##
-##
-##
-class CommunityProfile(object):
-    """Community Profile """
-    def __init__(self, updated_at:datetime, files:dict, documentation:str, description:str, health_percentage:int, content_reports_enabled:bool=None):
-        self._updated_at = updated_at
-        self._files = files
-        self._documentation = documentation
-        self._description = description
-        self._health_percentage = health_percentage
-        self._content_reports_enabled = content_reports_enabled
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
-        
-    updated_at = property(_getupdated_at)
-
-    ##
-    ##
-    def _getfiles(self):
-        return self._files and Communityprofile_files(**self._files)
-        
-    files = property(_getfiles)
-
-    ##
-    ##
-    def _getdocumentation(self):
-        return self._documentation
-        
-    documentation = property(_getdocumentation)
-
-    ##
-    ##
-    def _getdescription(self):
-        return self._description
-        
-    description = property(_getdescription)
-
-    ##
-    ##
-    def _gethealth_percentage(self):
-        return self._health_percentage
-        
-    health_percentage = property(_gethealth_percentage)
-
-    ##
-    ##
-    def _getcontent_reports_enabled(self):
-        return self._content_reports_enabled
-        
-    content_reports_enabled = property(_getcontent_reports_enabled)
-
-
-    ##
-##
-##
-class DiffEntry(object):
-    """Diff Entry """
-    def __init__(self, contents_url:str, raw_url:str, blob_url:str, changes:int, deletions:int, additions:int, status:str, filename:str, sha:str, patch:str=None, previous_filename:str=None):
-        self._contents_url = contents_url
-        self._raw_url = raw_url
-        self._blob_url = blob_url
-        self._changes = changes
-        self._deletions = deletions
-        self._additions = additions
-        self._status = status
-        self._filename = filename
-        self._sha = sha
-        self._patch = patch
-        self._previous_filename = previous_filename
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getcontents_url(self):
-        return self._contents_url
-        
-    contents_url = property(_getcontents_url)
-
-    ##
-    ##
-    def _getraw_url(self):
-        return self._raw_url
-        
-    raw_url = property(_getraw_url)
-
-    ##
-    ##
-    def _getblob_url(self):
-        return self._blob_url
-        
-    blob_url = property(_getblob_url)
-
-    ##
-    ##
-    def _getchanges(self):
-        return self._changes
-        
-    changes = property(_getchanges)
-
-    ##
-    ##
-    def _getdeletions(self):
-        return self._deletions
-        
-    deletions = property(_getdeletions)
-
-    ##
-    ##
-    def _getadditions(self):
-        return self._additions
-        
-    additions = property(_getadditions)
-
-    ##
-    ##
-    def _getstatus(self):
-        return self._status
-        
-    status = property(_getstatus)
-
-    ##
-    ##
-    def _getfilename(self):
-        return self._filename
-        
-    filename = property(_getfilename)
-
-    ##
-    ##
-    def _getsha(self):
-        return self._sha
-        
-    sha = property(_getsha)
-
-    ##
-    ##
-    def _getpatch(self):
-        return self._patch
-        
-    patch = property(_getpatch)
-
-    ##
-    ##
-    def _getprevious_filename(self):
-        return self._previous_filename
-        
-    previous_filename = property(_getprevious_filename)
-
-
-    ##
-##
-##
-class CommitComparison(object):
+class CommitComparison(ResponseBase):
     """Commit Comparison """
     def __init__(self, commits:list, total_commits:int, behind_by:int, ahead_by:int, status:str, merge_base_commit:dict, base_commit:dict, patch_url:str, diff_url:str, permalink_url:str, html_url:str, url:str, files:list=None):
+        ResponseBase.__init__(self)
         self._commits = commits
         self._total_commits = total_commits
         self._behind_by = behind_by
@@ -20682,9 +22495,10 @@ class CommitComparison(object):
     ##
 ##
 ##
-class Contentreferenceattachment(object):
+class Contentreferenceattachment(ResponseBase):
     """Content Reference attachments allow you to provide context around URLs posted in comments """
     def __init__(self, body:str, title:str, id:int, node_id:str=None):
+        ResponseBase.__init__(self)
         self._body = body
         self._title = title
         self._id = id
@@ -20726,8 +22540,9 @@ class Contentreferenceattachment(object):
     ##
 ##
 ##
-class Contenttree_entries__links(object):
+class Contenttree_entries__links(ResponseBase):
     def __init__(self, Self:str, html:str, git:str):
+        ResponseBase.__init__(self)
         self._Self = Self
         self._html = html
         self._git = git
@@ -20772,8 +22587,9 @@ class Contenttree_entries__links(object):
 ##
 ##
 ##
-class Contenttree_entries(object):
+class Contenttree_entries(ResponseBase):
     def __init__(self, _links:dict, download_url:str, html_url:str, git_url:str, url:str, sha:str, path:str, name:str, size:int, type:str, content:str=None):
+        ResponseBase.__init__(self)
         self.__links = _links
         self._download_url = download_url
         self._html_url = html_url
@@ -20871,8 +22687,9 @@ class Contenttree_entries(object):
     ##
 ##
 ##
-class Contenttree__links(object):
+class Contenttree__links(ResponseBase):
     def __init__(self, Self:str, html:str, git:str):
+        ResponseBase.__init__(self)
         self._Self = Self
         self._html = html
         self._git = git
@@ -20917,9 +22734,10 @@ class Contenttree__links(object):
 ##
 ##
 ##
-class ContentTree(object):
+class ContentTree(ResponseBase):
     """Content Tree """
     def __init__(self, _links:dict, download_url:str, html_url:str, git_url:str, url:str, sha:str, path:str, name:str, size:int, type:str, entries:list=None):
+        ResponseBase.__init__(self)
         self.__links = _links
         self._download_url = download_url
         self._html_url = html_url
@@ -21017,8 +22835,9 @@ class ContentTree(object):
     ##
 ##
 ##
-class Contentdirectory__links(object):
+class Contentdirectory__links(ResponseBase):
     def __init__(self, Self:str, html:str, git:str):
+        ResponseBase.__init__(self)
         self._Self = Self
         self._html = html
         self._git = git
@@ -21063,8 +22882,9 @@ class Contentdirectory__links(object):
 ##
 ##
 ##
-class Contentdirectory(object):
+class Contentdirectory(ResponseBase):
     def __init__(self, _links:dict, download_url:str, html_url:str, git_url:str, url:str, sha:str, path:str, name:str, size:int, type:str, content:str=None):
+        ResponseBase.__init__(self)
         self.__links = _links
         self._download_url = download_url
         self._html_url = html_url
@@ -21162,8 +22982,9 @@ class Contentdirectory(object):
     ##
 ##
 ##
-class Contentfile__links(object):
+class Contentfile__links(ResponseBase):
     def __init__(self, Self:str, html:str, git:str):
+        ResponseBase.__init__(self)
         self._Self = Self
         self._html = html
         self._git = git
@@ -21208,9 +23029,10 @@ class Contentfile__links(object):
 ##
 ##
 ##
-class ContentFile(object):
+class ContentFile(ResponseBase):
     """Content File """
     def __init__(self, _links:dict, download_url:str, html_url:str, git_url:str, url:str, sha:str, content:str, path:str, name:str, size:int, encoding:str, type:str, target:str=None, submodule_git_url:str=None):
+        ResponseBase.__init__(self)
         self.__links = _links
         self._download_url = download_url
         self._html_url = html_url
@@ -21332,8 +23154,9 @@ class ContentFile(object):
     ##
 ##
 ##
-class Symlinkcontent__links(object):
+class Symlinkcontent__links(ResponseBase):
     def __init__(self, Self:str, html:str, git:str):
+        ResponseBase.__init__(self)
         self._Self = Self
         self._html = html
         self._git = git
@@ -21378,9 +23201,10 @@ class Symlinkcontent__links(object):
 ##
 ##
 ##
-class SymlinkContent(object):
+class SymlinkContent(ResponseBase):
     """An object describing a symlink """
     def __init__(self, _links:dict, download_url:str, html_url:str, git_url:str, url:str, sha:str, path:str, name:str, size:int, target:str, type:str):
+        ResponseBase.__init__(self)
         self.__links = _links
         self._download_url = download_url
         self._html_url = html_url
@@ -21478,9 +23302,10 @@ class SymlinkContent(object):
     ##
 ##
 ##
-class SymlinkContent(object):
+class SymlinkContent(ResponseBase):
     """An object describing a symlink """
     def __init__(self, _links:dict, download_url:str, html_url:str, git_url:str, url:str, sha:str, path:str, name:str, size:int, submodule_git_url:str, type:str):
+        ResponseBase.__init__(self)
         self.__links = _links
         self._download_url = download_url
         self._html_url = html_url
@@ -21578,8 +23403,9 @@ class SymlinkContent(object):
     ##
 ##
 ##
-class Filecommit_content__links(object):
+class Filecommit_content__links(ResponseBase):
     def __init__(self, Self:str=None, git:str=None, html:str=None):
+        ResponseBase.__init__(self)
         self._Self = Self
         self._git = git
         self._html = html
@@ -21624,8 +23450,9 @@ class Filecommit_content__links(object):
 ##
 ##
 ##
-class Filecommit_content(object):
+class Filecommit_content(ResponseBase):
     def __init__(self, name:str=None, path:str=None, sha:str=None, size:int=None, url:str=None, html_url:str=None, git_url:str=None, download_url:str=None, type:str=None, _links:dict=None):
+        ResponseBase.__init__(self)
         self._name = name
         self._path = path
         self._sha = sha
@@ -21715,8 +23542,9 @@ class Filecommit_content(object):
     ##
 ##
 ##
-class Filecommit_commit_author(object):
+class Filecommit_commit_author(ResponseBase):
     def __init__(self, date:str=None, name:str=None, email:str=None):
+        ResponseBase.__init__(self)
         self._date = date
         self._name = name
         self._email = email
@@ -21750,8 +23578,9 @@ class Filecommit_commit_author(object):
     ##
 ##
 ##
-class Filecommit_commit_committer(object):
+class Filecommit_commit_committer(ResponseBase):
     def __init__(self, date:str=None, name:str=None, email:str=None):
+        ResponseBase.__init__(self)
         self._date = date
         self._name = name
         self._email = email
@@ -21785,8 +23614,9 @@ class Filecommit_commit_committer(object):
     ##
 ##
 ##
-class Filecommit_commit_tree(object):
+class Filecommit_commit_tree(ResponseBase):
     def __init__(self, url:str=None, sha:str=None):
+        ResponseBase.__init__(self)
         self._url = url
         self._sha = sha
         return
@@ -21812,8 +23642,9 @@ class Filecommit_commit_tree(object):
     ##
 ##
 ##
-class Filecommit_commit_parents(object):
+class Filecommit_commit_parents(ResponseBase):
     def __init__(self, url:str=None, html_url:str=None, sha:str=None):
+        ResponseBase.__init__(self)
         self._url = url
         self._html_url = html_url
         self._sha = sha
@@ -21847,8 +23678,9 @@ class Filecommit_commit_parents(object):
     ##
 ##
 ##
-class Filecommit_commit_verification(object):
+class Filecommit_commit_verification(ResponseBase):
     def __init__(self, verified:bool=None, reason:str=None, signature:str=None, payload:str=None):
+        ResponseBase.__init__(self)
         self._verified = verified
         self._reason = reason
         self._signature = signature
@@ -21890,8 +23722,9 @@ class Filecommit_commit_verification(object):
     ##
 ##
 ##
-class Filecommit_commit(object):
+class Filecommit_commit(ResponseBase):
     def __init__(self, sha:str=None, node_id:str=None, url:str=None, html_url:str=None, author:dict=None, committer:dict=None, message:str=None, tree:dict=None, parents:list=None, verification:dict=None):
+        ResponseBase.__init__(self)
         self._sha = sha
         self._node_id = node_id
         self._url = url
@@ -21981,9 +23814,10 @@ class Filecommit_commit(object):
     ##
 ##
 ##
-class FileCommit(object):
+class FileCommit(ResponseBase):
     """File Commit """
     def __init__(self, commit:dict, content:dict):
+        ResponseBase.__init__(self)
         self._commit = commit
         self._content = content
         return
@@ -22009,9 +23843,10 @@ class FileCommit(object):
     ##
 ##
 ##
-class Contributor(object):
+class Contributor(ResponseBase):
     """Contributor """
     def __init__(self, contributions:int, type:str, login:str=None, id:int=None, node_id:str=None, avatar_url:str=None, gravatar_id:str=None, url:str=None, html_url:str=None, followers_url:str=None, following_url:str=None, gists_url:str=None, starred_url:str=None, subscriptions_url:str=None, organizations_url:str=None, repos_url:str=None, events_url:str=None, received_events_url:str=None, site_admin:bool=None, email:str=None, name:str=None):
+        ResponseBase.__init__(self)
         self._contributions = contributions
         self._type = type
         self._login = login
@@ -22189,9 +24024,10 @@ class Contributor(object):
     ##
 ##
 ##
-class DeploymentStatus(object):
+class DeploymentStatus(ResponseBase):
     """The status of a deployment. """
-    def __init__(self, repository_url:str, deployment_url:str, updated_at:datetime, created_at:datetime, creator:dict, state:str, node_id:str, id:int, url:str, description:str='', environment:str='', target_url:str='', environment_url:str='', log_url:str='', performed_via_github_app:dict=None):
+    def __init__(self, repository_url:str, deployment_url:str, updated_at:datetime, created_at:datetime, creator:dict, state:str, node_id:str, id:int, url:str, description:str='""', environment:str='""', target_url:str='""', environment_url:str='""', log_url:str='""', performed_via_github_app:dict=None):
+        ResponseBase.__init__(self)
         self._repository_url = repository_url
         self._deployment_url = deployment_url
         self._updated_at = updated_at
@@ -22229,14 +24065,14 @@ class DeploymentStatus(object):
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -22321,9 +24157,10 @@ class DeploymentStatus(object):
     ##
 ##
 ##
-class Deployment_branch_policy(object):
+class Deployment_branch_policy(ResponseBase):
     """The type of deployment branch policy for this environment. To allow all branches to deploy, set to `null`. """
     def __init__(self, custom_branch_policies:bool, protected_branches:bool):
+        ResponseBase.__init__(self)
         self._custom_branch_policies = custom_branch_policies
         self._protected_branches = protected_branches
         return
@@ -22349,8 +24186,9 @@ class Deployment_branch_policy(object):
     ##
 ##
 ##
-class Environment_protection_rules(object):
+class Environment_protection_rules(ResponseBase):
     def __init__(self, type:str, node_id:str, id:int):
+        ResponseBase.__init__(self)
         self._type = type
         self._node_id = node_id
         self._id = id
@@ -22384,8 +24222,9 @@ class Environment_protection_rules(object):
     ##
 ##
 ##
-class Environment_protection_rules_reviewers(object):
+class Environment_protection_rules_reviewers(ResponseBase):
     def __init__(self, type:str=None, reviewer=None):
+        ResponseBase.__init__(self)
         self._type = type
         self._reviewer = reviewer
         return
@@ -22411,9 +24250,10 @@ class Environment_protection_rules_reviewers(object):
     ##
 ##
 ##
-class Environment(object):
+class Environment(ResponseBase):
     """Details of a deployment environment """
     def __init__(self, updated_at:datetime, created_at:datetime, html_url:str, url:str, name:str, node_id:str, id:int, protection_rules=None, deployment_branch_policy:dict=None):
+        ResponseBase.__init__(self)
         self._updated_at = updated_at
         self._created_at = created_at
         self._html_url = html_url
@@ -22431,14 +24271,14 @@ class Environment(object):
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at, doc="""The time that the environment was last updated, in ISO 8601 format. """)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at, doc="""The time that the environment was created, in ISO 8601 format. """)
 
@@ -22495,9 +24335,10 @@ class Environment(object):
     ##
 ##
 ##
-class ShortBlob(object):
+class ShortBlob(ResponseBase):
     """Short Blob """
     def __init__(self, sha:str, url:str):
+        ResponseBase.__init__(self)
         self._sha = sha
         self._url = url
         return
@@ -22523,9 +24364,10 @@ class ShortBlob(object):
     ##
 ##
 ##
-class Blob(object):
+class Blob(ResponseBase):
     """Blob """
     def __init__(self, node_id:str, size:int, sha:str, url:str, encoding:str, content:str, highlighted_content:str=None):
+        ResponseBase.__init__(self)
         self._node_id = node_id
         self._size = size
         self._sha = sha
@@ -22591,9 +24433,10 @@ class Blob(object):
     ##
 ##
 ##
-class Gitcommit_author(object):
+class Gitcommit_author(ResponseBase):
     """Identifying information for the git-user """
     def __init__(self, name:str, email:str, date:datetime):
+        ResponseBase.__init__(self)
         self._name = name
         self._email = email
         self._date = date
@@ -22619,7 +24462,7 @@ class Gitcommit_author(object):
     ##
     ##
     def _getdate(self):
-        return self._date and datetime.datetime.fromisoformat(self._date[0:-1])
+        return self._date and datetime.fromisoformat(self._date[0:-1])
         
     date = property(_getdate, doc="""Timestamp of the commit """)
 
@@ -22627,9 +24470,10 @@ class Gitcommit_author(object):
     ##
 ##
 ##
-class Gitcommit_committer(object):
+class Gitcommit_committer(ResponseBase):
     """Identifying information for the git-user """
     def __init__(self, name:str, email:str, date:datetime):
+        ResponseBase.__init__(self)
         self._name = name
         self._email = email
         self._date = date
@@ -22655,7 +24499,7 @@ class Gitcommit_committer(object):
     ##
     ##
     def _getdate(self):
-        return self._date and datetime.datetime.fromisoformat(self._date[0:-1])
+        return self._date and datetime.fromisoformat(self._date[0:-1])
         
     date = property(_getdate, doc="""Timestamp of the commit """)
 
@@ -22663,8 +24507,9 @@ class Gitcommit_committer(object):
     ##
 ##
 ##
-class Gitcommit_tree(object):
+class Gitcommit_tree(ResponseBase):
     def __init__(self, url:str, sha:str):
+        ResponseBase.__init__(self)
         self._url = url
         self._sha = sha
         return
@@ -22690,8 +24535,9 @@ class Gitcommit_tree(object):
     ##
 ##
 ##
-class Gitcommit_parents(object):
+class Gitcommit_parents(ResponseBase):
     def __init__(self, html_url:str, url:str, sha:str):
+        ResponseBase.__init__(self)
         self._html_url = html_url
         self._url = url
         self._sha = sha
@@ -22725,8 +24571,9 @@ class Gitcommit_parents(object):
     ##
 ##
 ##
-class Gitcommit_verification(object):
+class Gitcommit_verification(ResponseBase):
     def __init__(self, payload:str, signature:str, reason:str, verified:bool):
+        ResponseBase.__init__(self)
         self._payload = payload
         self._signature = signature
         self._reason = reason
@@ -22768,9 +24615,10 @@ class Gitcommit_verification(object):
     ##
 ##
 ##
-class GitCommit(object):
+class GitCommit(ResponseBase):
     """Low-level Git commit operations within a repository """
     def __init__(self, html_url:str, verification:dict, parents:list, tree:dict, message:str, committer:dict, author:dict, url:str, node_id:str, sha:str):
+        ResponseBase.__init__(self)
         self._html_url = html_url
         self._verification = verification
         self._parents = parents
@@ -22860,8 +24708,9 @@ class GitCommit(object):
     ##
 ##
 ##
-class Gitreference_object(object):
+class Gitreference_object(ResponseBase):
     def __init__(self, url:str, sha:str, type:str):
+        ResponseBase.__init__(self)
         self._url = url
         self._sha = sha
         self._type = type
@@ -22895,9 +24744,10 @@ class Gitreference_object(object):
     ##
 ##
 ##
-class GitReference(object):
+class GitReference(ResponseBase):
     """Git references within a repository """
     def __init__(self, object:dict, url:str, node_id:str, ref:str):
+        ResponseBase.__init__(self)
         self._object = object
         self._url = url
         self._node_id = node_id
@@ -22939,8 +24789,9 @@ class GitReference(object):
     ##
 ##
 ##
-class Gittag_tagger(object):
+class Gittag_tagger(ResponseBase):
     def __init__(self, name:str, email:str, date:str):
+        ResponseBase.__init__(self)
         self._name = name
         self._email = email
         self._date = date
@@ -22974,8 +24825,9 @@ class Gittag_tagger(object):
     ##
 ##
 ##
-class Gittag_object(object):
+class Gittag_object(ResponseBase):
     def __init__(self, url:str, type:str, sha:str):
+        ResponseBase.__init__(self)
         self._url = url
         self._type = type
         self._sha = sha
@@ -23009,9 +24861,10 @@ class Gittag_object(object):
     ##
 ##
 ##
-class GitTag(object):
+class GitTag(ResponseBase):
     """Metadata for a Git tag """
     def __init__(self, object:dict, tagger:dict, message:str, url:str, sha:str, tag:str, node_id:str, verification:dict=None):
+        ResponseBase.__init__(self)
         self._object = object
         self._tagger = tagger
         self._message = message
@@ -23085,8 +24938,9 @@ class GitTag(object):
     ##
 ##
 ##
-class Gittree_tree(object):
+class Gittree_tree(ResponseBase):
     def __init__(self, path:str=None, mode:str=None, type:str=None, sha:str=None, size:int=None, url:str=None):
+        ResponseBase.__init__(self)
         self._path = path
         self._mode = mode
         self._type = type
@@ -23144,9 +24998,10 @@ class Gittree_tree(object):
     ##
 ##
 ##
-class GitTree(object):
+class GitTree(ResponseBase):
     """The hierarchy between files in a Git repository. """
     def __init__(self, tree:list, truncated:bool, url:str, sha:str):
+        ResponseBase.__init__(self)
         self._tree = tree
         self._truncated = truncated
         self._url = url
@@ -23188,8 +25043,9 @@ class GitTree(object):
     ##
 ##
 ##
-class HookResponse(object):
+class HookResponse(ResponseBase):
     def __init__(self, message:str, status:str, code:int):
+        ResponseBase.__init__(self)
         self._message = message
         self._status = status
         self._code = code
@@ -23223,8 +25079,9 @@ class HookResponse(object):
     ##
 ##
 ##
-class Webhook_config(object):
+class Webhook_config(ResponseBase):
     def __init__(self, email:str=None, password:str=None, room:str=None, subdomain:str=None, url:str=None, insecure_ssl=None, content_type:str=None, digest:str=None, secret:str=None, token:str=None):
+        ResponseBase.__init__(self)
         self._email = email
         self._password = password
         self._room = room
@@ -23314,9 +25171,10 @@ class Webhook_config(object):
     ##
 ##
 ##
-class Webhook(object):
+class Webhook(ResponseBase):
     """Webhooks for repositories. """
     def __init__(self, last_response:dict, ping_url:str, test_url:str, url:str, created_at:datetime, updated_at:datetime, config:dict, events:list, active:bool, name:str, id:int, type:str, deliveries_url:str=None):
+        ResponseBase.__init__(self)
         self._last_response = last_response
         self._ping_url = ping_url
         self._test_url = test_url
@@ -23366,14 +25224,14 @@ class Webhook(object):
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
@@ -23430,67 +25288,43 @@ class Webhook(object):
     ##
 ##
 ##
-class Import_project_choices(object):
-    def __init__(self, vcs:str=None, tfvc_project:str=None, human_name:str=None):
-        self._vcs = vcs
-        self._tfvc_project = tfvc_project
-        self._human_name = human_name
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getvcs(self):
-        return self._vcs
-        
-    vcs = property(_getvcs)
-
-    ##
-    ##
-    def _gettfvc_project(self):
-        return self._tfvc_project
-        
-    tfvc_project = property(_gettfvc_project)
-
-    ##
-    ##
-    def _gethuman_name(self):
-        return self._human_name
-        
-    human_name = property(_gethuman_name)
-
-
-    ##
-##
-##
-class Import(object):
-    """A repository import from an external source. """
-    def __init__(self, repository_url:str, authors_url:str, html_url:str, url:str, status:str, vcs_url:str, vcs:str, use_lfs:bool=None, svc_root:str=None, tfvc_project:str=None, status_text:str=None, failed_step:str=None, error_message:str=None, import_percent:int=None, commit_count:int=None, push_percent:int=None, has_large_files:bool=None, large_files_size:int=None, large_files_count:int=None, project_choices:list=None, message:str=None, authors_count:int=None, svn_root:str=None):
-        self._repository_url = repository_url
-        self._authors_url = authors_url
+class Issue(ResponseBase):
+    """Issues are a great way to keep track of tasks, enhancements, and bugs for your projects. """
+    def __init__(self, author_association:str, updated_at:datetime, created_at:datetime, closed_at:datetime, comments:int, locked:bool, milestone:dict, assignee:dict, labels, user:dict, title:str, state:str, number:int, html_url:str, events_url:str, comments_url:str, labels_url:str, repository_url:str, url:str, node_id:str, id:int, body:str=None, assignees:list=None, active_lock_reason:str=None, pull_request:dict=None, draft:bool=None, closed_by:dict=None, body_html:str=None, body_text:str=None, timeline_url:str=None, repository:dict=None, performed_via_github_app:dict=None, reactions:dict=None):
+        ResponseBase.__init__(self)
+        self._author_association = author_association
+        self._updated_at = updated_at
+        self._created_at = created_at
+        self._closed_at = closed_at
+        self._comments = comments
+        self._locked = locked
+        self._milestone = milestone
+        self._assignee = assignee
+        self._labels = labels
+        self._user = user
+        self._title = title
+        self._state = state
+        self._number = number
         self._html_url = html_url
+        self._events_url = events_url
+        self._comments_url = comments_url
+        self._labels_url = labels_url
+        self._repository_url = repository_url
         self._url = url
-        self._status = status
-        self._vcs_url = vcs_url
-        self._vcs = vcs
-        self._use_lfs = use_lfs
-        self._svc_root = svc_root
-        self._tfvc_project = tfvc_project
-        self._status_text = status_text
-        self._failed_step = failed_step
-        self._error_message = error_message
-        self._import_percent = import_percent
-        self._commit_count = commit_count
-        self._push_percent = push_percent
-        self._has_large_files = has_large_files
-        self._large_files_size = large_files_size
-        self._large_files_count = large_files_count
-        self._project_choices = project_choices
-        self._message = message
-        self._authors_count = authors_count
-        self._svn_root = svn_root
+        self._node_id = node_id
+        self._id = id
+        self._body = body
+        self._assignees = assignees
+        self._active_lock_reason = active_lock_reason
+        self._pull_request = pull_request
+        self._draft = draft
+        self._closed_by = closed_by
+        self._body_html = body_html
+        self._body_text = body_text
+        self._timeline_url = timeline_url
+        self._repository = repository
+        self._performed_via_github_app = performed_via_github_app
+        self._reactions = reactions
         return
         
     
@@ -23498,17 +25332,94 @@ class Import(object):
     
     ##
     ##
-    def _getrepository_url(self):
-        return self._repository_url
+    def _getauthor_association(self):
+        return self._author_association
         
-    repository_url = property(_getrepository_url)
+    author_association = property(_getauthor_association)
 
     ##
     ##
-    def _getauthors_url(self):
-        return self._authors_url
+    def _getupdated_at(self):
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
-    authors_url = property(_getauthors_url)
+    updated_at = property(_getupdated_at)
+
+    ##
+    ##
+    def _getcreated_at(self):
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
+        
+    created_at = property(_getcreated_at)
+
+    ##
+    ##
+    def _getclosed_at(self):
+        return self._closed_at and datetime.fromisoformat(self._closed_at[0:-1])
+        
+    closed_at = property(_getclosed_at)
+
+    ##
+    ##
+    def _getcomments(self):
+        return self._comments
+        
+    comments = property(_getcomments)
+
+    ##
+    ##
+    def _getlocked(self):
+        return self._locked
+        
+    locked = property(_getlocked)
+
+    ##
+    ##
+    def _getmilestone(self):
+        return self._milestone and Milestone(**self._milestone)
+        
+    milestone = property(_getmilestone)
+
+    ##
+    ##
+    def _getassignee(self):
+        return self._assignee and SimpleUser(**self._assignee)
+        
+    assignee = property(_getassignee)
+
+    ##
+    ##
+    def _getlabels(self):
+        return self._labels
+        
+    labels = property(_getlabels, doc="""Labels to associate with this issue; pass one or more label names to replace the set of labels on this issue; send an empty array to clear all labels from the issue; note that the labels are silently dropped for users without push access to the repository """)
+
+    ##
+    ##
+    def _getuser(self):
+        return self._user and SimpleUser(**self._user)
+        
+    user = property(_getuser)
+
+    ##
+    ##
+    def _gettitle(self):
+        return self._title
+        
+    title = property(_gettitle, doc="""Title of the issue """)
+
+    ##
+    ##
+    def _getstate(self):
+        return self._state
+        
+    state = property(_getstate, doc="""State of the issue; either 'open' or 'closed' """)
+
+    ##
+    ##
+    def _getnumber(self):
+        return self._number
+        
+    number = property(_getnumber, doc="""Number uniquely identifying the issue within its repository """)
 
     ##
     ##
@@ -23519,204 +25430,45 @@ class Import(object):
 
     ##
     ##
-    def _geturl(self):
-        return self._url
+    def _getevents_url(self):
+        return self._events_url
         
-    url = property(_geturl)
+    events_url = property(_getevents_url)
 
     ##
     ##
-    def _getstatus(self):
-        return self._status
+    def _getcomments_url(self):
+        return self._comments_url
         
-    status = property(_getstatus)
+    comments_url = property(_getcomments_url)
 
     ##
     ##
-    def _getvcs_url(self):
-        return self._vcs_url
+    def _getlabels_url(self):
+        return self._labels_url
         
-    vcs_url = property(_getvcs_url, doc="""The URL of the originating repository. """)
+    labels_url = property(_getlabels_url)
 
     ##
     ##
-    def _getvcs(self):
-        return self._vcs
+    def _getrepository_url(self):
+        return self._repository_url
         
-    vcs = property(_getvcs)
-
-    ##
-    ##
-    def _getuse_lfs(self):
-        return self._use_lfs
-        
-    use_lfs = property(_getuse_lfs)
-
-    ##
-    ##
-    def _getsvc_root(self):
-        return self._svc_root
-        
-    svc_root = property(_getsvc_root)
-
-    ##
-    ##
-    def _gettfvc_project(self):
-        return self._tfvc_project
-        
-    tfvc_project = property(_gettfvc_project)
-
-    ##
-    ##
-    def _getstatus_text(self):
-        return self._status_text
-        
-    status_text = property(_getstatus_text)
-
-    ##
-    ##
-    def _getfailed_step(self):
-        return self._failed_step
-        
-    failed_step = property(_getfailed_step)
-
-    ##
-    ##
-    def _geterror_message(self):
-        return self._error_message
-        
-    error_message = property(_geterror_message)
-
-    ##
-    ##
-    def _getimport_percent(self):
-        return self._import_percent
-        
-    import_percent = property(_getimport_percent)
-
-    ##
-    ##
-    def _getcommit_count(self):
-        return self._commit_count
-        
-    commit_count = property(_getcommit_count)
-
-    ##
-    ##
-    def _getpush_percent(self):
-        return self._push_percent
-        
-    push_percent = property(_getpush_percent)
-
-    ##
-    ##
-    def _gethas_large_files(self):
-        return self._has_large_files
-        
-    has_large_files = property(_gethas_large_files)
-
-    ##
-    ##
-    def _getlarge_files_size(self):
-        return self._large_files_size
-        
-    large_files_size = property(_getlarge_files_size)
-
-    ##
-    ##
-    def _getlarge_files_count(self):
-        return self._large_files_count
-        
-    large_files_count = property(_getlarge_files_count)
-
-    ##
-    ##
-    def _getproject_choices(self):
-        return self._project_choices and [ entry and Import_project_choices(**entry) for entry in self._project_choices ]
-        
-    project_choices = property(_getproject_choices)
-
-    ##
-    ##
-    def _getmessage(self):
-        return self._message
-        
-    message = property(_getmessage)
-
-    ##
-    ##
-    def _getauthors_count(self):
-        return self._authors_count
-        
-    authors_count = property(_getauthors_count)
-
-    ##
-    ##
-    def _getsvn_root(self):
-        return self._svn_root
-        
-    svn_root = property(_getsvn_root)
-
-
-    ##
-##
-##
-class PorterAuthor(object):
-    """Porter Author """
-    def __init__(self, import_url:str, url:str, name:str, email:str, remote_name:str, remote_id:str, id:int):
-        self._import_url = import_url
-        self._url = url
-        self._name = name
-        self._email = email
-        self._remote_name = remote_name
-        self._remote_id = remote_id
-        self._id = id
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getimport_url(self):
-        return self._import_url
-        
-    import_url = property(_getimport_url)
+    repository_url = property(_getrepository_url)
 
     ##
     ##
     def _geturl(self):
         return self._url
         
-    url = property(_geturl)
+    url = property(_geturl, doc="""URL for the issue """)
 
     ##
     ##
-    def _getname(self):
-        return self._name
+    def _getnode_id(self):
+        return self._node_id
         
-    name = property(_getname)
-
-    ##
-    ##
-    def _getemail(self):
-        return self._email
-        
-    email = property(_getemail)
-
-    ##
-    ##
-    def _getremote_name(self):
-        return self._remote_name
-        
-    remote_name = property(_getremote_name)
-
-    ##
-    ##
-    def _getremote_id(self):
-        return self._remote_id
-        
-    remote_id = property(_getremote_id)
+    node_id = property(_getnode_id)
 
     ##
     ##
@@ -23725,57 +25477,98 @@ class PorterAuthor(object):
         
     id = property(_getid)
 
+    ##
+    ##
+    def _getbody(self):
+        return self._body
+        
+    body = property(_getbody, doc="""Contents of the issue """)
+
+    ##
+    ##
+    def _getassignees(self):
+        return self._assignees and [ entry and SimpleUser(**entry) for entry in self._assignees ]
+        
+    assignees = property(_getassignees)
+
+    ##
+    ##
+    def _getactive_lock_reason(self):
+        return self._active_lock_reason
+        
+    active_lock_reason = property(_getactive_lock_reason)
+
+    ##
+    ##
+    def _getpull_request(self):
+        return self._pull_request and Issue_pull_request(**self._pull_request)
+        
+    pull_request = property(_getpull_request)
+
+    ##
+    ##
+    def _getdraft(self):
+        return self._draft
+        
+    draft = property(_getdraft)
+
+    ##
+    ##
+    def _getclosed_by(self):
+        return self._closed_by and SimpleUser(**self._closed_by)
+        
+    closed_by = property(_getclosed_by)
+
+    ##
+    ##
+    def _getbody_html(self):
+        return self._body_html
+        
+    body_html = property(_getbody_html)
+
+    ##
+    ##
+    def _getbody_text(self):
+        return self._body_text
+        
+    body_text = property(_getbody_text)
+
+    ##
+    ##
+    def _gettimeline_url(self):
+        return self._timeline_url
+        
+    timeline_url = property(_gettimeline_url)
+
+    ##
+    ##
+    def _getrepository(self):
+        return self._repository and Repository(**self._repository)
+        
+    repository = property(_getrepository)
+
+    ##
+    ##
+    def _getperformed_via_github_app(self):
+        return self._performed_via_github_app and GithubApp(**self._performed_via_github_app)
+        
+    performed_via_github_app = property(_getperformed_via_github_app)
+
+    ##
+    ##
+    def _getreactions(self):
+        return self._reactions and ReactionRollup(**ReactionRollup.patchEntry(self._reactions))
+        
+    reactions = property(_getreactions)
+
 
     ##
 ##
 ##
-class PorterLargeFile(object):
-    """Porter Large File """
-    def __init__(self, size:int, oid:str, path:str, ref_name:str):
-        self._size = size
-        self._oid = oid
-        self._path = path
-        self._ref_name = ref_name
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getsize(self):
-        return self._size
-        
-    size = property(_getsize)
-
-    ##
-    ##
-    def _getoid(self):
-        return self._oid
-        
-    oid = property(_getoid)
-
-    ##
-    ##
-    def _getpath(self):
-        return self._path
-        
-    path = property(_getpath)
-
-    ##
-    ##
-    def _getref_name(self):
-        return self._ref_name
-        
-    ref_name = property(_getref_name)
-
-
-    ##
-##
-##
-class IssueEventLabel(object):
+class IssueEventLabel(ResponseBase):
     """Issue Event Label """
     def __init__(self, color:str, name:str):
+        ResponseBase.__init__(self)
         self._color = color
         self._name = name
         return
@@ -23801,8 +25594,9 @@ class IssueEventLabel(object):
     ##
 ##
 ##
-class IssueEventDismissedReview(object):
+class IssueEventDismissedReview(ResponseBase):
     def __init__(self, dismissal_message:str, review_id:int, state:str, dismissal_commit_id:str=None):
+        ResponseBase.__init__(self)
         self._dismissal_message = dismissal_message
         self._review_id = review_id
         self._state = state
@@ -23844,9 +25638,10 @@ class IssueEventDismissedReview(object):
     ##
 ##
 ##
-class IssueEventMilestone(object):
+class IssueEventMilestone(ResponseBase):
     """Issue Event Milestone """
     def __init__(self, title:str):
+        ResponseBase.__init__(self)
         self._title = title
         return
         
@@ -23864,9 +25659,10 @@ class IssueEventMilestone(object):
     ##
 ##
 ##
-class IssueEventProjectCard(object):
+class IssueEventProjectCard(ResponseBase):
     """Issue Event Project Card """
     def __init__(self, column_name:str, project_id:int, project_url:str, id:int, url:str, previous_column_name:str=None):
+        ResponseBase.__init__(self)
         self._column_name = column_name
         self._project_id = project_id
         self._project_url = project_url
@@ -23924,9 +25720,10 @@ class IssueEventProjectCard(object):
     ##
 ##
 ##
-class IssueEventRename(object):
+class IssueEventRename(ResponseBase):
     """Issue Event Rename """
     def __init__(self, to:str, From:str):
+        ResponseBase.__init__(self)
         self._to = to
         self._From = From
         return
@@ -23963,9 +25760,10 @@ class IssueEventRename(object):
 ##
 ##
 ##
-class IssueEvent(object):
+class IssueEvent(ResponseBase):
     """Issue Event """
     def __init__(self, created_at:datetime, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int, issue:dict=None, label:dict=None, assignee:dict=None, assigner:dict=None, review_requester:dict=None, requested_reviewer:dict=None, requested_team:dict=None, dismissed_review:dict=None, milestone:dict=None, project_card:dict=None, rename:dict=None, author_association:str=None, lock_reason:str=None, performed_via_github_app:dict=None):
+        ResponseBase.__init__(self)
         self._created_at = created_at
         self._commit_url = commit_url
         self._commit_id = commit_id
@@ -23996,7 +25794,7 @@ class IssueEvent(object):
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -24052,7 +25850,7 @@ class IssueEvent(object):
     ##
     ##
     def _getissue(self):
-        return self._issue and IssueSimple(**self._issue)
+        return self._issue and Issue(**self._issue)
         
     issue = property(_getissue)
 
@@ -24151,8 +25949,9 @@ class IssueEvent(object):
     ##
 ##
 ##
-class Labeledissueevent_label(object):
+class Labeledissueevent_label(ResponseBase):
     def __init__(self, color:str, name:str):
+        ResponseBase.__init__(self)
         self._color = color
         self._name = name
         return
@@ -24178,9 +25977,10 @@ class Labeledissueevent_label(object):
     ##
 ##
 ##
-class LabeledIssueEvent(object):
+class LabeledIssueEvent(ResponseBase):
     """Labeled Issue Event """
     def __init__(self, label:dict, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int):
+        ResponseBase.__init__(self)
         self._label = label
         self._performed_via_github_app = performed_via_github_app
         self._created_at = created_at
@@ -24270,8 +26070,9 @@ class LabeledIssueEvent(object):
     ##
 ##
 ##
-class Unlabeledissueevent_label(object):
+class Unlabeledissueevent_label(ResponseBase):
     def __init__(self, color:str, name:str):
+        ResponseBase.__init__(self)
         self._color = color
         self._name = name
         return
@@ -24297,9 +26098,10 @@ class Unlabeledissueevent_label(object):
     ##
 ##
 ##
-class UnlabeledIssueEvent(object):
+class UnlabeledIssueEvent(ResponseBase):
     """Unlabeled Issue Event """
     def __init__(self, label:dict, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int):
+        ResponseBase.__init__(self)
         self._label = label
         self._performed_via_github_app = performed_via_github_app
         self._created_at = created_at
@@ -24389,9 +26191,10 @@ class UnlabeledIssueEvent(object):
     ##
 ##
 ##
-class AssignedIssueEvent(object):
+class AssignedIssueEvent(ResponseBase):
     """Assigned Issue Event """
     def __init__(self, assigner:dict, assignee:dict, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int):
+        ResponseBase.__init__(self)
         self._assigner = assigner
         self._assignee = assignee
         self._performed_via_github_app = performed_via_github_app
@@ -24489,9 +26292,10 @@ class AssignedIssueEvent(object):
     ##
 ##
 ##
-class UnassignedIssueEvent(object):
+class UnassignedIssueEvent(ResponseBase):
     """Unassigned Issue Event """
     def __init__(self, assigner:dict, assignee:dict, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int):
+        ResponseBase.__init__(self)
         self._assigner = assigner
         self._assignee = assignee
         self._performed_via_github_app = performed_via_github_app
@@ -24589,8 +26393,9 @@ class UnassignedIssueEvent(object):
     ##
 ##
 ##
-class Milestonedissueevent_milestone(object):
+class Milestonedissueevent_milestone(ResponseBase):
     def __init__(self, title:str):
+        ResponseBase.__init__(self)
         self._title = title
         return
         
@@ -24608,9 +26413,10 @@ class Milestonedissueevent_milestone(object):
     ##
 ##
 ##
-class MilestonedIssueEvent(object):
+class MilestonedIssueEvent(ResponseBase):
     """Milestoned Issue Event """
     def __init__(self, milestone:dict, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int):
+        ResponseBase.__init__(self)
         self._milestone = milestone
         self._performed_via_github_app = performed_via_github_app
         self._created_at = created_at
@@ -24700,8 +26506,9 @@ class MilestonedIssueEvent(object):
     ##
 ##
 ##
-class Demilestonedissueevent_milestone(object):
+class Demilestonedissueevent_milestone(ResponseBase):
     def __init__(self, title:str):
+        ResponseBase.__init__(self)
         self._title = title
         return
         
@@ -24719,9 +26526,10 @@ class Demilestonedissueevent_milestone(object):
     ##
 ##
 ##
-class DemilestonedIssueEvent(object):
+class DemilestonedIssueEvent(ResponseBase):
     """Demilestoned Issue Event """
     def __init__(self, milestone:dict, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int):
+        ResponseBase.__init__(self)
         self._milestone = milestone
         self._performed_via_github_app = performed_via_github_app
         self._created_at = created_at
@@ -24811,8 +26619,9 @@ class DemilestonedIssueEvent(object):
     ##
 ##
 ##
-class Renamedissueevent_rename(object):
+class Renamedissueevent_rename(ResponseBase):
     def __init__(self, to:str, From:str):
+        ResponseBase.__init__(self)
         self._to = to
         self._From = From
         return
@@ -24849,9 +26658,10 @@ class Renamedissueevent_rename(object):
 ##
 ##
 ##
-class RenamedIssueEvent(object):
+class RenamedIssueEvent(ResponseBase):
     """Renamed Issue Event """
     def __init__(self, rename:dict, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int):
+        ResponseBase.__init__(self)
         self._rename = rename
         self._performed_via_github_app = performed_via_github_app
         self._created_at = created_at
@@ -24941,9 +26751,10 @@ class RenamedIssueEvent(object):
     ##
 ##
 ##
-class ReviewRequestedIssueEvent(object):
+class ReviewRequestedIssueEvent(ResponseBase):
     """Review Requested Issue Event """
     def __init__(self, review_requester:dict, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int, requested_team:dict=None, requested_reviewer:dict=None):
+        ResponseBase.__init__(self)
         self._review_requester = review_requester
         self._performed_via_github_app = performed_via_github_app
         self._created_at = created_at
@@ -25049,9 +26860,10 @@ class ReviewRequestedIssueEvent(object):
     ##
 ##
 ##
-class ReviewRequestRemovedIssueEvent(object):
+class ReviewRequestRemovedIssueEvent(ResponseBase):
     """Review Request Removed Issue Event """
     def __init__(self, review_requester:dict, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int, requested_team:dict=None, requested_reviewer:dict=None):
+        ResponseBase.__init__(self)
         self._review_requester = review_requester
         self._performed_via_github_app = performed_via_github_app
         self._created_at = created_at
@@ -25157,8 +26969,9 @@ class ReviewRequestRemovedIssueEvent(object):
     ##
 ##
 ##
-class Reviewdismissedissueevent_dismissed_review(object):
+class Reviewdismissedissueevent_dismissed_review(ResponseBase):
     def __init__(self, dismissal_message:str, review_id:int, state:str, dismissal_commit_id:str=None):
+        ResponseBase.__init__(self)
         self._dismissal_message = dismissal_message
         self._review_id = review_id
         self._state = state
@@ -25200,9 +27013,10 @@ class Reviewdismissedissueevent_dismissed_review(object):
     ##
 ##
 ##
-class ReviewDismissedIssueEvent(object):
+class ReviewDismissedIssueEvent(ResponseBase):
     """Review Dismissed Issue Event """
     def __init__(self, dismissed_review:dict, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int):
+        ResponseBase.__init__(self)
         self._dismissed_review = dismissed_review
         self._performed_via_github_app = performed_via_github_app
         self._created_at = created_at
@@ -25292,9 +27106,10 @@ class ReviewDismissedIssueEvent(object):
     ##
 ##
 ##
-class LockedIssueEvent(object):
+class LockedIssueEvent(ResponseBase):
     """Locked Issue Event """
     def __init__(self, lock_reason:str, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int):
+        ResponseBase.__init__(self)
         self._lock_reason = lock_reason
         self._performed_via_github_app = performed_via_github_app
         self._created_at = created_at
@@ -25384,8 +27199,9 @@ class LockedIssueEvent(object):
     ##
 ##
 ##
-class Addedtoprojectissueevent_project_card(object):
+class Addedtoprojectissueevent_project_card(ResponseBase):
     def __init__(self, column_name:str, project_url:str, project_id:int, url:str, id:int, previous_column_name:str=None):
+        ResponseBase.__init__(self)
         self._column_name = column_name
         self._project_url = project_url
         self._project_id = project_id
@@ -25443,9 +27259,10 @@ class Addedtoprojectissueevent_project_card(object):
     ##
 ##
 ##
-class AddedToProjectIssueEvent(object):
+class AddedToProjectIssueEvent(ResponseBase):
     """Added to Project Issue Event """
     def __init__(self, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int, project_card:dict=None):
+        ResponseBase.__init__(self)
         self._performed_via_github_app = performed_via_github_app
         self._created_at = created_at
         self._commit_url = commit_url
@@ -25535,8 +27352,9 @@ class AddedToProjectIssueEvent(object):
     ##
 ##
 ##
-class Movedcolumninprojectissueevent_project_card(object):
+class Movedcolumninprojectissueevent_project_card(ResponseBase):
     def __init__(self, column_name:str, project_url:str, project_id:int, url:str, id:int, previous_column_name:str=None):
+        ResponseBase.__init__(self)
         self._column_name = column_name
         self._project_url = project_url
         self._project_id = project_id
@@ -25594,9 +27412,10 @@ class Movedcolumninprojectissueevent_project_card(object):
     ##
 ##
 ##
-class MovedColumnInProjectIssueEvent(object):
+class MovedColumnInProjectIssueEvent(ResponseBase):
     """Moved Column in Project Issue Event """
     def __init__(self, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int, project_card:dict=None):
+        ResponseBase.__init__(self)
         self._performed_via_github_app = performed_via_github_app
         self._created_at = created_at
         self._commit_url = commit_url
@@ -25686,8 +27505,9 @@ class MovedColumnInProjectIssueEvent(object):
     ##
 ##
 ##
-class Removedfromprojectissueevent_project_card(object):
+class Removedfromprojectissueevent_project_card(ResponseBase):
     def __init__(self, column_name:str, project_url:str, project_id:int, url:str, id:int, previous_column_name:str=None):
+        ResponseBase.__init__(self)
         self._column_name = column_name
         self._project_url = project_url
         self._project_id = project_id
@@ -25745,9 +27565,10 @@ class Removedfromprojectissueevent_project_card(object):
     ##
 ##
 ##
-class RemovedFromProjectIssueEvent(object):
+class RemovedFromProjectIssueEvent(ResponseBase):
     """Removed from Project Issue Event """
     def __init__(self, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int, project_card:dict=None):
+        ResponseBase.__init__(self)
         self._performed_via_github_app = performed_via_github_app
         self._created_at = created_at
         self._commit_url = commit_url
@@ -25837,8 +27658,9 @@ class RemovedFromProjectIssueEvent(object):
     ##
 ##
 ##
-class Convertednotetoissueissueevent_project_card(object):
+class Convertednotetoissueissueevent_project_card(ResponseBase):
     def __init__(self, column_name:str, project_url:str, project_id:int, url:str, id:int, previous_column_name:str=None):
+        ResponseBase.__init__(self)
         self._column_name = column_name
         self._project_url = project_url
         self._project_id = project_id
@@ -25896,9 +27718,10 @@ class Convertednotetoissueissueevent_project_card(object):
     ##
 ##
 ##
-class ConvertedNoteToIssueIssueEvent(object):
+class ConvertedNoteToIssueIssueEvent(ResponseBase):
     """Converted Note to Issue Issue Event """
     def __init__(self, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int, project_card:dict=None):
+        ResponseBase.__init__(self)
         self._performed_via_github_app = performed_via_github_app
         self._created_at = created_at
         self._commit_url = commit_url
@@ -25988,9 +27811,79 @@ class ConvertedNoteToIssueIssueEvent(object):
     ##
 ##
 ##
-class TimelineCommentEvent(object):
+class Label(ResponseBase):
+    """Color-coded labels help you categorize and filter your issues (just like labels in Gmail). """
+    def __init__(self, default:bool, color:str, description:str, name:str, url:str, node_id:str, id:int):
+        ResponseBase.__init__(self)
+        self._default = default
+        self._color = color
+        self._description = description
+        self._name = name
+        self._url = url
+        self._node_id = node_id
+        self._id = id
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getdefault(self):
+        return self._default
+        
+    default = property(_getdefault)
+
+    ##
+    ##
+    def _getcolor(self):
+        return self._color
+        
+    color = property(_getcolor, doc="""6-character hex code, without the leading #, identifying the color """)
+
+    ##
+    ##
+    def _getdescription(self):
+        return self._description
+        
+    description = property(_getdescription)
+
+    ##
+    ##
+    def _getname(self):
+        return self._name
+        
+    name = property(_getname, doc="""The name of the label. """)
+
+    ##
+    ##
+    def _geturl(self):
+        return self._url
+        
+    url = property(_geturl, doc="""URL for the label """)
+
+    ##
+    ##
+    def _getnode_id(self):
+        return self._node_id
+        
+    node_id = property(_getnode_id)
+
+    ##
+    ##
+    def _getid(self):
+        return self._id
+        
+    id = property(_getid)
+
+
+    ##
+##
+##
+class TimelineCommentEvent(ResponseBase):
     """Timeline Comment Event """
     def __init__(self, author_association:str, issue_url:str, updated_at:datetime, created_at:datetime, user:dict, html_url:str, url:str, node_id:str, id:int, actor:dict, event:str, body:str=None, body_text:str=None, body_html:str=None, performed_via_github_app:dict=None, reactions:dict=None):
+        ResponseBase.__init__(self)
         self._author_association = author_association
         self._issue_url = issue_url
         self._updated_at = updated_at
@@ -26029,14 +27922,14 @@ class TimelineCommentEvent(object):
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -26128,8 +28021,9 @@ class TimelineCommentEvent(object):
     ##
 ##
 ##
-class Timelinecrossreferencedevent_source(object):
+class Timelinecrossreferencedevent_source(ResponseBase):
     def __init__(self, type:str=None, issue:dict=None):
+        ResponseBase.__init__(self)
         self._type = type
         self._issue = issue
         return
@@ -26147,7 +28041,7 @@ class Timelinecrossreferencedevent_source(object):
     ##
     ##
     def _getissue(self):
-        return self._issue and IssueSimple(**self._issue)
+        return self._issue and Issue(**self._issue)
         
     issue = property(_getissue)
 
@@ -26155,9 +28049,10 @@ class Timelinecrossreferencedevent_source(object):
     ##
 ##
 ##
-class TimelineCrossReferencedEvent(object):
+class TimelineCrossReferencedEvent(ResponseBase):
     """Timeline Cross Referenced Event """
     def __init__(self, source:dict, updated_at:datetime, created_at:datetime, event:str, actor:dict=None):
+        ResponseBase.__init__(self)
         self._source = source
         self._updated_at = updated_at
         self._created_at = created_at
@@ -26178,14 +28073,14 @@ class TimelineCrossReferencedEvent(object):
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -26207,9 +28102,10 @@ class TimelineCrossReferencedEvent(object):
     ##
 ##
 ##
-class Timelinecommittedevent_author(object):
+class Timelinecommittedevent_author(ResponseBase):
     """Identifying information for the git-user """
     def __init__(self, name:str, email:str, date:datetime):
+        ResponseBase.__init__(self)
         self._name = name
         self._email = email
         self._date = date
@@ -26235,7 +28131,7 @@ class Timelinecommittedevent_author(object):
     ##
     ##
     def _getdate(self):
-        return self._date and datetime.datetime.fromisoformat(self._date[0:-1])
+        return self._date and datetime.fromisoformat(self._date[0:-1])
         
     date = property(_getdate, doc="""Timestamp of the commit """)
 
@@ -26243,9 +28139,10 @@ class Timelinecommittedevent_author(object):
     ##
 ##
 ##
-class Timelinecommittedevent_committer(object):
+class Timelinecommittedevent_committer(ResponseBase):
     """Identifying information for the git-user """
     def __init__(self, name:str, email:str, date:datetime):
+        ResponseBase.__init__(self)
         self._name = name
         self._email = email
         self._date = date
@@ -26271,7 +28168,7 @@ class Timelinecommittedevent_committer(object):
     ##
     ##
     def _getdate(self):
-        return self._date and datetime.datetime.fromisoformat(self._date[0:-1])
+        return self._date and datetime.fromisoformat(self._date[0:-1])
         
     date = property(_getdate, doc="""Timestamp of the commit """)
 
@@ -26279,8 +28176,9 @@ class Timelinecommittedevent_committer(object):
     ##
 ##
 ##
-class Timelinecommittedevent_tree(object):
+class Timelinecommittedevent_tree(ResponseBase):
     def __init__(self, url:str, sha:str):
+        ResponseBase.__init__(self)
         self._url = url
         self._sha = sha
         return
@@ -26306,8 +28204,9 @@ class Timelinecommittedevent_tree(object):
     ##
 ##
 ##
-class Timelinecommittedevent_parents(object):
+class Timelinecommittedevent_parents(ResponseBase):
     def __init__(self, html_url:str, url:str, sha:str):
+        ResponseBase.__init__(self)
         self._html_url = html_url
         self._url = url
         self._sha = sha
@@ -26341,8 +28240,9 @@ class Timelinecommittedevent_parents(object):
     ##
 ##
 ##
-class Timelinecommittedevent_verification(object):
+class Timelinecommittedevent_verification(ResponseBase):
     def __init__(self, payload:str, signature:str, reason:str, verified:bool):
+        ResponseBase.__init__(self)
         self._payload = payload
         self._signature = signature
         self._reason = reason
@@ -26384,9 +28284,10 @@ class Timelinecommittedevent_verification(object):
     ##
 ##
 ##
-class TimelineCommittedEvent(object):
+class TimelineCommittedEvent(ResponseBase):
     """Timeline Committed Event """
     def __init__(self, html_url:str, verification:dict, parents:list, tree:dict, message:str, committer:dict, author:dict, url:str, node_id:str, sha:str, event:str=None):
+        ResponseBase.__init__(self)
         self._html_url = html_url
         self._verification = verification
         self._parents = parents
@@ -26484,8 +28385,9 @@ class TimelineCommittedEvent(object):
     ##
 ##
 ##
-class Timelinereviewedevent__links_html(object):
+class Timelinereviewedevent__links_html(ResponseBase):
     def __init__(self, href:str):
+        ResponseBase.__init__(self)
         self._href = href
         return
         
@@ -26503,8 +28405,9 @@ class Timelinereviewedevent__links_html(object):
     ##
 ##
 ##
-class Timelinereviewedevent__links_pull_request(object):
+class Timelinereviewedevent__links_pull_request(ResponseBase):
     def __init__(self, href:str):
+        ResponseBase.__init__(self)
         self._href = href
         return
         
@@ -26522,8 +28425,9 @@ class Timelinereviewedevent__links_pull_request(object):
     ##
 ##
 ##
-class Timelinereviewedevent__links(object):
+class Timelinereviewedevent__links(ResponseBase):
     def __init__(self, pull_request:dict, html:dict):
+        ResponseBase.__init__(self)
         self._pull_request = pull_request
         self._html = html
         return
@@ -26549,9 +28453,10 @@ class Timelinereviewedevent__links(object):
     ##
 ##
 ##
-class TimelineReviewedEvent(object):
+class TimelineReviewedEvent(ResponseBase):
     """Timeline Reviewed Event """
     def __init__(self, author_association:str, commit_id:str, _links:dict, pull_request_url:str, html_url:str, state:str, body:str, user:dict, node_id:str, id:int, event:str, submitted_at:datetime=None, body_html:str=None, body_text:str=None):
+        ResponseBase.__init__(self)
         self._author_association = author_association
         self._commit_id = commit_id
         self.__links = _links
@@ -26651,7 +28556,7 @@ class TimelineReviewedEvent(object):
     ##
     ##
     def _getsubmitted_at(self):
-        return self._submitted_at and datetime.datetime.fromisoformat(self._submitted_at[0:-1])
+        return self._submitted_at and datetime.fromisoformat(self._submitted_at[0:-1])
         
     submitted_at = property(_getsubmitted_at)
 
@@ -26673,8 +28578,9 @@ class TimelineReviewedEvent(object):
     ##
 ##
 ##
-class Pullrequestreviewcomment__links_self(object):
+class Pullrequestreviewcomment__links_self(ResponseBase):
     def __init__(self, href:str):
+        ResponseBase.__init__(self)
         self._href = href
         return
         
@@ -26692,8 +28598,9 @@ class Pullrequestreviewcomment__links_self(object):
     ##
 ##
 ##
-class Pullrequestreviewcomment__links_html(object):
+class Pullrequestreviewcomment__links_html(ResponseBase):
     def __init__(self, href:str):
+        ResponseBase.__init__(self)
         self._href = href
         return
         
@@ -26711,8 +28618,9 @@ class Pullrequestreviewcomment__links_html(object):
     ##
 ##
 ##
-class Pullrequestreviewcomment__links_pull_request(object):
+class Pullrequestreviewcomment__links_pull_request(ResponseBase):
     def __init__(self, href:str):
+        ResponseBase.__init__(self)
         self._href = href
         return
         
@@ -26730,8 +28638,9 @@ class Pullrequestreviewcomment__links_pull_request(object):
     ##
 ##
 ##
-class Pullrequestreviewcomment__links(object):
+class Pullrequestreviewcomment__links(ResponseBase):
     def __init__(self, pull_request:dict, html:dict, Self:dict):
+        ResponseBase.__init__(self)
         self._pull_request = pull_request
         self._html = html
         self._Self = Self
@@ -26776,9 +28685,10 @@ class Pullrequestreviewcomment__links(object):
 ##
 ##
 ##
-class PullRequestReviewComment(object):
+class PullRequestReviewComment(ResponseBase):
     """Pull Request Review Comments are comments on a portion of the Pull Request's diff. """
     def __init__(self, _links:dict, author_association:str, pull_request_url:str, html_url:str, updated_at:datetime, created_at:datetime, body:str, user:dict, original_commit_id:str, commit_id:str, original_position:int, position:int, path:str, diff_hunk:str, node_id:str, id:int, pull_request_review_id:int, url:str, in_reply_to_id:int=None, start_line:int=None, original_start_line:int=None, start_side:str='RIGHT', line:int=None, original_line:int=None, side:str='RIGHT', reactions:dict=None, body_html:str=None, body_text:str=None):
+        ResponseBase.__init__(self)
         self.__links = _links
         self._author_association = author_association
         self._pull_request_url = pull_request_url
@@ -26843,14 +28753,14 @@ class PullRequestReviewComment(object):
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -27012,9 +28922,10 @@ class PullRequestReviewComment(object):
     ##
 ##
 ##
-class TimelineLineCommentedEvent(object):
+class TimelineLineCommentedEvent(ResponseBase):
     """Timeline Line Commented Event """
     def __init__(self, event:str=None, node_id:str=None, comments:list=None):
+        ResponseBase.__init__(self)
         self._event = event
         self._node_id = node_id
         self._comments = comments
@@ -27048,9 +28959,10 @@ class TimelineLineCommentedEvent(object):
     ##
 ##
 ##
-class TimelineCommitCommentedEvent(object):
+class TimelineCommitCommentedEvent(ResponseBase):
     """Timeline Commit Commented Event """
     def __init__(self, event:str=None, node_id:str=None, commit_id:str=None, comments:list=None):
+        ResponseBase.__init__(self)
         self._event = event
         self._node_id = node_id
         self._commit_id = commit_id
@@ -27092,9 +29004,10 @@ class TimelineCommitCommentedEvent(object):
     ##
 ##
 ##
-class TimelineAssignedIssueEvent(object):
+class TimelineAssignedIssueEvent(ResponseBase):
     """Timeline Assigned Issue Event """
     def __init__(self, assignee:dict, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int):
+        ResponseBase.__init__(self)
         self._assignee = assignee
         self._performed_via_github_app = performed_via_github_app
         self._created_at = created_at
@@ -27184,9 +29097,10 @@ class TimelineAssignedIssueEvent(object):
     ##
 ##
 ##
-class TimelineUnassignedIssueEvent(object):
+class TimelineUnassignedIssueEvent(ResponseBase):
     """Timeline Unassigned Issue Event """
     def __init__(self, assignee:dict, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int):
+        ResponseBase.__init__(self)
         self._assignee = assignee
         self._performed_via_github_app = performed_via_github_app
         self._created_at = created_at
@@ -27276,9 +29190,10 @@ class TimelineUnassignedIssueEvent(object):
     ##
 ##
 ##
-class DeployKey(object):
+class DeployKey(ResponseBase):
     """An SSH key granting access to a single repository. """
     def __init__(self, read_only:bool, created_at:str, verified:bool, title:str, url:str, key:str, id:int):
+        ResponseBase.__init__(self)
         self._read_only = read_only
         self._created_at = created_at
         self._verified = verified
@@ -27344,8 +29259,9 @@ class DeployKey(object):
     ##
 ##
 ##
-class Licensecontent__links(object):
+class Licensecontent__links(ResponseBase):
     def __init__(self, Self:str, html:str, git:str):
+        ResponseBase.__init__(self)
         self._Self = Self
         self._html = html
         self._git = git
@@ -27390,9 +29306,10 @@ class Licensecontent__links(object):
 ##
 ##
 ##
-class LicenseContent(object):
+class LicenseContent(ResponseBase):
     """License Content """
     def __init__(self, license:dict, _links:dict, encoding:str, content:str, type:str, download_url:str, git_url:str, html_url:str, url:str, size:int, sha:str, path:str, name:str):
+        ResponseBase.__init__(self)
         self._license = license
         self.__links = _links
         self._encoding = encoding
@@ -27506,8 +29423,187 @@ class LicenseContent(object):
     ##
 ##
 ##
-class PagesSourceHash(object):
+class MergedUpstream(ResponseBase):
+    """Results of a successful merge upstream request """
+    def __init__(self, message:str=None, merge_type:str=None, base_branch:str=None):
+        ResponseBase.__init__(self)
+        self._message = message
+        self._merge_type = merge_type
+        self._base_branch = base_branch
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getmessage(self):
+        return self._message
+        
+    message = property(_getmessage)
+
+    ##
+    ##
+    def _getmerge_type(self):
+        return self._merge_type
+        
+    merge_type = property(_getmerge_type)
+
+    ##
+    ##
+    def _getbase_branch(self):
+        return self._base_branch
+        
+    base_branch = property(_getbase_branch)
+
+
+    ##
+##
+##
+class Milestone(ResponseBase):
+    """A collection of related issues and pull requests. """
+    def __init__(self, due_on:datetime, closed_at:datetime, updated_at:datetime, created_at:datetime, closed_issues:int, open_issues:int, creator:dict, description:str, title:str, number:int, node_id:str, id:int, labels_url:str, html_url:str, url:str, state:str='open'):
+        ResponseBase.__init__(self)
+        self._due_on = due_on
+        self._closed_at = closed_at
+        self._updated_at = updated_at
+        self._created_at = created_at
+        self._closed_issues = closed_issues
+        self._open_issues = open_issues
+        self._creator = creator
+        self._description = description
+        self._title = title
+        self._number = number
+        self._node_id = node_id
+        self._id = id
+        self._labels_url = labels_url
+        self._html_url = html_url
+        self._url = url
+        self._state = state
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getdue_on(self):
+        return self._due_on and datetime.fromisoformat(self._due_on[0:-1])
+        
+    due_on = property(_getdue_on)
+
+    ##
+    ##
+    def _getclosed_at(self):
+        return self._closed_at and datetime.fromisoformat(self._closed_at[0:-1])
+        
+    closed_at = property(_getclosed_at)
+
+    ##
+    ##
+    def _getupdated_at(self):
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
+        
+    updated_at = property(_getupdated_at)
+
+    ##
+    ##
+    def _getcreated_at(self):
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
+        
+    created_at = property(_getcreated_at)
+
+    ##
+    ##
+    def _getclosed_issues(self):
+        return self._closed_issues
+        
+    closed_issues = property(_getclosed_issues)
+
+    ##
+    ##
+    def _getopen_issues(self):
+        return self._open_issues
+        
+    open_issues = property(_getopen_issues)
+
+    ##
+    ##
+    def _getcreator(self):
+        return self._creator and SimpleUser(**self._creator)
+        
+    creator = property(_getcreator)
+
+    ##
+    ##
+    def _getdescription(self):
+        return self._description
+        
+    description = property(_getdescription)
+
+    ##
+    ##
+    def _gettitle(self):
+        return self._title
+        
+    title = property(_gettitle, doc="""The title of the milestone. """)
+
+    ##
+    ##
+    def _getnumber(self):
+        return self._number
+        
+    number = property(_getnumber, doc="""The number of the milestone. """)
+
+    ##
+    ##
+    def _getnode_id(self):
+        return self._node_id
+        
+    node_id = property(_getnode_id)
+
+    ##
+    ##
+    def _getid(self):
+        return self._id
+        
+    id = property(_getid)
+
+    ##
+    ##
+    def _getlabels_url(self):
+        return self._labels_url
+        
+    labels_url = property(_getlabels_url)
+
+    ##
+    ##
+    def _gethtml_url(self):
+        return self._html_url
+        
+    html_url = property(_gethtml_url)
+
+    ##
+    ##
+    def _geturl(self):
+        return self._url
+        
+    url = property(_geturl)
+
+    ##
+    ##
+    def _getstate(self):
+        return self._state
+        
+    state = property(_getstate, doc="""The state of the milestone. """)
+
+
+    ##
+##
+##
+class PagesSourceHash(ResponseBase):
     def __init__(self, path:str, branch:str):
+        ResponseBase.__init__(self)
         self._path = path
         self._branch = branch
         return
@@ -27533,8 +29629,9 @@ class PagesSourceHash(object):
     ##
 ##
 ##
-class PagesHttpsCertificate(object):
+class PagesHttpsCertificate(ResponseBase):
     def __init__(self, domains:list, description:str, state:str, expires_at:str=None):
+        ResponseBase.__init__(self)
         self._domains = domains
         self._description = description
         self._state = state
@@ -27576,13 +29673,16 @@ class PagesHttpsCertificate(object):
     ##
 ##
 ##
-class GithubPages(object):
+class GithubPages(ResponseBase):
     """The configuration for GitHub Pages for a repository. """
-    def __init__(self, public:bool, cname:str, status:str, url:str, custom_404:bool=False, html_url:str=None, source:dict=None, https_certificate:dict=None, https_enforced:bool=None):
+    def __init__(self, public:bool, cname:str, status:str, url:str, protected_domain_state:str=None, pending_domain_unverified_at:datetime=None, custom_404:bool=False, html_url:str=None, source:dict=None, https_certificate:dict=None, https_enforced:bool=None):
+        ResponseBase.__init__(self)
         self._public = public
         self._cname = cname
         self._status = status
         self._url = url
+        self._protected_domain_state = protected_domain_state
+        self._pending_domain_unverified_at = pending_domain_unverified_at
         self._custom_404 = custom_404
         self._html_url = html_url
         self._source = source
@@ -27623,6 +29723,20 @@ class GithubPages(object):
 
     ##
     ##
+    def _getprotected_domain_state(self):
+        return self._protected_domain_state
+        
+    protected_domain_state = property(_getprotected_domain_state, doc="""The state if the domain is verified """)
+
+    ##
+    ##
+    def _getpending_domain_unverified_at(self):
+        return self._pending_domain_unverified_at and datetime.fromisoformat(self._pending_domain_unverified_at[0:-1])
+        
+    pending_domain_unverified_at = property(_getpending_domain_unverified_at, doc="""The timestamp when a pending domain becomes unverified. """)
+
+    ##
+    ##
     def _getcustom_404(self):
         return self._custom_404
         
@@ -27660,8 +29774,9 @@ class GithubPages(object):
     ##
 ##
 ##
-class Pagebuild_error(object):
+class Pagebuild_error(ResponseBase):
     def __init__(self, message:str):
+        ResponseBase.__init__(self)
         self._message = message
         return
         
@@ -27679,9 +29794,10 @@ class Pagebuild_error(object):
     ##
 ##
 ##
-class PageBuild(object):
+class PageBuild(ResponseBase):
     """Page Build """
     def __init__(self, updated_at:datetime, created_at:datetime, duration:int, commit:str, pusher:dict, error:dict, status:str, url:str):
+        ResponseBase.__init__(self)
         self._updated_at = updated_at
         self._created_at = created_at
         self._duration = duration
@@ -27698,14 +29814,14 @@ class PageBuild(object):
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -27755,9 +29871,10 @@ class PageBuild(object):
     ##
 ##
 ##
-class PageBuildStatus(object):
+class PageBuildStatus(ResponseBase):
     """Page Build Status """
     def __init__(self, status:str, url:str):
+        ResponseBase.__init__(self)
         self._status = status
         self._url = url
         return
@@ -27783,513 +29900,13 @@ class PageBuildStatus(object):
     ##
 ##
 ##
-class Pageshealthcheckstatus_domain(object):
-    def __init__(self, host:str=None, uri:str=None, nameservers:str=None, dns_resolves:bool=None, is_proxied:bool=None, is_cloudflare_ip:bool=None, is_fastly_ip:bool=None, is_old_ip_address:bool=None, is_a_record:bool=None, has_cname_record:bool=None, has_mx_records_present:bool=None, is_valid_domain:bool=None, is_apex_domain:bool=None, should_be_a_record:bool=None, is_cname_to_github_user_domain:bool=None, is_cname_to_pages_dot_github_dot_com:bool=None, is_cname_to_fastly:bool=None, is_pointed_to_github_pages_ip:bool=None, is_non_github_pages_ip_present:bool=None, is_pages_domain:bool=None, is_served_by_pages:bool=None, is_valid:bool=None, reason:str=None, responds_to_https:bool=None, enforces_https:bool=None, https_error:str=None, is_https_eligible:bool=None, caa_error:str=None):
-        self._host = host
-        self._uri = uri
-        self._nameservers = nameservers
-        self._dns_resolves = dns_resolves
-        self._is_proxied = is_proxied
-        self._is_cloudflare_ip = is_cloudflare_ip
-        self._is_fastly_ip = is_fastly_ip
-        self._is_old_ip_address = is_old_ip_address
-        self._is_a_record = is_a_record
-        self._has_cname_record = has_cname_record
-        self._has_mx_records_present = has_mx_records_present
-        self._is_valid_domain = is_valid_domain
-        self._is_apex_domain = is_apex_domain
-        self._should_be_a_record = should_be_a_record
-        self._is_cname_to_github_user_domain = is_cname_to_github_user_domain
-        self._is_cname_to_pages_dot_github_dot_com = is_cname_to_pages_dot_github_dot_com
-        self._is_cname_to_fastly = is_cname_to_fastly
-        self._is_pointed_to_github_pages_ip = is_pointed_to_github_pages_ip
-        self._is_non_github_pages_ip_present = is_non_github_pages_ip_present
-        self._is_pages_domain = is_pages_domain
-        self._is_served_by_pages = is_served_by_pages
-        self._is_valid = is_valid
-        self._reason = reason
-        self._responds_to_https = responds_to_https
-        self._enforces_https = enforces_https
-        self._https_error = https_error
-        self._is_https_eligible = is_https_eligible
-        self._caa_error = caa_error
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _gethost(self):
-        return self._host
-        
-    host = property(_gethost)
-
-    ##
-    ##
-    def _geturi(self):
-        return self._uri
-        
-    uri = property(_geturi)
-
-    ##
-    ##
-    def _getnameservers(self):
-        return self._nameservers
-        
-    nameservers = property(_getnameservers)
-
-    ##
-    ##
-    def _getdns_resolves(self):
-        return self._dns_resolves
-        
-    dns_resolves = property(_getdns_resolves)
-
-    ##
-    ##
-    def _getis_proxied(self):
-        return self._is_proxied
-        
-    is_proxied = property(_getis_proxied)
-
-    ##
-    ##
-    def _getis_cloudflare_ip(self):
-        return self._is_cloudflare_ip
-        
-    is_cloudflare_ip = property(_getis_cloudflare_ip)
-
-    ##
-    ##
-    def _getis_fastly_ip(self):
-        return self._is_fastly_ip
-        
-    is_fastly_ip = property(_getis_fastly_ip)
-
-    ##
-    ##
-    def _getis_old_ip_address(self):
-        return self._is_old_ip_address
-        
-    is_old_ip_address = property(_getis_old_ip_address)
-
-    ##
-    ##
-    def _getis_a_record(self):
-        return self._is_a_record
-        
-    is_a_record = property(_getis_a_record)
-
-    ##
-    ##
-    def _gethas_cname_record(self):
-        return self._has_cname_record
-        
-    has_cname_record = property(_gethas_cname_record)
-
-    ##
-    ##
-    def _gethas_mx_records_present(self):
-        return self._has_mx_records_present
-        
-    has_mx_records_present = property(_gethas_mx_records_present)
-
-    ##
-    ##
-    def _getis_valid_domain(self):
-        return self._is_valid_domain
-        
-    is_valid_domain = property(_getis_valid_domain)
-
-    ##
-    ##
-    def _getis_apex_domain(self):
-        return self._is_apex_domain
-        
-    is_apex_domain = property(_getis_apex_domain)
-
-    ##
-    ##
-    def _getshould_be_a_record(self):
-        return self._should_be_a_record
-        
-    should_be_a_record = property(_getshould_be_a_record)
-
-    ##
-    ##
-    def _getis_cname_to_github_user_domain(self):
-        return self._is_cname_to_github_user_domain
-        
-    is_cname_to_github_user_domain = property(_getis_cname_to_github_user_domain)
-
-    ##
-    ##
-    def _getis_cname_to_pages_dot_github_dot_com(self):
-        return self._is_cname_to_pages_dot_github_dot_com
-        
-    is_cname_to_pages_dot_github_dot_com = property(_getis_cname_to_pages_dot_github_dot_com)
-
-    ##
-    ##
-    def _getis_cname_to_fastly(self):
-        return self._is_cname_to_fastly
-        
-    is_cname_to_fastly = property(_getis_cname_to_fastly)
-
-    ##
-    ##
-    def _getis_pointed_to_github_pages_ip(self):
-        return self._is_pointed_to_github_pages_ip
-        
-    is_pointed_to_github_pages_ip = property(_getis_pointed_to_github_pages_ip)
-
-    ##
-    ##
-    def _getis_non_github_pages_ip_present(self):
-        return self._is_non_github_pages_ip_present
-        
-    is_non_github_pages_ip_present = property(_getis_non_github_pages_ip_present)
-
-    ##
-    ##
-    def _getis_pages_domain(self):
-        return self._is_pages_domain
-        
-    is_pages_domain = property(_getis_pages_domain)
-
-    ##
-    ##
-    def _getis_served_by_pages(self):
-        return self._is_served_by_pages
-        
-    is_served_by_pages = property(_getis_served_by_pages)
-
-    ##
-    ##
-    def _getis_valid(self):
-        return self._is_valid
-        
-    is_valid = property(_getis_valid)
-
-    ##
-    ##
-    def _getreason(self):
-        return self._reason
-        
-    reason = property(_getreason)
-
-    ##
-    ##
-    def _getresponds_to_https(self):
-        return self._responds_to_https
-        
-    responds_to_https = property(_getresponds_to_https)
-
-    ##
-    ##
-    def _getenforces_https(self):
-        return self._enforces_https
-        
-    enforces_https = property(_getenforces_https)
-
-    ##
-    ##
-    def _gethttps_error(self):
-        return self._https_error
-        
-    https_error = property(_gethttps_error)
-
-    ##
-    ##
-    def _getis_https_eligible(self):
-        return self._is_https_eligible
-        
-    is_https_eligible = property(_getis_https_eligible)
-
-    ##
-    ##
-    def _getcaa_error(self):
-        return self._caa_error
-        
-    caa_error = property(_getcaa_error)
-
-
-    ##
-##
-##
-class Pageshealthcheckstatus_alt_domain(object):
-    def __init__(self, host:str=None, uri:str=None, nameservers:str=None, dns_resolves:bool=None, is_proxied:bool=None, is_cloudflare_ip:bool=None, is_fastly_ip:bool=None, is_old_ip_address:bool=None, is_a_record:bool=None, has_cname_record:bool=None, has_mx_records_present:bool=None, is_valid_domain:bool=None, is_apex_domain:bool=None, should_be_a_record:bool=None, is_cname_to_github_user_domain:bool=None, is_cname_to_pages_dot_github_dot_com:bool=None, is_cname_to_fastly:bool=None, is_pointed_to_github_pages_ip:bool=None, is_non_github_pages_ip_present:bool=None, is_pages_domain:bool=None, is_served_by_pages:bool=None, is_valid:bool=None, reason:str=None, responds_to_https:bool=None, enforces_https:bool=None, https_error:str=None, is_https_eligible:bool=None, caa_error:str=None):
-        self._host = host
-        self._uri = uri
-        self._nameservers = nameservers
-        self._dns_resolves = dns_resolves
-        self._is_proxied = is_proxied
-        self._is_cloudflare_ip = is_cloudflare_ip
-        self._is_fastly_ip = is_fastly_ip
-        self._is_old_ip_address = is_old_ip_address
-        self._is_a_record = is_a_record
-        self._has_cname_record = has_cname_record
-        self._has_mx_records_present = has_mx_records_present
-        self._is_valid_domain = is_valid_domain
-        self._is_apex_domain = is_apex_domain
-        self._should_be_a_record = should_be_a_record
-        self._is_cname_to_github_user_domain = is_cname_to_github_user_domain
-        self._is_cname_to_pages_dot_github_dot_com = is_cname_to_pages_dot_github_dot_com
-        self._is_cname_to_fastly = is_cname_to_fastly
-        self._is_pointed_to_github_pages_ip = is_pointed_to_github_pages_ip
-        self._is_non_github_pages_ip_present = is_non_github_pages_ip_present
-        self._is_pages_domain = is_pages_domain
-        self._is_served_by_pages = is_served_by_pages
-        self._is_valid = is_valid
-        self._reason = reason
-        self._responds_to_https = responds_to_https
-        self._enforces_https = enforces_https
-        self._https_error = https_error
-        self._is_https_eligible = is_https_eligible
-        self._caa_error = caa_error
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _gethost(self):
-        return self._host
-        
-    host = property(_gethost)
-
-    ##
-    ##
-    def _geturi(self):
-        return self._uri
-        
-    uri = property(_geturi)
-
-    ##
-    ##
-    def _getnameservers(self):
-        return self._nameservers
-        
-    nameservers = property(_getnameservers)
-
-    ##
-    ##
-    def _getdns_resolves(self):
-        return self._dns_resolves
-        
-    dns_resolves = property(_getdns_resolves)
-
-    ##
-    ##
-    def _getis_proxied(self):
-        return self._is_proxied
-        
-    is_proxied = property(_getis_proxied)
-
-    ##
-    ##
-    def _getis_cloudflare_ip(self):
-        return self._is_cloudflare_ip
-        
-    is_cloudflare_ip = property(_getis_cloudflare_ip)
-
-    ##
-    ##
-    def _getis_fastly_ip(self):
-        return self._is_fastly_ip
-        
-    is_fastly_ip = property(_getis_fastly_ip)
-
-    ##
-    ##
-    def _getis_old_ip_address(self):
-        return self._is_old_ip_address
-        
-    is_old_ip_address = property(_getis_old_ip_address)
-
-    ##
-    ##
-    def _getis_a_record(self):
-        return self._is_a_record
-        
-    is_a_record = property(_getis_a_record)
-
-    ##
-    ##
-    def _gethas_cname_record(self):
-        return self._has_cname_record
-        
-    has_cname_record = property(_gethas_cname_record)
-
-    ##
-    ##
-    def _gethas_mx_records_present(self):
-        return self._has_mx_records_present
-        
-    has_mx_records_present = property(_gethas_mx_records_present)
-
-    ##
-    ##
-    def _getis_valid_domain(self):
-        return self._is_valid_domain
-        
-    is_valid_domain = property(_getis_valid_domain)
-
-    ##
-    ##
-    def _getis_apex_domain(self):
-        return self._is_apex_domain
-        
-    is_apex_domain = property(_getis_apex_domain)
-
-    ##
-    ##
-    def _getshould_be_a_record(self):
-        return self._should_be_a_record
-        
-    should_be_a_record = property(_getshould_be_a_record)
-
-    ##
-    ##
-    def _getis_cname_to_github_user_domain(self):
-        return self._is_cname_to_github_user_domain
-        
-    is_cname_to_github_user_domain = property(_getis_cname_to_github_user_domain)
-
-    ##
-    ##
-    def _getis_cname_to_pages_dot_github_dot_com(self):
-        return self._is_cname_to_pages_dot_github_dot_com
-        
-    is_cname_to_pages_dot_github_dot_com = property(_getis_cname_to_pages_dot_github_dot_com)
-
-    ##
-    ##
-    def _getis_cname_to_fastly(self):
-        return self._is_cname_to_fastly
-        
-    is_cname_to_fastly = property(_getis_cname_to_fastly)
-
-    ##
-    ##
-    def _getis_pointed_to_github_pages_ip(self):
-        return self._is_pointed_to_github_pages_ip
-        
-    is_pointed_to_github_pages_ip = property(_getis_pointed_to_github_pages_ip)
-
-    ##
-    ##
-    def _getis_non_github_pages_ip_present(self):
-        return self._is_non_github_pages_ip_present
-        
-    is_non_github_pages_ip_present = property(_getis_non_github_pages_ip_present)
-
-    ##
-    ##
-    def _getis_pages_domain(self):
-        return self._is_pages_domain
-        
-    is_pages_domain = property(_getis_pages_domain)
-
-    ##
-    ##
-    def _getis_served_by_pages(self):
-        return self._is_served_by_pages
-        
-    is_served_by_pages = property(_getis_served_by_pages)
-
-    ##
-    ##
-    def _getis_valid(self):
-        return self._is_valid
-        
-    is_valid = property(_getis_valid)
-
-    ##
-    ##
-    def _getreason(self):
-        return self._reason
-        
-    reason = property(_getreason)
-
-    ##
-    ##
-    def _getresponds_to_https(self):
-        return self._responds_to_https
-        
-    responds_to_https = property(_getresponds_to_https)
-
-    ##
-    ##
-    def _getenforces_https(self):
-        return self._enforces_https
-        
-    enforces_https = property(_getenforces_https)
-
-    ##
-    ##
-    def _gethttps_error(self):
-        return self._https_error
-        
-    https_error = property(_gethttps_error)
-
-    ##
-    ##
-    def _getis_https_eligible(self):
-        return self._is_https_eligible
-        
-    is_https_eligible = property(_getis_https_eligible)
-
-    ##
-    ##
-    def _getcaa_error(self):
-        return self._caa_error
-        
-    caa_error = property(_getcaa_error)
-
-
-    ##
-##
-##
-class PagesHealthCheckStatus(object):
-    """Pages Health Check Status """
-    def __init__(self, domain:dict=None, alt_domain:dict=None):
-        self._domain = domain
-        self._alt_domain = alt_domain
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getdomain(self):
-        return self._domain and Pageshealthcheckstatus_domain(**self._domain)
-        
-    domain = property(_getdomain)
-
-    ##
-    ##
-    def _getalt_domain(self):
-        return self._alt_domain and Pageshealthcheckstatus_alt_domain(**self._alt_domain)
-        
-    alt_domain = property(_getalt_domain)
-
-
-    ##
-##
-##
-class Pullrequest_labels(object):
-    def __init__(self, id:int=None, node_id:str=None, url:str=None, name:str=None, description:str=None, color:str=None, default:bool=None):
+class RepositoryPreReceiveHook(ResponseBase):
+    def __init__(self, id:int=None, name:str=None, enforcement:str=None, configuration_url:str=None):
+        ResponseBase.__init__(self)
         self._id = id
-        self._node_id = node_id
-        self._url = url
         self._name = name
-        self._description = description
-        self._color = color
-        self._default = default
+        self._enforcement = enforcement
+        self._configuration_url = configuration_url
         return
         
     
@@ -28304,20 +29921,6 @@ class Pullrequest_labels(object):
 
     ##
     ##
-    def _getnode_id(self):
-        return self._node_id
-        
-    node_id = property(_getnode_id)
-
-    ##
-    ##
-    def _geturl(self):
-        return self._url
-        
-    url = property(_geturl)
-
-    ##
-    ##
     def _getname(self):
         return self._name
         
@@ -28325,10 +29928,152 @@ class Pullrequest_labels(object):
 
     ##
     ##
+    def _getenforcement(self):
+        return self._enforcement
+        
+    enforcement = property(_getenforcement)
+
+    ##
+    ##
+    def _getconfiguration_url(self):
+        return self._configuration_url
+        
+    configuration_url = property(_getconfiguration_url)
+
+
+    ##
+##
+##
+class TeamSimple(ResponseBase):
+    """Groups of organization members that gives permissions on specified repositories. """
+    def __init__(self, slug:str, repositories_url:str, html_url:str, permission:str, description:str, name:str, members_url:str, url:str, node_id:str, id:int, privacy:str=None, ldap_dn:str=None):
+        ResponseBase.__init__(self)
+        self._slug = slug
+        self._repositories_url = repositories_url
+        self._html_url = html_url
+        self._permission = permission
+        self._description = description
+        self._name = name
+        self._members_url = members_url
+        self._url = url
+        self._node_id = node_id
+        self._id = id
+        self._privacy = privacy
+        self._ldap_dn = ldap_dn
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getslug(self):
+        return self._slug
+        
+    slug = property(_getslug)
+
+    ##
+    ##
+    def _getrepositories_url(self):
+        return self._repositories_url
+        
+    repositories_url = property(_getrepositories_url)
+
+    ##
+    ##
+    def _gethtml_url(self):
+        return self._html_url
+        
+    html_url = property(_gethtml_url)
+
+    ##
+    ##
+    def _getpermission(self):
+        return self._permission
+        
+    permission = property(_getpermission, doc="""Permission that the team will have for its repositories """)
+
+    ##
+    ##
     def _getdescription(self):
         return self._description
         
-    description = property(_getdescription)
+    description = property(_getdescription, doc="""Description of the team """)
+
+    ##
+    ##
+    def _getname(self):
+        return self._name
+        
+    name = property(_getname, doc="""Name of the team """)
+
+    ##
+    ##
+    def _getmembers_url(self):
+        return self._members_url
+        
+    members_url = property(_getmembers_url)
+
+    ##
+    ##
+    def _geturl(self):
+        return self._url
+        
+    url = property(_geturl, doc="""URL for the team """)
+
+    ##
+    ##
+    def _getnode_id(self):
+        return self._node_id
+        
+    node_id = property(_getnode_id)
+
+    ##
+    ##
+    def _getid(self):
+        return self._id
+        
+    id = property(_getid, doc="""Unique identifier of the team """)
+
+    ##
+    ##
+    def _getprivacy(self):
+        return self._privacy
+        
+    privacy = property(_getprivacy, doc="""The level of privacy this team should have """)
+
+    ##
+    ##
+    def _getldap_dn(self):
+        return self._ldap_dn
+        
+    ldap_dn = property(_getldap_dn, doc="""Distinguished Name (DN) that team maps to within LDAP environment """)
+
+
+    ##
+##
+##
+class Pullrequest_labels(ResponseBase):
+    def __init__(self, default:bool, color:str, description:str, name:str, url:str, node_id:str, id:int):
+        ResponseBase.__init__(self)
+        self._default = default
+        self._color = color
+        self._description = description
+        self._name = name
+        self._url = url
+        self._node_id = node_id
+        self._id = id
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getdefault(self):
+        return self._default
+        
+    default = property(_getdefault)
 
     ##
     ##
@@ -28339,17 +30084,46 @@ class Pullrequest_labels(object):
 
     ##
     ##
-    def _getdefault(self):
-        return self._default
+    def _getdescription(self):
+        return self._description
         
-    default = property(_getdefault)
+    description = property(_getdescription)
+
+    ##
+    ##
+    def _getname(self):
+        return self._name
+        
+    name = property(_getname)
+
+    ##
+    ##
+    def _geturl(self):
+        return self._url
+        
+    url = property(_geturl)
+
+    ##
+    ##
+    def _getnode_id(self):
+        return self._node_id
+        
+    node_id = property(_getnode_id)
+
+    ##
+    ##
+    def _getid(self):
+        return self._id
+        
+    id = property(_getid)
 
 
     ##
 ##
 ##
-class Pullrequest_head_repo_owner(object):
+class Pullrequest_head_repo_owner(ResponseBase):
     def __init__(self, url:str, type:str, subscriptions_url:str, starred_url:str, site_admin:bool, repos_url:str, received_events_url:str, organizations_url:str, login:str, node_id:str, id:int, html_url:str, gravatar_id:str, gists_url:str, following_url:str, followers_url:str, events_url:str, avatar_url:str):
+        ResponseBase.__init__(self)
         self._url = url
         self._type = type
         self._subscriptions_url = subscriptions_url
@@ -28503,23 +30277,19 @@ class Pullrequest_head_repo_owner(object):
     ##
 ##
 ##
-class Pullrequest_head_repo_permissions(object):
-    def __init__(self, push:bool, pull:bool, admin:bool):
-        self._push = push
+class Pullrequest_head_repo_permissions(ResponseBase):
+    def __init__(self, pull:bool, push:bool, admin:bool, maintain:bool=None, triage:bool=None):
+        ResponseBase.__init__(self)
         self._pull = pull
+        self._push = push
         self._admin = admin
+        self._maintain = maintain
+        self._triage = triage
         return
         
     
 
     
-    ##
-    ##
-    def _getpush(self):
-        return self._push
-        
-    push = property(_getpush)
-
     ##
     ##
     def _getpull(self):
@@ -28529,17 +30299,39 @@ class Pullrequest_head_repo_permissions(object):
 
     ##
     ##
+    def _getpush(self):
+        return self._push
+        
+    push = property(_getpush)
+
+    ##
+    ##
     def _getadmin(self):
         return self._admin
         
     admin = property(_getadmin)
 
+    ##
+    ##
+    def _getmaintain(self):
+        return self._maintain
+        
+    maintain = property(_getmaintain)
+
+    ##
+    ##
+    def _gettriage(self):
+        return self._triage
+        
+    triage = property(_gettriage)
+
 
     ##
 ##
 ##
-class Pullrequest_head_repo_license(object):
+class Pullrequest_head_repo_license(ResponseBase):
     def __init__(self, node_id:str, spdx_id:str, url:str, name:str, key:str):
+        ResponseBase.__init__(self)
         self._node_id = node_id
         self._spdx_id = spdx_id
         self._url = url
@@ -28589,8 +30381,9 @@ class Pullrequest_head_repo_license(object):
     ##
 ##
 ##
-class Pullrequest_head_repo(object):
-    def __init__(self, updated_at:datetime, created_at:datetime, watchers_count:int, watchers:int, svn_url:str, stargazers_count:int, ssh_url:str, size:int, pushed_at:datetime, license:dict, open_issues_count:int, open_issues:int, mirror_url:str, disabled:bool, archived:bool, language:str, homepage:str, has_pages:bool, has_wiki:bool, has_projects:bool, has_issues:bool, has_downloads:bool, git_url:str, forks_count:int, forks:int, default_branch:str, clone_url:str, url:str, trees_url:str, teams_url:str, tags_url:str, subscription_url:str, subscribers_url:str, statuses_url:str, stargazers_url:str, releases_url:str, pulls_url:str, private:bool, owner:dict, notifications_url:str, name:str, milestones_url:str, merges_url:str, languages_url:str, labels_url:str, keys_url:str, issues_url:str, issue_events_url:str, issue_comment_url:str, node_id:str, id:int, html_url:str, hooks_url:str, git_tags_url:str, git_refs_url:str, git_commits_url:str, full_name:str, forks_url:str, fork:bool, events_url:str, downloads_url:str, description:str, deployments_url:str, contributors_url:str, contents_url:str, compare_url:str, commits_url:str, comments_url:str, collaborators_url:str, branches_url:str, blobs_url:str, assignees_url:str, archive_url:str, master_branch:str=None, permissions:dict=None, temp_clone_token:str=None, allow_merge_commit:bool=None, allow_squash_merge:bool=None, allow_rebase_merge:bool=None, topics:list=None):
+class Pullrequest_head_repo(ResponseBase):
+    def __init__(self, updated_at:datetime, created_at:datetime, watchers_count:int, watchers:int, svn_url:str, stargazers_count:int, ssh_url:str, size:int, pushed_at:datetime, license:dict, open_issues_count:int, open_issues:int, mirror_url:str, disabled:bool, archived:bool, language:str, homepage:str, has_pages:bool, has_wiki:bool, has_projects:bool, has_issues:bool, has_downloads:bool, git_url:str, forks_count:int, forks:int, default_branch:str, clone_url:str, url:str, trees_url:str, teams_url:str, tags_url:str, subscription_url:str, subscribers_url:str, statuses_url:str, stargazers_url:str, releases_url:str, pulls_url:str, private:bool, owner:dict, notifications_url:str, name:str, milestones_url:str, merges_url:str, languages_url:str, labels_url:str, keys_url:str, issues_url:str, issue_events_url:str, issue_comment_url:str, node_id:str, id:int, html_url:str, hooks_url:str, git_tags_url:str, git_refs_url:str, git_commits_url:str, full_name:str, forks_url:str, fork:bool, events_url:str, downloads_url:str, description:str, deployments_url:str, contributors_url:str, contents_url:str, compare_url:str, commits_url:str, comments_url:str, collaborators_url:str, branches_url:str, blobs_url:str, assignees_url:str, archive_url:str, master_branch:str=None, visibility:str=None, permissions:dict=None, temp_clone_token:str=None, allow_merge_commit:bool=None, allow_squash_merge:bool=None, allow_rebase_merge:bool=None, topics:list=None, allow_forking:bool=None, is_template:bool=None):
+        ResponseBase.__init__(self)
         self._updated_at = updated_at
         self._created_at = created_at
         self._watchers_count = watchers_count
@@ -28665,12 +30458,15 @@ class Pullrequest_head_repo(object):
         self._assignees_url = assignees_url
         self._archive_url = archive_url
         self._master_branch = master_branch
+        self._visibility = visibility
         self._permissions = permissions
         self._temp_clone_token = temp_clone_token
         self._allow_merge_commit = allow_merge_commit
         self._allow_squash_merge = allow_squash_merge
         self._allow_rebase_merge = allow_rebase_merge
         self._topics = topics
+        self._allow_forking = allow_forking
+        self._is_template = is_template
         return
         
     
@@ -28679,14 +30475,14 @@ class Pullrequest_head_repo(object):
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -28735,7 +30531,7 @@ class Pullrequest_head_repo(object):
     ##
     ##
     def _getpushed_at(self):
-        return self._pushed_at and datetime.datetime.fromisoformat(self._pushed_at[0:-1])
+        return self._pushed_at and datetime.fromisoformat(self._pushed_at[0:-1])
         
     pushed_at = property(_getpushed_at)
 
@@ -29196,6 +30992,13 @@ class Pullrequest_head_repo(object):
 
     ##
     ##
+    def _getvisibility(self):
+        return self._visibility
+        
+    visibility = property(_getvisibility, doc="""The repository visibility: public, private, or internal. """)
+
+    ##
+    ##
     def _getpermissions(self):
         return self._permissions and Pullrequest_head_repo_permissions(**self._permissions)
         
@@ -29236,12 +31039,27 @@ class Pullrequest_head_repo(object):
         
     topics = property(_gettopics)
 
+    ##
+    ##
+    def _getallow_forking(self):
+        return self._allow_forking
+        
+    allow_forking = property(_getallow_forking)
+
+    ##
+    ##
+    def _getis_template(self):
+        return self._is_template
+        
+    is_template = property(_getis_template)
+
 
     ##
 ##
 ##
-class Pullrequest_head_user(object):
+class Pullrequest_head_user(ResponseBase):
     def __init__(self, url:str, type:str, subscriptions_url:str, starred_url:str, site_admin:bool, repos_url:str, received_events_url:str, organizations_url:str, login:str, node_id:str, id:int, html_url:str, gravatar_id:str, gists_url:str, following_url:str, followers_url:str, events_url:str, avatar_url:str):
+        ResponseBase.__init__(self)
         self._url = url
         self._type = type
         self._subscriptions_url = subscriptions_url
@@ -29395,8 +31213,9 @@ class Pullrequest_head_user(object):
     ##
 ##
 ##
-class Pullrequest_head(object):
+class Pullrequest_head(ResponseBase):
     def __init__(self, user:dict, sha:str, repo:dict, ref:str, label:str):
+        ResponseBase.__init__(self)
         self._user = user
         self._sha = sha
         self._repo = repo
@@ -29446,8 +31265,9 @@ class Pullrequest_head(object):
     ##
 ##
 ##
-class Pullrequest_base_repo_owner(object):
+class Pullrequest_base_repo_owner(ResponseBase):
     def __init__(self, url:str, type:str, subscriptions_url:str, starred_url:str, site_admin:bool, repos_url:str, received_events_url:str, organizations_url:str, login:str, node_id:str, id:int, html_url:str, gravatar_id:str, gists_url:str, following_url:str, followers_url:str, events_url:str, avatar_url:str):
+        ResponseBase.__init__(self)
         self._url = url
         self._type = type
         self._subscriptions_url = subscriptions_url
@@ -29601,23 +31421,19 @@ class Pullrequest_base_repo_owner(object):
     ##
 ##
 ##
-class Pullrequest_base_repo_permissions(object):
-    def __init__(self, push:bool, pull:bool, admin:bool):
-        self._push = push
+class Pullrequest_base_repo_permissions(ResponseBase):
+    def __init__(self, pull:bool, push:bool, admin:bool, maintain:bool=None, triage:bool=None):
+        ResponseBase.__init__(self)
         self._pull = pull
+        self._push = push
         self._admin = admin
+        self._maintain = maintain
+        self._triage = triage
         return
         
     
 
     
-    ##
-    ##
-    def _getpush(self):
-        return self._push
-        
-    push = property(_getpush)
-
     ##
     ##
     def _getpull(self):
@@ -29627,17 +31443,39 @@ class Pullrequest_base_repo_permissions(object):
 
     ##
     ##
+    def _getpush(self):
+        return self._push
+        
+    push = property(_getpush)
+
+    ##
+    ##
     def _getadmin(self):
         return self._admin
         
     admin = property(_getadmin)
 
+    ##
+    ##
+    def _getmaintain(self):
+        return self._maintain
+        
+    maintain = property(_getmaintain)
+
+    ##
+    ##
+    def _gettriage(self):
+        return self._triage
+        
+    triage = property(_gettriage)
+
 
     ##
 ##
 ##
-class Pullrequest_base_repo(object):
-    def __init__(self, updated_at:datetime, created_at:datetime, watchers_count:int, watchers:int, svn_url:str, stargazers_count:int, ssh_url:str, size:int, pushed_at:datetime, license:dict, open_issues_count:int, open_issues:int, mirror_url:str, disabled:bool, archived:bool, language:str, homepage:str, has_pages:bool, has_wiki:bool, has_projects:bool, has_issues:bool, has_downloads:bool, git_url:str, forks_count:int, forks:int, default_branch:str, clone_url:str, url:str, trees_url:str, teams_url:str, tags_url:str, subscription_url:str, subscribers_url:str, statuses_url:str, stargazers_url:str, releases_url:str, pulls_url:str, private:bool, owner:dict, notifications_url:str, name:str, milestones_url:str, merges_url:str, languages_url:str, labels_url:str, keys_url:str, issues_url:str, issue_events_url:str, issue_comment_url:str, node_id:str, id:int, html_url:str, hooks_url:str, git_tags_url:str, git_refs_url:str, git_commits_url:str, full_name:str, forks_url:str, fork:bool, events_url:str, downloads_url:str, description:str, deployments_url:str, contributors_url:str, contents_url:str, compare_url:str, commits_url:str, comments_url:str, collaborators_url:str, branches_url:str, blobs_url:str, assignees_url:str, archive_url:str, master_branch:str=None, permissions:dict=None, temp_clone_token:str=None, allow_merge_commit:bool=None, allow_squash_merge:bool=None, allow_rebase_merge:bool=None, topics:list=None):
+class Pullrequest_base_repo(ResponseBase):
+    def __init__(self, updated_at:datetime, created_at:datetime, watchers_count:int, watchers:int, svn_url:str, stargazers_count:int, ssh_url:str, size:int, pushed_at:datetime, license:dict, open_issues_count:int, open_issues:int, mirror_url:str, disabled:bool, archived:bool, language:str, homepage:str, has_pages:bool, has_wiki:bool, has_projects:bool, has_issues:bool, has_downloads:bool, git_url:str, forks_count:int, forks:int, default_branch:str, clone_url:str, url:str, trees_url:str, teams_url:str, tags_url:str, subscription_url:str, subscribers_url:str, statuses_url:str, stargazers_url:str, releases_url:str, pulls_url:str, private:bool, owner:dict, notifications_url:str, name:str, milestones_url:str, merges_url:str, languages_url:str, labels_url:str, keys_url:str, issues_url:str, issue_events_url:str, issue_comment_url:str, node_id:str, id:int, html_url:str, hooks_url:str, git_tags_url:str, git_refs_url:str, git_commits_url:str, full_name:str, forks_url:str, fork:bool, events_url:str, downloads_url:str, description:str, deployments_url:str, contributors_url:str, contents_url:str, compare_url:str, commits_url:str, comments_url:str, collaborators_url:str, branches_url:str, blobs_url:str, assignees_url:str, archive_url:str, is_template:bool=None, master_branch:str=None, visibility:str=None, permissions:dict=None, temp_clone_token:str=None, allow_merge_commit:bool=None, allow_squash_merge:bool=None, allow_rebase_merge:bool=None, topics:list=None, allow_forking:bool=None):
+        ResponseBase.__init__(self)
         self._updated_at = updated_at
         self._created_at = created_at
         self._watchers_count = watchers_count
@@ -29711,13 +31549,16 @@ class Pullrequest_base_repo(object):
         self._blobs_url = blobs_url
         self._assignees_url = assignees_url
         self._archive_url = archive_url
+        self._is_template = is_template
         self._master_branch = master_branch
+        self._visibility = visibility
         self._permissions = permissions
         self._temp_clone_token = temp_clone_token
         self._allow_merge_commit = allow_merge_commit
         self._allow_squash_merge = allow_squash_merge
         self._allow_rebase_merge = allow_rebase_merge
         self._topics = topics
+        self._allow_forking = allow_forking
         return
         
     
@@ -29726,14 +31567,14 @@ class Pullrequest_base_repo(object):
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -29782,7 +31623,7 @@ class Pullrequest_base_repo(object):
     ##
     ##
     def _getpushed_at(self):
-        return self._pushed_at and datetime.datetime.fromisoformat(self._pushed_at[0:-1])
+        return self._pushed_at and datetime.fromisoformat(self._pushed_at[0:-1])
         
     pushed_at = property(_getpushed_at)
 
@@ -30236,10 +32077,24 @@ class Pullrequest_base_repo(object):
 
     ##
     ##
+    def _getis_template(self):
+        return self._is_template
+        
+    is_template = property(_getis_template)
+
+    ##
+    ##
     def _getmaster_branch(self):
         return self._master_branch
         
     master_branch = property(_getmaster_branch)
+
+    ##
+    ##
+    def _getvisibility(self):
+        return self._visibility
+        
+    visibility = property(_getvisibility, doc="""The repository visibility: public, private, or internal. """)
 
     ##
     ##
@@ -30283,12 +32138,20 @@ class Pullrequest_base_repo(object):
         
     topics = property(_gettopics)
 
+    ##
+    ##
+    def _getallow_forking(self):
+        return self._allow_forking
+        
+    allow_forking = property(_getallow_forking)
+
 
     ##
 ##
 ##
-class Pullrequest_base_user(object):
+class Pullrequest_base_user(ResponseBase):
     def __init__(self, url:str, type:str, subscriptions_url:str, starred_url:str, site_admin:bool, repos_url:str, received_events_url:str, organizations_url:str, login:str, node_id:str, id:int, html_url:str, gravatar_id:str, gists_url:str, following_url:str, followers_url:str, events_url:str, avatar_url:str):
+        ResponseBase.__init__(self)
         self._url = url
         self._type = type
         self._subscriptions_url = subscriptions_url
@@ -30442,8 +32305,9 @@ class Pullrequest_base_user(object):
     ##
 ##
 ##
-class Pullrequest_base(object):
+class Pullrequest_base(ResponseBase):
     def __init__(self, user:dict, sha:str, repo:dict, ref:str, label:str):
+        ResponseBase.__init__(self)
         self._user = user
         self._sha = sha
         self._repo = repo
@@ -30493,8 +32357,9 @@ class Pullrequest_base(object):
     ##
 ##
 ##
-class Pullrequest__links(object):
+class Pullrequest__links(ResponseBase):
     def __init__(self, Self:dict, review_comment:dict, review_comments:dict, issue:dict, html:dict, statuses:dict, commits:dict, comments:dict):
+        ResponseBase.__init__(self)
         self._Self = Self
         self._review_comment = review_comment
         self._review_comments = review_comments
@@ -30579,9 +32444,10 @@ class Pullrequest__links(object):
 ##
 ##
 ##
-class PullRequest(object):
+class PullRequest(ResponseBase):
     """Pull requests let you tell others about changes you've pushed to a repository on GitHub. Once a pull request is sent, interested parties can review the set of changes, discuss potential modifications, and even push follow-up commits if necessary. """
     def __init__(self, changed_files:int, deletions:int, additions:int, commits:int, maintainer_can_modify:bool, review_comments:int, comments:int, merged_by:dict, mergeable_state:str, mergeable:bool, merged:bool, auto_merge:dict, author_association:str, _links:dict, base:dict, head:dict, assignee:dict, merge_commit_sha:str, merged_at:datetime, closed_at:datetime, updated_at:datetime, created_at:datetime, milestone:dict, labels:list, body:str, user:dict, title:str, locked:bool, state:str, number:int, statuses_url:str, comments_url:str, review_comment_url:str, review_comments_url:str, commits_url:str, issue_url:str, patch_url:str, diff_url:str, html_url:str, node_id:str, id:int, url:str, active_lock_reason:str=None, assignees:list=None, requested_reviewers:list=None, requested_teams:list=None, draft:bool=None, rebaseable:bool=None):
+        ResponseBase.__init__(self)
         self._changed_files = changed_files
         self._deletions = deletions
         self._additions = additions
@@ -30764,28 +32630,28 @@ class PullRequest(object):
     ##
     ##
     def _getmerged_at(self):
-        return self._merged_at and datetime.datetime.fromisoformat(self._merged_at[0:-1])
+        return self._merged_at and datetime.fromisoformat(self._merged_at[0:-1])
         
     merged_at = property(_getmerged_at)
 
     ##
     ##
     def _getclosed_at(self):
-        return self._closed_at and datetime.datetime.fromisoformat(self._closed_at[0:-1])
+        return self._closed_at and datetime.fromisoformat(self._closed_at[0:-1])
         
     closed_at = property(_getclosed_at)
 
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -30975,9 +32841,10 @@ class PullRequest(object):
     ##
 ##
 ##
-class PullRequestMergeResult(object):
+class PullRequestMergeResult(ResponseBase):
     """Pull Request Merge Result """
     def __init__(self, message:str, merged:bool, sha:str):
+        ResponseBase.__init__(self)
         self._message = message
         self._merged = merged
         self._sha = sha
@@ -31011,9 +32878,10 @@ class PullRequestMergeResult(object):
     ##
 ##
 ##
-class PullRequestReviewRequest(object):
+class PullRequestReviewRequest(ResponseBase):
     """Pull Request Review Request """
     def __init__(self, teams:list, users:list):
+        ResponseBase.__init__(self)
         self._teams = teams
         self._users = users
         return
@@ -31039,8 +32907,9 @@ class PullRequestReviewRequest(object):
     ##
 ##
 ##
-class Pullrequestreview__links_html(object):
+class Pullrequestreview__links_html(ResponseBase):
     def __init__(self, href:str):
+        ResponseBase.__init__(self)
         self._href = href
         return
         
@@ -31058,8 +32927,9 @@ class Pullrequestreview__links_html(object):
     ##
 ##
 ##
-class Pullrequestreview__links_pull_request(object):
+class Pullrequestreview__links_pull_request(ResponseBase):
     def __init__(self, href:str):
+        ResponseBase.__init__(self)
         self._href = href
         return
         
@@ -31077,8 +32947,9 @@ class Pullrequestreview__links_pull_request(object):
     ##
 ##
 ##
-class Pullrequestreview__links(object):
+class Pullrequestreview__links(ResponseBase):
     def __init__(self, pull_request:dict, html:dict):
+        ResponseBase.__init__(self)
         self._pull_request = pull_request
         self._html = html
         return
@@ -31104,9 +32975,10 @@ class Pullrequestreview__links(object):
     ##
 ##
 ##
-class PullRequestReview(object):
+class PullRequestReview(ResponseBase):
     """Pull Request Reviews are reviews on pull requests. """
     def __init__(self, author_association:str, commit_id:str, _links:dict, pull_request_url:str, html_url:str, state:str, body:str, user:dict, node_id:str, id:int, submitted_at:datetime=None, body_html:str=None, body_text:str=None):
+        ResponseBase.__init__(self)
         self._author_association = author_association
         self._commit_id = commit_id
         self.__links = _links
@@ -31198,7 +33070,7 @@ class PullRequestReview(object):
     ##
     ##
     def _getsubmitted_at(self):
-        return self._submitted_at and datetime.datetime.fromisoformat(self._submitted_at[0:-1])
+        return self._submitted_at and datetime.fromisoformat(self._submitted_at[0:-1])
         
     submitted_at = property(_getsubmitted_at)
 
@@ -31220,8 +33092,9 @@ class PullRequestReview(object):
     ##
 ##
 ##
-class Legacyreviewcomment__links(object):
+class Legacyreviewcomment__links(ResponseBase):
     def __init__(self, pull_request:dict, html:dict, Self:dict):
+        ResponseBase.__init__(self)
         self._pull_request = pull_request
         self._html = html
         self._Self = Self
@@ -31266,9 +33139,10 @@ class Legacyreviewcomment__links(object):
 ##
 ##
 ##
-class LegacyReviewComment(object):
+class LegacyReviewComment(ResponseBase):
     """Legacy Review Comment """
     def __init__(self, _links:dict, author_association:str, pull_request_url:str, html_url:str, updated_at:datetime, created_at:datetime, body:str, user:dict, original_commit_id:str, commit_id:str, original_position:int, position:int, path:str, diff_hunk:str, node_id:str, id:int, pull_request_review_id:int, url:str, in_reply_to_id:int=None, body_text:str=None, body_html:str=None, reactions:dict=None, side:str='RIGHT', start_side:str='RIGHT', line:int=None, original_line:int=None, start_line:int=None, original_start_line:int=None):
+        ResponseBase.__init__(self)
         self.__links = _links
         self._author_association = author_association
         self._pull_request_url = pull_request_url
@@ -31333,14 +33207,14 @@ class LegacyReviewComment(object):
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -31502,9 +33376,10 @@ class LegacyReviewComment(object):
     ##
 ##
 ##
-class ReleaseAsset(object):
+class ReleaseAsset(ResponseBase):
     """Data related to a release. """
     def __init__(self, uploader:dict, updated_at:datetime, created_at:datetime, download_count:int, size:int, content_type:str, state:str, label:str, name:str, node_id:str, id:int, browser_download_url:str, url:str):
+        ResponseBase.__init__(self)
         self._uploader = uploader
         self._updated_at = updated_at
         self._created_at = created_at
@@ -31533,14 +33408,14 @@ class ReleaseAsset(object):
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -31618,9 +33493,10 @@ class ReleaseAsset(object):
     ##
 ##
 ##
-class Release(object):
+class Release(ResponseBase):
     """A release. """
-    def __init__(self, assets:list, author:dict, published_at:datetime, created_at:datetime, prerelease:bool, draft:bool, name:str, target_commitish:str, tag_name:str, node_id:str, id:int, zipball_url:str, tarball_url:str, upload_url:str, assets_url:str, html_url:str, url:str, body:str=None, body_html:str=None, body_text:str=None, mentions_count:int=None, discussion_url:str=None, reactions:dict=None):
+    def __init__(self, assets:list, author:dict, published_at:datetime, created_at:datetime, prerelease:bool, draft:bool, name:str, target_commitish:str, tag_name:str, node_id:str, id:int, zipball_url:str, tarball_url:str, upload_url:str, assets_url:str, html_url:str, url:str, body:str=None, body_html:str=None, body_text:str=None, mentions_count:int=None, reactions:dict=None):
+        ResponseBase.__init__(self)
         self._assets = assets
         self._author = author
         self._published_at = published_at
@@ -31642,7 +33518,6 @@ class Release(object):
         self._body_html = body_html
         self._body_text = body_text
         self._mentions_count = mentions_count
-        self._discussion_url = discussion_url
         self._reactions = reactions
         return
         
@@ -31666,14 +33541,14 @@ class Release(object):
     ##
     ##
     def _getpublished_at(self):
-        return self._published_at and datetime.datetime.fromisoformat(self._published_at[0:-1])
+        return self._published_at and datetime.fromisoformat(self._published_at[0:-1])
         
     published_at = property(_getpublished_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -31798,13 +33673,6 @@ class Release(object):
 
     ##
     ##
-    def _getdiscussion_url(self):
-        return self._discussion_url
-        
-    discussion_url = property(_getdiscussion_url, doc="""The URL of the release discussion. """)
-
-    ##
-    ##
     def _getreactions(self):
         return self._reactions and ReactionRollup(**ReactionRollup.patchEntry(self._reactions))
         
@@ -31814,12 +33682,43 @@ class Release(object):
     ##
 ##
 ##
-class SecretScanningAlert(object):
-    def __init__(self, number:int=None, created_at:datetime=None, url:str=None, html_url:str=None, state:str=None, resolution:str=None, resolved_at:datetime=None, resolved_by:dict=None, secret_type:str=None, secret:str=None):
+class GeneratedReleaseNotesContent(ResponseBase):
+    """Generated name and body describing a release """
+    def __init__(self, body:str, name:str):
+        ResponseBase.__init__(self)
+        self._body = body
+        self._name = name
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getbody(self):
+        return self._body
+        
+    body = property(_getbody, doc="""The generated body describing the contents of the release supporting markdown formatting """)
+
+    ##
+    ##
+    def _getname(self):
+        return self._name
+        
+    name = property(_getname, doc="""The generated name of the release """)
+
+
+    ##
+##
+##
+class SecretScanningAlert(ResponseBase):
+    def __init__(self, number:int=None, created_at:datetime=None, url:str=None, html_url:str=None, locations_url:str=None, state:str=None, resolution:str=None, resolved_at:datetime=None, resolved_by:dict=None, secret_type:str=None, secret:str=None):
+        ResponseBase.__init__(self)
         self._number = number
         self._created_at = created_at
         self._url = url
         self._html_url = html_url
+        self._locations_url = locations_url
         self._state = state
         self._resolution = resolution
         self._resolved_at = resolved_at
@@ -31841,7 +33740,7 @@ class SecretScanningAlert(object):
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -31861,6 +33760,13 @@ class SecretScanningAlert(object):
 
     ##
     ##
+    def _getlocations_url(self):
+        return self._locations_url
+        
+    locations_url = property(_getlocations_url, doc="""The REST API URL of the code locations for this alert. """)
+
+    ##
+    ##
     def _getstate(self):
         return self._state
         
@@ -31876,7 +33782,7 @@ class SecretScanningAlert(object):
     ##
     ##
     def _getresolved_at(self):
-        return self._resolved_at and datetime.datetime.fromisoformat(self._resolved_at[0:-1])
+        return self._resolved_at and datetime.fromisoformat(self._resolved_at[0:-1])
         
     resolved_at = property(_getresolved_at, doc="""The time that the alert was resolved in ISO 8601 format: `YYYY-MM-DDTHH:MM:SSZ`. """)
 
@@ -31905,9 +33811,123 @@ class SecretScanningAlert(object):
     ##
 ##
 ##
-class Stargazer(object):
+class SecretScanningLocationCommit(ResponseBase):
+    """Represents a 'commit' secret scanning location type. This location type shows that a secret was detected inside a commit to a repository. """
+    def __init__(self, commit_url:str, commit_sha:str, blob_url:str, blob_sha:str, end_column:int, start_column:int, end_line:int, start_line:int, path:str):
+        ResponseBase.__init__(self)
+        self._commit_url = commit_url
+        self._commit_sha = commit_sha
+        self._blob_url = blob_url
+        self._blob_sha = blob_sha
+        self._end_column = end_column
+        self._start_column = start_column
+        self._end_line = end_line
+        self._start_line = start_line
+        self._path = path
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getcommit_url(self):
+        return self._commit_url
+        
+    commit_url = property(_getcommit_url, doc="""The API URL to get the associated commit resource """)
+
+    ##
+    ##
+    def _getcommit_sha(self):
+        return self._commit_sha
+        
+    commit_sha = property(_getcommit_sha, doc="""SHA-1 hash ID of the associated commit """)
+
+    ##
+    ##
+    def _getblob_url(self):
+        return self._blob_url
+        
+    blob_url = property(_getblob_url, doc="""The API URL to get the associated blob resource """)
+
+    ##
+    ##
+    def _getblob_sha(self):
+        return self._blob_sha
+        
+    blob_sha = property(_getblob_sha, doc="""SHA-1 hash ID of the associated blob """)
+
+    ##
+    ##
+    def _getend_column(self):
+        return self._end_column
+        
+    end_column = property(_getend_column, doc="""The column at which the secret ends within the end line when the file is interpreted as 8BIT ASCII """)
+
+    ##
+    ##
+    def _getstart_column(self):
+        return self._start_column
+        
+    start_column = property(_getstart_column, doc="""The column at which the secret starts within the start line when the file is interpreted as 8BIT ASCII """)
+
+    ##
+    ##
+    def _getend_line(self):
+        return self._end_line
+        
+    end_line = property(_getend_line, doc="""Line number at which the secret ends in the file """)
+
+    ##
+    ##
+    def _getstart_line(self):
+        return self._start_line
+        
+    start_line = property(_getstart_line, doc="""Line number at which the secret starts in the file """)
+
+    ##
+    ##
+    def _getpath(self):
+        return self._path
+        
+    path = property(_getpath, doc="""The file path in the repository """)
+
+
+    ##
+##
+##
+class SecretScanningLocation(ResponseBase):
+    def __init__(self, details, type:str):
+        ResponseBase.__init__(self)
+        self._details = details
+        self._type = type
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getdetails(self):
+        return self._details
+        
+    details = property(_getdetails)
+
+    ##
+    ##
+    def _gettype(self):
+        return self._type
+        
+    type = property(_gettype, doc="""The location type. Because secrets may be found in different types of resources (ie. code, comments, issues), this field identifies the type of resource where the secret was found. """)
+
+
+    ##
+##
+##
+class Stargazer(ResponseBase):
     """Stargazer """
     def __init__(self, user:dict, starred_at:datetime):
+        ResponseBase.__init__(self)
         self._user = user
         self._starred_at = starred_at
         return
@@ -31925,7 +33945,7 @@ class Stargazer(object):
     ##
     ##
     def _getstarred_at(self):
-        return self._starred_at and datetime.datetime.fromisoformat(self._starred_at[0:-1])
+        return self._starred_at and datetime.fromisoformat(self._starred_at[0:-1])
         
     starred_at = property(_getstarred_at)
 
@@ -31933,9 +33953,10 @@ class Stargazer(object):
     ##
 ##
 ##
-class CommitActivity(object):
+class CommitActivity(ResponseBase):
     """Commit Activity """
     def __init__(self, week:int, total:int, days:list):
+        ResponseBase.__init__(self)
         self._week = week
         self._total = total
         self._days = days
@@ -31969,8 +33990,9 @@ class CommitActivity(object):
     ##
 ##
 ##
-class Contributoractivity_weeks(object):
+class Contributoractivity_weeks(ResponseBase):
     def __init__(self, w:int=None, a:int=None, d:int=None, c:int=None):
+        ResponseBase.__init__(self)
         self._w = w
         self._a = a
         self._d = d
@@ -32012,9 +34034,10 @@ class Contributoractivity_weeks(object):
     ##
 ##
 ##
-class ContributorActivity(object):
+class ContributorActivity(ResponseBase):
     """Contributor Activity """
     def __init__(self, weeks:list, total:int, author:dict):
+        ResponseBase.__init__(self)
         self._weeks = weeks
         self._total = total
         self._author = author
@@ -32048,8 +34071,9 @@ class ContributorActivity(object):
     ##
 ##
 ##
-class ParticipationStats(object):
+class ParticipationStats(ResponseBase):
     def __init__(self, owner:list, all:list):
+        ResponseBase.__init__(self)
         self._owner = owner
         self._all = all
         return
@@ -32075,9 +34099,10 @@ class ParticipationStats(object):
     ##
 ##
 ##
-class RepositoryInvitation(object):
+class RepositoryInvitation(ResponseBase):
     """Repository invitations let you manage who you collaborate with. """
     def __init__(self, repository_url:str, url:str, created_at:datetime, reason:str, ignored:bool, subscribed:bool):
+        ResponseBase.__init__(self)
         self._repository_url = repository_url
         self._url = url
         self._created_at = created_at
@@ -32106,7 +34131,7 @@ class RepositoryInvitation(object):
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -32135,8 +34160,9 @@ class RepositoryInvitation(object):
     ##
 ##
 ##
-class Tag_commit(object):
+class Tag_commit(ResponseBase):
     def __init__(self, url:str, sha:str):
+        ResponseBase.__init__(self)
         self._url = url
         self._sha = sha
         return
@@ -32162,9 +34188,10 @@ class Tag_commit(object):
     ##
 ##
 ##
-class Tag(object):
+class Tag(ResponseBase):
     """Tag """
     def __init__(self, node_id:str, tarball_url:str, zipball_url:str, commit:dict, name:str):
+        ResponseBase.__init__(self)
         self._node_id = node_id
         self._tarball_url = tarball_url
         self._zipball_url = zipball_url
@@ -32214,9 +34241,10 @@ class Tag(object):
     ##
 ##
 ##
-class Topic(object):
+class Topic(ResponseBase):
     """A topic aggregates entities that are related to a subject. """
     def __init__(self, names:list):
+        ResponseBase.__init__(self)
         self._names = names
         return
         
@@ -32234,1334 +34262,9 @@ class Topic(object):
     ##
 ##
 ##
-class Traffic(object):
-    def __init__(self, count:int, uniques:int, timestamp:datetime):
-        self._count = count
-        self._uniques = uniques
-        self._timestamp = timestamp
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getcount(self):
-        return self._count
-        
-    count = property(_getcount)
-
-    ##
-    ##
-    def _getuniques(self):
-        return self._uniques
-        
-    uniques = property(_getuniques)
-
-    ##
-    ##
-    def _gettimestamp(self):
-        return self._timestamp and datetime.datetime.fromisoformat(self._timestamp[0:-1])
-        
-    timestamp = property(_gettimestamp)
-
-
-    ##
-##
-##
-class CloneTraffic(object):
-    """Clone Traffic """
-    def __init__(self, clones:list, uniques:int, count:int):
-        self._clones = clones
-        self._uniques = uniques
-        self._count = count
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getclones(self):
-        return self._clones and [ entry and Traffic(**entry) for entry in self._clones ]
-        
-    clones = property(_getclones)
-
-    ##
-    ##
-    def _getuniques(self):
-        return self._uniques
-        
-    uniques = property(_getuniques)
-
-    ##
-    ##
-    def _getcount(self):
-        return self._count
-        
-    count = property(_getcount)
-
-
-    ##
-##
-##
-class ContentTraffic(object):
-    """Content Traffic """
-    def __init__(self, uniques:int, count:int, title:str, path:str):
-        self._uniques = uniques
-        self._count = count
-        self._title = title
-        self._path = path
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getuniques(self):
-        return self._uniques
-        
-    uniques = property(_getuniques)
-
-    ##
-    ##
-    def _getcount(self):
-        return self._count
-        
-    count = property(_getcount)
-
-    ##
-    ##
-    def _gettitle(self):
-        return self._title
-        
-    title = property(_gettitle)
-
-    ##
-    ##
-    def _getpath(self):
-        return self._path
-        
-    path = property(_getpath)
-
-
-    ##
-##
-##
-class ReferrerTraffic(object):
-    """Referrer Traffic """
-    def __init__(self, uniques:int, count:int, referrer:str):
-        self._uniques = uniques
-        self._count = count
-        self._referrer = referrer
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getuniques(self):
-        return self._uniques
-        
-    uniques = property(_getuniques)
-
-    ##
-    ##
-    def _getcount(self):
-        return self._count
-        
-    count = property(_getcount)
-
-    ##
-    ##
-    def _getreferrer(self):
-        return self._referrer
-        
-    referrer = property(_getreferrer)
-
-
-    ##
-##
-##
-class ViewTraffic(object):
-    """View Traffic """
-    def __init__(self, views:list, uniques:int, count:int):
-        self._views = views
-        self._uniques = uniques
-        self._count = count
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getviews(self):
-        return self._views and [ entry and Traffic(**entry) for entry in self._views ]
-        
-    views = property(_getviews)
-
-    ##
-    ##
-    def _getuniques(self):
-        return self._uniques
-        
-    uniques = property(_getuniques)
-
-    ##
-    ##
-    def _getcount(self):
-        return self._count
-        
-    count = property(_getcount)
-
-
-    ##
-##
-##
-class Scimgrouplistenterprise_resources_members(object):
-    def __init__(self, value:str=None, ref:str=None, display:str=None):
-        self._value = value
-        self._ref = ref
-        self._display = display
-        return
-        
-    @classmethod
-    def patchEntry(clazz, entry):
-        entry['ref'] = entry.pop('$ref')
-        return entry
-    
-
-    
-    ##
-    ##
-    def _getvalue(self):
-        return self._value
-        
-    value = property(_getvalue)
-
-    ##
-    ##
-    def _getref(self):
-        return self._ref
-        
-    ref = property(_getref)
-
-    ##
-    ##
-    def _getdisplay(self):
-        return self._display
-        
-    display = property(_getdisplay)
-
-
-    
-    ##
-    ##
-    def _getref(self):
-        return self._ref
-        
-    ref = property(_getref)
-##
-##
-##
-class Scimgrouplistenterprise_resources_meta(object):
-    def __init__(self, resourceType:str=None, created:str=None, lastModified:str=None, location:str=None):
-        self._resourceType = resourceType
-        self._created = created
-        self._lastModified = lastModified
-        self._location = location
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getresourceType(self):
-        return self._resourceType
-        
-    resourceType = property(_getresourceType)
-
-    ##
-    ##
-    def _getcreated(self):
-        return self._created
-        
-    created = property(_getcreated)
-
-    ##
-    ##
-    def _getlastModified(self):
-        return self._lastModified
-        
-    lastModified = property(_getlastModified)
-
-    ##
-    ##
-    def _getlocation(self):
-        return self._location
-        
-    location = property(_getlocation)
-
-
-    ##
-##
-##
-class Scimgrouplistenterprise_resources(object):
-    def __init__(self, id:str, schemas:list, externalId:str=None, displayName:str=None, members:list=None, meta:dict=None):
-        self._id = id
-        self._schemas = schemas
-        self._externalId = externalId
-        self._displayName = displayName
-        self._members = members
-        self._meta = meta
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getid(self):
-        return self._id
-        
-    id = property(_getid)
-
-    ##
-    ##
-    def _getschemas(self):
-        return self._schemas and [ entry for entry in self._schemas ]
-        
-    schemas = property(_getschemas)
-
-    ##
-    ##
-    def _getexternalId(self):
-        return self._externalId
-        
-    externalId = property(_getexternalId)
-
-    ##
-    ##
-    def _getdisplayName(self):
-        return self._displayName
-        
-    displayName = property(_getdisplayName)
-
-    ##
-    ##
-    def _getmembers(self):
-        return self._members and [ entry and Scimgrouplistenterprise_resources_members(**Scimgrouplistenterprise_resources_members.patchEntry(entry)) for entry in self._members ]
-        
-    members = property(_getmembers)
-
-    ##
-    ##
-    def _getmeta(self):
-        return self._meta and Scimgrouplistenterprise_resources_meta(**self._meta)
-        
-    meta = property(_getmeta)
-
-
-    ##
-##
-##
-class ScimGroupListEnterprise(object):
-    def __init__(self, Resources:list, startIndex:int, itemsPerPage:int, totalResults:int, schemas:list):
-        self._Resources = Resources
-        self._startIndex = startIndex
-        self._itemsPerPage = itemsPerPage
-        self._totalResults = totalResults
-        self._schemas = schemas
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getResources(self):
-        return self._Resources and [ entry and Scimgrouplistenterprise_resources(**entry) for entry in self._Resources ]
-        
-    Resources = property(_getResources)
-
-    ##
-    ##
-    def _getstartIndex(self):
-        return self._startIndex
-        
-    startIndex = property(_getstartIndex)
-
-    ##
-    ##
-    def _getitemsPerPage(self):
-        return self._itemsPerPage
-        
-    itemsPerPage = property(_getitemsPerPage)
-
-    ##
-    ##
-    def _gettotalResults(self):
-        return self._totalResults
-        
-    totalResults = property(_gettotalResults)
-
-    ##
-    ##
-    def _getschemas(self):
-        return self._schemas and [ entry for entry in self._schemas ]
-        
-    schemas = property(_getschemas)
-
-
-    ##
-##
-##
-class Scimenterprisegroup_members(object):
-    def __init__(self, value:str=None, ref:str=None, display:str=None):
-        self._value = value
-        self._ref = ref
-        self._display = display
-        return
-        
-    @classmethod
-    def patchEntry(clazz, entry):
-        entry['ref'] = entry.pop('$ref')
-        return entry
-    
-
-    
-    ##
-    ##
-    def _getvalue(self):
-        return self._value
-        
-    value = property(_getvalue)
-
-    ##
-    ##
-    def _getref(self):
-        return self._ref
-        
-    ref = property(_getref)
-
-    ##
-    ##
-    def _getdisplay(self):
-        return self._display
-        
-    display = property(_getdisplay)
-
-
-    
-    ##
-    ##
-    def _getref(self):
-        return self._ref
-        
-    ref = property(_getref)
-##
-##
-##
-class Scimenterprisegroup_meta(object):
-    def __init__(self, resourceType:str=None, created:str=None, lastModified:str=None, location:str=None):
-        self._resourceType = resourceType
-        self._created = created
-        self._lastModified = lastModified
-        self._location = location
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getresourceType(self):
-        return self._resourceType
-        
-    resourceType = property(_getresourceType)
-
-    ##
-    ##
-    def _getcreated(self):
-        return self._created
-        
-    created = property(_getcreated)
-
-    ##
-    ##
-    def _getlastModified(self):
-        return self._lastModified
-        
-    lastModified = property(_getlastModified)
-
-    ##
-    ##
-    def _getlocation(self):
-        return self._location
-        
-    location = property(_getlocation)
-
-
-    ##
-##
-##
-class ScimEnterpriseGroup(object):
-    def __init__(self, id:str, schemas:list, externalId:str=None, displayName:str=None, members:list=None, meta:dict=None):
-        self._id = id
-        self._schemas = schemas
-        self._externalId = externalId
-        self._displayName = displayName
-        self._members = members
-        self._meta = meta
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getid(self):
-        return self._id
-        
-    id = property(_getid)
-
-    ##
-    ##
-    def _getschemas(self):
-        return self._schemas and [ entry for entry in self._schemas ]
-        
-    schemas = property(_getschemas)
-
-    ##
-    ##
-    def _getexternalId(self):
-        return self._externalId
-        
-    externalId = property(_getexternalId)
-
-    ##
-    ##
-    def _getdisplayName(self):
-        return self._displayName
-        
-    displayName = property(_getdisplayName)
-
-    ##
-    ##
-    def _getmembers(self):
-        return self._members and [ entry and Scimenterprisegroup_members(**Scimenterprisegroup_members.patchEntry(entry)) for entry in self._members ]
-        
-    members = property(_getmembers)
-
-    ##
-    ##
-    def _getmeta(self):
-        return self._meta and Scimenterprisegroup_meta(**self._meta)
-        
-    meta = property(_getmeta)
-
-
-    ##
-##
-##
-class Scimuserlistenterprise_resources_name(object):
-    def __init__(self, givenName:str=None, familyName:str=None):
-        self._givenName = givenName
-        self._familyName = familyName
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getgivenName(self):
-        return self._givenName
-        
-    givenName = property(_getgivenName)
-
-    ##
-    ##
-    def _getfamilyName(self):
-        return self._familyName
-        
-    familyName = property(_getfamilyName)
-
-
-    ##
-##
-##
-class Scimuserlistenterprise_resources_emails(object):
-    def __init__(self, value:str=None, primary:bool=None, type:str=None):
-        self._value = value
-        self._primary = primary
-        self._type = type
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getvalue(self):
-        return self._value
-        
-    value = property(_getvalue)
-
-    ##
-    ##
-    def _getprimary(self):
-        return self._primary
-        
-    primary = property(_getprimary)
-
-    ##
-    ##
-    def _gettype(self):
-        return self._type
-        
-    type = property(_gettype)
-
-
-    ##
-##
-##
-class Scimuserlistenterprise_resources_groups(object):
-    def __init__(self, value:str=None):
-        self._value = value
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getvalue(self):
-        return self._value
-        
-    value = property(_getvalue)
-
-
-    ##
-##
-##
-class Scimuserlistenterprise_resources_meta(object):
-    def __init__(self, resourceType:str=None, created:str=None, lastModified:str=None, location:str=None):
-        self._resourceType = resourceType
-        self._created = created
-        self._lastModified = lastModified
-        self._location = location
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getresourceType(self):
-        return self._resourceType
-        
-    resourceType = property(_getresourceType)
-
-    ##
-    ##
-    def _getcreated(self):
-        return self._created
-        
-    created = property(_getcreated)
-
-    ##
-    ##
-    def _getlastModified(self):
-        return self._lastModified
-        
-    lastModified = property(_getlastModified)
-
-    ##
-    ##
-    def _getlocation(self):
-        return self._location
-        
-    location = property(_getlocation)
-
-
-    ##
-##
-##
-class Scimuserlistenterprise_resources(object):
-    def __init__(self, id:str, schemas:list, externalId:str=None, userName:str=None, name:dict=None, emails:list=None, groups:list=None, active:bool=None, meta:dict=None):
-        self._id = id
-        self._schemas = schemas
-        self._externalId = externalId
-        self._userName = userName
-        self._name = name
-        self._emails = emails
-        self._groups = groups
-        self._active = active
-        self._meta = meta
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getid(self):
-        return self._id
-        
-    id = property(_getid)
-
-    ##
-    ##
-    def _getschemas(self):
-        return self._schemas and [ entry for entry in self._schemas ]
-        
-    schemas = property(_getschemas)
-
-    ##
-    ##
-    def _getexternalId(self):
-        return self._externalId
-        
-    externalId = property(_getexternalId)
-
-    ##
-    ##
-    def _getuserName(self):
-        return self._userName
-        
-    userName = property(_getuserName)
-
-    ##
-    ##
-    def _getname(self):
-        return self._name and Scimuserlistenterprise_resources_name(**self._name)
-        
-    name = property(_getname)
-
-    ##
-    ##
-    def _getemails(self):
-        return self._emails and [ entry and Scimuserlistenterprise_resources_emails(**entry) for entry in self._emails ]
-        
-    emails = property(_getemails)
-
-    ##
-    ##
-    def _getgroups(self):
-        return self._groups and [ entry and Scimuserlistenterprise_resources_groups(**entry) for entry in self._groups ]
-        
-    groups = property(_getgroups)
-
-    ##
-    ##
-    def _getactive(self):
-        return self._active
-        
-    active = property(_getactive)
-
-    ##
-    ##
-    def _getmeta(self):
-        return self._meta and Scimuserlistenterprise_resources_meta(**self._meta)
-        
-    meta = property(_getmeta)
-
-
-    ##
-##
-##
-class ScimUserListEnterprise(object):
-    def __init__(self, Resources:list, startIndex:int, itemsPerPage:int, totalResults:int, schemas:list):
-        self._Resources = Resources
-        self._startIndex = startIndex
-        self._itemsPerPage = itemsPerPage
-        self._totalResults = totalResults
-        self._schemas = schemas
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getResources(self):
-        return self._Resources and [ entry and Scimuserlistenterprise_resources(**entry) for entry in self._Resources ]
-        
-    Resources = property(_getResources)
-
-    ##
-    ##
-    def _getstartIndex(self):
-        return self._startIndex
-        
-    startIndex = property(_getstartIndex)
-
-    ##
-    ##
-    def _getitemsPerPage(self):
-        return self._itemsPerPage
-        
-    itemsPerPage = property(_getitemsPerPage)
-
-    ##
-    ##
-    def _gettotalResults(self):
-        return self._totalResults
-        
-    totalResults = property(_gettotalResults)
-
-    ##
-    ##
-    def _getschemas(self):
-        return self._schemas and [ entry for entry in self._schemas ]
-        
-    schemas = property(_getschemas)
-
-
-    ##
-##
-##
-class Scimenterpriseuser_name(object):
-    def __init__(self, givenName:str=None, familyName:str=None):
-        self._givenName = givenName
-        self._familyName = familyName
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getgivenName(self):
-        return self._givenName
-        
-    givenName = property(_getgivenName)
-
-    ##
-    ##
-    def _getfamilyName(self):
-        return self._familyName
-        
-    familyName = property(_getfamilyName)
-
-
-    ##
-##
-##
-class Scimenterpriseuser_emails(object):
-    def __init__(self, value:str=None, type:str=None, primary:bool=None):
-        self._value = value
-        self._type = type
-        self._primary = primary
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getvalue(self):
-        return self._value
-        
-    value = property(_getvalue)
-
-    ##
-    ##
-    def _gettype(self):
-        return self._type
-        
-    type = property(_gettype)
-
-    ##
-    ##
-    def _getprimary(self):
-        return self._primary
-        
-    primary = property(_getprimary)
-
-
-    ##
-##
-##
-class Scimenterpriseuser_groups(object):
-    def __init__(self, value:str=None):
-        self._value = value
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getvalue(self):
-        return self._value
-        
-    value = property(_getvalue)
-
-
-    ##
-##
-##
-class Scimenterpriseuser_meta(object):
-    def __init__(self, resourceType:str=None, created:str=None, lastModified:str=None, location:str=None):
-        self._resourceType = resourceType
-        self._created = created
-        self._lastModified = lastModified
-        self._location = location
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getresourceType(self):
-        return self._resourceType
-        
-    resourceType = property(_getresourceType)
-
-    ##
-    ##
-    def _getcreated(self):
-        return self._created
-        
-    created = property(_getcreated)
-
-    ##
-    ##
-    def _getlastModified(self):
-        return self._lastModified
-        
-    lastModified = property(_getlastModified)
-
-    ##
-    ##
-    def _getlocation(self):
-        return self._location
-        
-    location = property(_getlocation)
-
-
-    ##
-##
-##
-class ScimEnterpriseUser(object):
-    def __init__(self, id:str, schemas:list, externalId:str=None, userName:str=None, name:dict=None, emails:list=None, groups:list=None, active:bool=None, meta:dict=None):
-        self._id = id
-        self._schemas = schemas
-        self._externalId = externalId
-        self._userName = userName
-        self._name = name
-        self._emails = emails
-        self._groups = groups
-        self._active = active
-        self._meta = meta
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getid(self):
-        return self._id
-        
-    id = property(_getid)
-
-    ##
-    ##
-    def _getschemas(self):
-        return self._schemas and [ entry for entry in self._schemas ]
-        
-    schemas = property(_getschemas)
-
-    ##
-    ##
-    def _getexternalId(self):
-        return self._externalId
-        
-    externalId = property(_getexternalId)
-
-    ##
-    ##
-    def _getuserName(self):
-        return self._userName
-        
-    userName = property(_getuserName)
-
-    ##
-    ##
-    def _getname(self):
-        return self._name and Scimenterpriseuser_name(**self._name)
-        
-    name = property(_getname)
-
-    ##
-    ##
-    def _getemails(self):
-        return self._emails and [ entry and Scimenterpriseuser_emails(**entry) for entry in self._emails ]
-        
-    emails = property(_getemails)
-
-    ##
-    ##
-    def _getgroups(self):
-        return self._groups and [ entry and Scimenterpriseuser_groups(**entry) for entry in self._groups ]
-        
-    groups = property(_getgroups)
-
-    ##
-    ##
-    def _getactive(self):
-        return self._active
-        
-    active = property(_getactive)
-
-    ##
-    ##
-    def _getmeta(self):
-        return self._meta and Scimenterpriseuser_meta(**self._meta)
-        
-    meta = property(_getmeta)
-
-
-    ##
-##
-##
-class Scimusers_name(object):
-    def __init__(self, familyName:str, givenName:str, formatted:str=None):
-        self._familyName = familyName
-        self._givenName = givenName
-        self._formatted = formatted
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getfamilyName(self):
-        return self._familyName
-        
-    familyName = property(_getfamilyName)
-
-    ##
-    ##
-    def _getgivenName(self):
-        return self._givenName
-        
-    givenName = property(_getgivenName)
-
-    ##
-    ##
-    def _getformatted(self):
-        return self._formatted
-        
-    formatted = property(_getformatted)
-
-
-    ##
-##
-##
-class Scimusers_emails(object):
-    def __init__(self, value:str, primary:bool=None):
-        self._value = value
-        self._primary = primary
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getvalue(self):
-        return self._value
-        
-    value = property(_getvalue)
-
-    ##
-    ##
-    def _getprimary(self):
-        return self._primary
-        
-    primary = property(_getprimary)
-
-
-    ##
-##
-##
-class Scimusers_meta(object):
-    def __init__(self, resourceType:str=None, created:datetime=None, lastModified:datetime=None, location:str=None):
-        self._resourceType = resourceType
-        self._created = created
-        self._lastModified = lastModified
-        self._location = location
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getresourceType(self):
-        return self._resourceType
-        
-    resourceType = property(_getresourceType)
-
-    ##
-    ##
-    def _getcreated(self):
-        return self._created and datetime.datetime.fromisoformat(self._created[0:-1])
-        
-    created = property(_getcreated)
-
-    ##
-    ##
-    def _getlastModified(self):
-        return self._lastModified and datetime.datetime.fromisoformat(self._lastModified[0:-1])
-        
-    lastModified = property(_getlastModified)
-
-    ##
-    ##
-    def _getlocation(self):
-        return self._location
-        
-    location = property(_getlocation)
-
-
-    ##
-##
-##
-class Scimusers_operations(object):
-    def __init__(self, op:str, path:str=None, value=None):
-        self._op = op
-        self._path = path
-        self._value = value
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getop(self):
-        return self._op
-        
-    op = property(_getop)
-
-    ##
-    ##
-    def _getpath(self):
-        return self._path
-        
-    path = property(_getpath)
-
-    ##
-    ##
-    def _getvalue(self):
-        return self._value
-        
-    value = property(_getvalue)
-
-
-    ##
-##
-##
-class Scimusers_groups(object):
-    def __init__(self, value:str=None, display:str=None):
-        self._value = value
-        self._display = display
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getvalue(self):
-        return self._value
-        
-    value = property(_getvalue)
-
-    ##
-    ##
-    def _getdisplay(self):
-        return self._display
-        
-    display = property(_getdisplay)
-
-
-    ##
-##
-##
-class ScimUsers(object):
-    """SCIM /Users provisioning endpoints """
-    def __init__(self, meta:dict, active:bool, emails:list, name:dict, userName:str, externalId:str, id:str, schemas:list, displayName:str=None, organization_id:int=None, operations:list=None, groups:dict=None):
-        self._meta = meta
-        self._active = active
-        self._emails = emails
-        self._name = name
-        self._userName = userName
-        self._externalId = externalId
-        self._id = id
-        self._schemas = schemas
-        self._displayName = displayName
-        self._organization_id = organization_id
-        self._operations = operations
-        self._groups = groups
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getmeta(self):
-        return self._meta and Scimusers_meta(**self._meta)
-        
-    meta = property(_getmeta)
-
-    ##
-    ##
-    def _getactive(self):
-        return self._active
-        
-    active = property(_getactive, doc="""The active status of the User. """)
-
-    ##
-    ##
-    def _getemails(self):
-        return self._emails and [ entry and Scimusers_emails(**entry) for entry in self._emails ]
-        
-    emails = property(_getemails, doc="""user emails """)
-
-    ##
-    ##
-    def _getname(self):
-        return self._name and Scimusers_name(**self._name)
-        
-    name = property(_getname)
-
-    ##
-    ##
-    def _getuserName(self):
-        return self._userName
-        
-    userName = property(_getuserName, doc="""Configured by the admin. Could be an email, login, or username """)
-
-    ##
-    ##
-    def _getexternalId(self):
-        return self._externalId
-        
-    externalId = property(_getexternalId, doc="""The ID of the User. """)
-
-    ##
-    ##
-    def _getid(self):
-        return self._id
-        
-    id = property(_getid, doc="""Unique identifier of an external identity """)
-
-    ##
-    ##
-    def _getschemas(self):
-        return self._schemas and [ entry for entry in self._schemas ]
-        
-    schemas = property(_getschemas, doc="""SCIM schema used. """)
-
-    ##
-    ##
-    def _getdisplayName(self):
-        return self._displayName
-        
-    displayName = property(_getdisplayName, doc="""The name of the user, suitable for display to end-users """)
-
-    ##
-    ##
-    def _getorganization_id(self):
-        return self._organization_id
-        
-    organization_id = property(_getorganization_id, doc="""The ID of the organization. """)
-
-    ##
-    ##
-    def _getoperations(self):
-        return self._operations and [ entry and Scimusers_operations(**entry) for entry in self._operations ]
-        
-    operations = property(_getoperations, doc="""Set of operations to be performed """)
-
-    ##
-    ##
-    def _getgroups(self):
-        return self._groups and Scimusers_groups(**self._groups)
-        
-    groups = property(_getgroups, doc="""associated groups """)
-
-
-    ##
-##
-##
-class ScimUserList(object):
-    """SCIM User List """
-    def __init__(self, Resources:list, startIndex:int, itemsPerPage:int, totalResults:int, schemas:list):
-        self._Resources = Resources
-        self._startIndex = startIndex
-        self._itemsPerPage = itemsPerPage
-        self._totalResults = totalResults
-        self._schemas = schemas
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getResources(self):
-        return self._Resources and [ entry and ScimUsers(**entry) for entry in self._Resources ]
-        
-    Resources = property(_getResources)
-
-    ##
-    ##
-    def _getstartIndex(self):
-        return self._startIndex
-        
-    startIndex = property(_getstartIndex)
-
-    ##
-    ##
-    def _getitemsPerPage(self):
-        return self._itemsPerPage
-        
-    itemsPerPage = property(_getitemsPerPage)
-
-    ##
-    ##
-    def _gettotalResults(self):
-        return self._totalResults
-        
-    totalResults = property(_gettotalResults)
-
-    ##
-    ##
-    def _getschemas(self):
-        return self._schemas and [ entry for entry in self._schemas ]
-        
-    schemas = property(_getschemas, doc="""SCIM schema used. """)
-
-
-    ##
-##
-##
-class Searchresulttextmatches_matches(object):
+class Searchresulttextmatches_matches(ResponseBase):
     def __init__(self, text:str=None, indices:list=None):
+        ResponseBase.__init__(self)
         self._text = text
         self._indices = indices
         return
@@ -33587,8 +34290,9 @@ class Searchresulttextmatches_matches(object):
     ##
 ##
 ##
-class Searchresulttextmatches(object):
+class Searchresulttextmatches(ResponseBase):
     def __init__(self, object_url:str=None, object_type:str=None, Property:str=None, fragment:str=None, matches:list=None):
+        ResponseBase.__init__(self)
         self._object_url = object_url
         self._object_type = object_type
         self._Property = Property
@@ -33649,9 +34353,10 @@ class Searchresulttextmatches(object):
 ##
 ##
 ##
-class CodeSearchResultItem(object):
+class CodeSearchResultItem(ResponseBase):
     """Code Search Result Item """
     def __init__(self, score:int, repository:dict, html_url:str, git_url:str, url:str, sha:str, path:str, name:str, file_size:int=None, language:str=None, last_modified_at:datetime=None, line_numbers:list=None, text_matches:list=None):
+        ResponseBase.__init__(self)
         self._score = score
         self._repository = repository
         self._html_url = html_url
@@ -33743,7 +34448,7 @@ class CodeSearchResultItem(object):
     ##
     ##
     def _getlast_modified_at(self):
-        return self._last_modified_at and datetime.datetime.fromisoformat(self._last_modified_at[0:-1])
+        return self._last_modified_at and datetime.fromisoformat(self._last_modified_at[0:-1])
         
     last_modified_at = property(_getlast_modified_at)
 
@@ -33765,8 +34470,9 @@ class CodeSearchResultItem(object):
     ##
 ##
 ##
-class Commitsearchresultitem_commit_author(object):
+class Commitsearchresultitem_commit_author(ResponseBase):
     def __init__(self, date:datetime, email:str, name:str):
+        ResponseBase.__init__(self)
         self._date = date
         self._email = email
         self._name = name
@@ -33778,7 +34484,7 @@ class Commitsearchresultitem_commit_author(object):
     ##
     ##
     def _getdate(self):
-        return self._date and datetime.datetime.fromisoformat(self._date[0:-1])
+        return self._date and datetime.fromisoformat(self._date[0:-1])
         
     date = property(_getdate)
 
@@ -33800,8 +34506,9 @@ class Commitsearchresultitem_commit_author(object):
     ##
 ##
 ##
-class Commitsearchresultitem_commit_tree(object):
+class Commitsearchresultitem_commit_tree(ResponseBase):
     def __init__(self, url:str, sha:str):
+        ResponseBase.__init__(self)
         self._url = url
         self._sha = sha
         return
@@ -33827,8 +34534,9 @@ class Commitsearchresultitem_commit_tree(object):
     ##
 ##
 ##
-class Commitsearchresultitem_commit(object):
+class Commitsearchresultitem_commit(ResponseBase):
     def __init__(self, url:str, tree:dict, message:str, comment_count:int, committer:dict, author:dict, verification:dict=None):
+        ResponseBase.__init__(self)
         self._url = url
         self._tree = tree
         self._message = message
@@ -33894,8 +34602,9 @@ class Commitsearchresultitem_commit(object):
     ##
 ##
 ##
-class Commitsearchresultitem_parents(object):
+class Commitsearchresultitem_parents(ResponseBase):
     def __init__(self, url:str=None, html_url:str=None, sha:str=None):
+        ResponseBase.__init__(self)
         self._url = url
         self._html_url = html_url
         self._sha = sha
@@ -33929,9 +34638,10 @@ class Commitsearchresultitem_parents(object):
     ##
 ##
 ##
-class CommitSearchResultItem(object):
+class CommitSearchResultItem(ResponseBase):
     """Commit Search Result Item """
     def __init__(self, node_id:str, score:int, repository:dict, parents:list, committer:dict, author:dict, commit:dict, comments_url:str, html_url:str, sha:str, url:str, text_matches:list=None):
+        ResponseBase.__init__(self)
         self._node_id = node_id
         self._score = score
         self._repository = repository
@@ -34037,8 +34747,9 @@ class CommitSearchResultItem(object):
     ##
 ##
 ##
-class Issuesearchresultitem_labels(object):
+class Issuesearchresultitem_labels(ResponseBase):
     def __init__(self, id:int=None, node_id:str=None, url:str=None, name:str=None, color:str=None, default:bool=None, description:str=None):
+        ResponseBase.__init__(self)
         self._id = id
         self._node_id = node_id
         self._url = url
@@ -34104,8 +34815,9 @@ class Issuesearchresultitem_labels(object):
     ##
 ##
 ##
-class Issuesearchresultitem_pull_request(object):
+class Issuesearchresultitem_pull_request(ResponseBase):
     def __init__(self, url:str, patch_url:str, html_url:str, diff_url:str, merged_at:datetime=None):
+        ResponseBase.__init__(self)
         self._url = url
         self._patch_url = patch_url
         self._html_url = html_url
@@ -34147,7 +34859,7 @@ class Issuesearchresultitem_pull_request(object):
     ##
     ##
     def _getmerged_at(self):
-        return self._merged_at and datetime.datetime.fromisoformat(self._merged_at[0:-1])
+        return self._merged_at and datetime.fromisoformat(self._merged_at[0:-1])
         
     merged_at = property(_getmerged_at)
 
@@ -34155,9 +34867,10 @@ class Issuesearchresultitem_pull_request(object):
     ##
 ##
 ##
-class IssueSearchResultItem(object):
+class IssueSearchResultItem(ResponseBase):
     """Issue Search Result Item """
-    def __init__(self, author_association:str, score:int, closed_at:datetime, updated_at:datetime, created_at:datetime, comments:int, milestone:dict, assignee:dict, state:str, labels:list, user:dict, locked:bool, title:str, number:int, node_id:str, id:int, html_url:str, events_url:str, comments_url:str, labels_url:str, repository_url:str, url:str, active_lock_reason:str=None, assignees:list=None, text_matches:list=None, pull_request:dict=None, body:str=None, draft:bool=None, repository:dict=None, body_html:str=None, body_text:str=None, timeline_url:str=None, performed_via_github_app:dict=None):
+    def __init__(self, author_association:str, score:int, closed_at:datetime, updated_at:datetime, created_at:datetime, comments:int, milestone:dict, assignee:dict, state:str, labels:list, user:dict, locked:bool, title:str, number:int, node_id:str, id:int, html_url:str, events_url:str, comments_url:str, labels_url:str, repository_url:str, url:str, active_lock_reason:str=None, assignees:list=None, text_matches:list=None, pull_request:dict=None, body:str=None, draft:bool=None, repository:dict=None, body_html:str=None, body_text:str=None, timeline_url:str=None, performed_via_github_app:dict=None, reactions:dict=None):
+        ResponseBase.__init__(self)
         self._author_association = author_association
         self._score = score
         self._closed_at = closed_at
@@ -34191,6 +34904,7 @@ class IssueSearchResultItem(object):
         self._body_text = body_text
         self._timeline_url = timeline_url
         self._performed_via_github_app = performed_via_github_app
+        self._reactions = reactions
         return
         
     
@@ -34213,21 +34927,21 @@ class IssueSearchResultItem(object):
     ##
     ##
     def _getclosed_at(self):
-        return self._closed_at and datetime.datetime.fromisoformat(self._closed_at[0:-1])
+        return self._closed_at and datetime.fromisoformat(self._closed_at[0:-1])
         
     closed_at = property(_getclosed_at)
 
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -34427,13 +35141,21 @@ class IssueSearchResultItem(object):
         
     performed_via_github_app = property(_getperformed_via_github_app)
 
+    ##
+    ##
+    def _getreactions(self):
+        return self._reactions and ReactionRollup(**ReactionRollup.patchEntry(self._reactions))
+        
+    reactions = property(_getreactions)
+
 
     ##
 ##
 ##
-class LabelSearchResultItem(object):
+class LabelSearchResultItem(ResponseBase):
     """Label Search Result Item """
     def __init__(self, score:int, description:str, default:bool, color:str, name:str, url:str, node_id:str, id:int, text_matches:list=None):
+        ResponseBase.__init__(self)
         self._score = score
         self._description = description
         self._default = default
@@ -34515,23 +35237,19 @@ class LabelSearchResultItem(object):
     ##
 ##
 ##
-class Reposearchresultitem_permissions(object):
-    def __init__(self, push:bool, pull:bool, admin:bool):
-        self._push = push
+class Reposearchresultitem_permissions(ResponseBase):
+    def __init__(self, pull:bool, push:bool, admin:bool, maintain:bool=None, triage:bool=None):
+        ResponseBase.__init__(self)
         self._pull = pull
+        self._push = push
         self._admin = admin
+        self._maintain = maintain
+        self._triage = triage
         return
         
     
 
     
-    ##
-    ##
-    def _getpush(self):
-        return self._push
-        
-    push = property(_getpush)
-
     ##
     ##
     def _getpull(self):
@@ -34541,18 +35259,40 @@ class Reposearchresultitem_permissions(object):
 
     ##
     ##
+    def _getpush(self):
+        return self._push
+        
+    push = property(_getpush)
+
+    ##
+    ##
     def _getadmin(self):
         return self._admin
         
     admin = property(_getadmin)
 
+    ##
+    ##
+    def _getmaintain(self):
+        return self._maintain
+        
+    maintain = property(_getmaintain)
+
+    ##
+    ##
+    def _gettriage(self):
+        return self._triage
+        
+    triage = property(_gettriage)
+
 
     ##
 ##
 ##
-class RepoSearchResultItem(object):
+class RepoSearchResultItem(ResponseBase):
     """Repo Search Result Item """
-    def __init__(self, license:dict, disabled:bool, archived:bool, has_downloads:bool, has_wiki:bool, has_pages:bool, has_projects:bool, has_issues:bool, mirror_url:str, watchers:int, open_issues:int, forks:int, svn_url:str, clone_url:str, ssh_url:str, git_url:str, deployments_url:str, releases_url:str, labels_url:str, notifications_url:str, milestones_url:str, pulls_url:str, issues_url:str, downloads_url:str, archive_url:str, merges_url:str, compare_url:str, contents_url:str, issue_comment_url:str, comments_url:str, git_commits_url:str, commits_url:str, subscription_url:str, subscribers_url:str, contributors_url:str, stargazers_url:str, languages_url:str, statuses_url:str, trees_url:str, git_refs_url:str, git_tags_url:str, blobs_url:str, tags_url:str, branches_url:str, assignees_url:str, events_url:str, issue_events_url:str, hooks_url:str, teams_url:str, collaborators_url:str, keys_url:str, forks_url:str, score:int, default_branch:str, open_issues_count:int, forks_count:int, language:str, watchers_count:int, stargazers_count:int, size:int, homepage:str, pushed_at:datetime, updated_at:datetime, created_at:datetime, url:str, fork:bool, description:str, html_url:str, private:bool, owner:dict, full_name:str, name:str, node_id:str, id:int, master_branch:str=None, topics:list=None, permissions:dict=None, text_matches:list=None, temp_clone_token:str=None, allow_merge_commit:bool=None, allow_squash_merge:bool=None, allow_rebase_merge:bool=None, allow_auto_merge:bool=None, delete_branch_on_merge:bool=None):
+    def __init__(self, license:dict, disabled:bool, archived:bool, has_downloads:bool, has_wiki:bool, has_pages:bool, has_projects:bool, has_issues:bool, mirror_url:str, watchers:int, open_issues:int, forks:int, svn_url:str, clone_url:str, ssh_url:str, git_url:str, deployments_url:str, releases_url:str, labels_url:str, notifications_url:str, milestones_url:str, pulls_url:str, issues_url:str, downloads_url:str, archive_url:str, merges_url:str, compare_url:str, contents_url:str, issue_comment_url:str, comments_url:str, git_commits_url:str, commits_url:str, subscription_url:str, subscribers_url:str, contributors_url:str, stargazers_url:str, languages_url:str, statuses_url:str, trees_url:str, git_refs_url:str, git_tags_url:str, blobs_url:str, tags_url:str, branches_url:str, assignees_url:str, events_url:str, issue_events_url:str, hooks_url:str, teams_url:str, collaborators_url:str, keys_url:str, forks_url:str, score:int, default_branch:str, open_issues_count:int, forks_count:int, language:str, watchers_count:int, stargazers_count:int, size:int, homepage:str, pushed_at:datetime, updated_at:datetime, created_at:datetime, url:str, fork:bool, description:str, html_url:str, private:bool, owner:dict, full_name:str, name:str, node_id:str, id:int, master_branch:str=None, topics:list=None, visibility:str=None, permissions:dict=None, text_matches:list=None, temp_clone_token:str=None, allow_merge_commit:bool=None, allow_squash_merge:bool=None, allow_rebase_merge:bool=None, allow_auto_merge:bool=None, delete_branch_on_merge:bool=None, allow_forking:bool=None, is_template:bool=None):
+        ResponseBase.__init__(self)
         self._license = license
         self._disabled = disabled
         self._archived = archived
@@ -34629,6 +35369,7 @@ class RepoSearchResultItem(object):
         self._id = id
         self._master_branch = master_branch
         self._topics = topics
+        self._visibility = visibility
         self._permissions = permissions
         self._text_matches = text_matches
         self._temp_clone_token = temp_clone_token
@@ -34637,6 +35378,8 @@ class RepoSearchResultItem(object):
         self._allow_rebase_merge = allow_rebase_merge
         self._allow_auto_merge = allow_auto_merge
         self._delete_branch_on_merge = delete_branch_on_merge
+        self._allow_forking = allow_forking
+        self._is_template = is_template
         return
         
     
@@ -35072,21 +35815,21 @@ class RepoSearchResultItem(object):
     ##
     ##
     def _getpushed_at(self):
-        return self._pushed_at and datetime.datetime.fromisoformat(self._pushed_at[0:-1])
+        return self._pushed_at and datetime.fromisoformat(self._pushed_at[0:-1])
         
     pushed_at = property(_getpushed_at)
 
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -35176,6 +35919,13 @@ class RepoSearchResultItem(object):
 
     ##
     ##
+    def _getvisibility(self):
+        return self._visibility
+        
+    visibility = property(_getvisibility, doc="""The repository visibility: public, private, or internal. """)
+
+    ##
+    ##
     def _getpermissions(self):
         return self._permissions and Reposearchresultitem_permissions(**self._permissions)
         
@@ -35230,12 +35980,27 @@ class RepoSearchResultItem(object):
         
     delete_branch_on_merge = property(_getdelete_branch_on_merge)
 
+    ##
+    ##
+    def _getallow_forking(self):
+        return self._allow_forking
+        
+    allow_forking = property(_getallow_forking)
+
+    ##
+    ##
+    def _getis_template(self):
+        return self._is_template
+        
+    is_template = property(_getis_template)
+
 
     ##
 ##
 ##
-class Topicsearchresultitem_related_topic_relation(object):
+class Topicsearchresultitem_related_topic_relation(ResponseBase):
     def __init__(self, id:int=None, name:str=None, topic_id:int=None, relation_type:str=None):
+        ResponseBase.__init__(self)
         self._id = id
         self._name = name
         self._topic_id = topic_id
@@ -35277,8 +36042,9 @@ class Topicsearchresultitem_related_topic_relation(object):
     ##
 ##
 ##
-class Topicsearchresultitem_related(object):
+class Topicsearchresultitem_related(ResponseBase):
     def __init__(self, topic_relation:dict=None):
+        ResponseBase.__init__(self)
         self._topic_relation = topic_relation
         return
         
@@ -35296,8 +36062,9 @@ class Topicsearchresultitem_related(object):
     ##
 ##
 ##
-class Topicsearchresultitem_aliases_topic_relation(object):
+class Topicsearchresultitem_aliases_topic_relation(ResponseBase):
     def __init__(self, id:int=None, name:str=None, topic_id:int=None, relation_type:str=None):
+        ResponseBase.__init__(self)
         self._id = id
         self._name = name
         self._topic_id = topic_id
@@ -35339,8 +36106,9 @@ class Topicsearchresultitem_aliases_topic_relation(object):
     ##
 ##
 ##
-class Topicsearchresultitem_aliases(object):
+class Topicsearchresultitem_aliases(ResponseBase):
     def __init__(self, topic_relation:dict=None):
+        ResponseBase.__init__(self)
         self._topic_relation = topic_relation
         return
         
@@ -35358,9 +36126,10 @@ class Topicsearchresultitem_aliases(object):
     ##
 ##
 ##
-class TopicSearchResultItem(object):
+class TopicSearchResultItem(ResponseBase):
     """Topic Search Result Item """
     def __init__(self, score:int, curated:bool, featured:bool, updated_at:datetime, created_at:datetime, released:str, created_by:str, description:str, short_description:str, display_name:str, name:str, repository_count:int=None, logo_url:str=None, text_matches:list=None, related:list=None, aliases:list=None):
+        ResponseBase.__init__(self)
         self._score = score
         self._curated = curated
         self._featured = featured
@@ -35406,14 +36175,14 @@ class TopicSearchResultItem(object):
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -35498,9 +36267,10 @@ class TopicSearchResultItem(object):
     ##
 ##
 ##
-class UserSearchResultItem(object):
+class UserSearchResultItem(ResponseBase):
     """User Search Result Item """
     def __init__(self, site_admin:bool, events_url:str, starred_url:str, gists_url:str, following_url:str, score:int, type:str, received_events_url:str, repos_url:str, organizations_url:str, subscriptions_url:str, followers_url:str, html_url:str, url:str, gravatar_id:str, avatar_url:str, node_id:str, id:int, login:str, public_repos:int=None, public_gists:int=None, followers:int=None, following:int=None, created_at:datetime=None, updated_at:datetime=None, name:str=None, bio:str=None, email:str=None, location:str=None, hireable:bool=None, text_matches:list=None, blog:str=None, company:str=None, suspended_at:datetime=None):
+        ResponseBase.__init__(self)
         self._site_admin = site_admin
         self._events_url = events_url
         self._starred_url = starred_url
@@ -35704,14 +36474,14 @@ class UserSearchResultItem(object):
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
@@ -35774,7 +36544,7 @@ class UserSearchResultItem(object):
     ##
     ##
     def _getsuspended_at(self):
-        return self._suspended_at and datetime.datetime.fromisoformat(self._suspended_at[0:-1])
+        return self._suspended_at and datetime.fromisoformat(self._suspended_at[0:-1])
         
     suspended_at = property(_getsuspended_at)
 
@@ -35782,8 +36552,1351 @@ class UserSearchResultItem(object):
     ##
 ##
 ##
-class Privateuser_plan(object):
+class Configurationstatus_progress(ResponseBase):
+    def __init__(self, key:str, status:str):
+        ResponseBase.__init__(self)
+        self._key = key
+        self._status = status
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getkey(self):
+        return self._key
+        
+    key = property(_getkey)
+
+    ##
+    ##
+    def _getstatus(self):
+        return self._status
+        
+    status = property(_getstatus)
+
+
+    ##
+##
+##
+class ConfigurationStatus(ResponseBase):
+    def __init__(self, status:str=None, progress:list=None):
+        ResponseBase.__init__(self)
+        self._status = status
+        self._progress = progress
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getstatus(self):
+        return self._status
+        
+    status = property(_getstatus)
+
+    ##
+    ##
+    def _getprogress(self):
+        return self._progress and [ entry and Configurationstatus_progress(**entry) for entry in self._progress ]
+        
+    progress = property(_getprogress)
+
+
+    ##
+##
+##
+class Maintenancestatus_connection_services(ResponseBase):
+    def __init__(self, number:int, name:str):
+        ResponseBase.__init__(self)
+        self._number = number
+        self._name = name
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getnumber(self):
+        return self._number
+        
+    number = property(_getnumber)
+
+    ##
+    ##
+    def _getname(self):
+        return self._name
+        
+    name = property(_getname)
+
+
+    ##
+##
+##
+class MaintenanceStatus(ResponseBase):
+    def __init__(self, status:str=None, scheduled_time:str=None, connection_services:list=None):
+        ResponseBase.__init__(self)
+        self._status = status
+        self._scheduled_time = scheduled_time
+        self._connection_services = connection_services
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getstatus(self):
+        return self._status
+        
+    status = property(_getstatus)
+
+    ##
+    ##
+    def _getscheduled_time(self):
+        return self._scheduled_time
+        
+    scheduled_time = property(_getscheduled_time)
+
+    ##
+    ##
+    def _getconnection_services(self):
+        return self._connection_services and [ entry and Maintenancestatus_connection_services(**entry) for entry in self._connection_services ]
+        
+    connection_services = property(_getconnection_services)
+
+
+    ##
+##
+##
+class Enterprisesettings_enterprise_avatar(ResponseBase):
+    def __init__(self, enabled:bool=None, uri:str=None):
+        ResponseBase.__init__(self)
+        self._enabled = enabled
+        self._uri = uri
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getenabled(self):
+        return self._enabled
+        
+    enabled = property(_getenabled)
+
+    ##
+    ##
+    def _geturi(self):
+        return self._uri
+        
+    uri = property(_geturi)
+
+
+    ##
+##
+##
+class Enterprisesettings_enterprise_customer(ResponseBase):
+    def __init__(self, name:str=None, email:str=None, uuid:str=None, secret_key_data:str=None, public_key_data:str=None):
+        ResponseBase.__init__(self)
+        self._name = name
+        self._email = email
+        self._uuid = uuid
+        self._secret_key_data = secret_key_data
+        self._public_key_data = public_key_data
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getname(self):
+        return self._name
+        
+    name = property(_getname)
+
+    ##
+    ##
+    def _getemail(self):
+        return self._email
+        
+    email = property(_getemail)
+
+    ##
+    ##
+    def _getuuid(self):
+        return self._uuid
+        
+    uuid = property(_getuuid)
+
+    ##
+    ##
+    def _getsecret_key_data(self):
+        return self._secret_key_data
+        
+    secret_key_data = property(_getsecret_key_data)
+
+    ##
+    ##
+    def _getpublic_key_data(self):
+        return self._public_key_data
+        
+    public_key_data = property(_getpublic_key_data)
+
+
+    ##
+##
+##
+class Enterprisesettings_enterprise_license(ResponseBase):
+    def __init__(self, seats:int=None, evaluation:bool=None, perpetual:bool=None, unlimited_seating:bool=None, support_key:str=None, ssh_allowed:bool=None, cluster_support:bool=None, expire_at:str=None):
+        ResponseBase.__init__(self)
+        self._seats = seats
+        self._evaluation = evaluation
+        self._perpetual = perpetual
+        self._unlimited_seating = unlimited_seating
+        self._support_key = support_key
+        self._ssh_allowed = ssh_allowed
+        self._cluster_support = cluster_support
+        self._expire_at = expire_at
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getseats(self):
+        return self._seats
+        
+    seats = property(_getseats)
+
+    ##
+    ##
+    def _getevaluation(self):
+        return self._evaluation
+        
+    evaluation = property(_getevaluation)
+
+    ##
+    ##
+    def _getperpetual(self):
+        return self._perpetual
+        
+    perpetual = property(_getperpetual)
+
+    ##
+    ##
+    def _getunlimited_seating(self):
+        return self._unlimited_seating
+        
+    unlimited_seating = property(_getunlimited_seating)
+
+    ##
+    ##
+    def _getsupport_key(self):
+        return self._support_key
+        
+    support_key = property(_getsupport_key)
+
+    ##
+    ##
+    def _getssh_allowed(self):
+        return self._ssh_allowed
+        
+    ssh_allowed = property(_getssh_allowed)
+
+    ##
+    ##
+    def _getcluster_support(self):
+        return self._cluster_support
+        
+    cluster_support = property(_getcluster_support)
+
+    ##
+    ##
+    def _getexpire_at(self):
+        return self._expire_at
+        
+    expire_at = property(_getexpire_at)
+
+
+    ##
+##
+##
+class Enterprisesettings_enterprise_github_ssl(ResponseBase):
+    def __init__(self, enabled:bool=None, cert:str=None, key:str=None):
+        ResponseBase.__init__(self)
+        self._enabled = enabled
+        self._cert = cert
+        self._key = key
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getenabled(self):
+        return self._enabled
+        
+    enabled = property(_getenabled)
+
+    ##
+    ##
+    def _getcert(self):
+        return self._cert
+        
+    cert = property(_getcert)
+
+    ##
+    ##
+    def _getkey(self):
+        return self._key
+        
+    key = property(_getkey)
+
+
+    ##
+##
+##
+class Enterprisesettings_enterprise_ldap_reconciliation(ResponseBase):
+    def __init__(self, user:str=None, org:str=None):
+        ResponseBase.__init__(self)
+        self._user = user
+        self._org = org
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getuser(self):
+        return self._user
+        
+    user = property(_getuser)
+
+    ##
+    ##
+    def _getorg(self):
+        return self._org
+        
+    org = property(_getorg)
+
+
+    ##
+##
+##
+class Enterprisesettings_enterprise_ldap_profile(ResponseBase):
+    def __init__(self, uid:str=None, name:str=None, mail:str=None, key:str=None):
+        ResponseBase.__init__(self)
+        self._uid = uid
+        self._name = name
+        self._mail = mail
+        self._key = key
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getuid(self):
+        return self._uid
+        
+    uid = property(_getuid)
+
+    ##
+    ##
+    def _getname(self):
+        return self._name
+        
+    name = property(_getname)
+
+    ##
+    ##
+    def _getmail(self):
+        return self._mail
+        
+    mail = property(_getmail)
+
+    ##
+    ##
+    def _getkey(self):
+        return self._key
+        
+    key = property(_getkey)
+
+
+    ##
+##
+##
+class Enterprisesettings_enterprise_ldap(ResponseBase):
+    def __init__(self, host:str=None, port:int=None, base:list=None, uid:str=None, bind_dn:str=None, password:str=None, method:str=None, search_strategy:str=None, user_groups:list=None, admin_group:str=None, virtual_attribute_enabled:bool=None, recursive_group_search:bool=None, posix_support:bool=None, user_sync_emails:bool=None, user_sync_keys:bool=None, user_sync_interval:int=None, team_sync_interval:int=None, sync_enabled:bool=None, reconciliation:dict=None, profile:dict=None):
+        ResponseBase.__init__(self)
+        self._host = host
+        self._port = port
+        self._base = base
+        self._uid = uid
+        self._bind_dn = bind_dn
+        self._password = password
+        self._method = method
+        self._search_strategy = search_strategy
+        self._user_groups = user_groups
+        self._admin_group = admin_group
+        self._virtual_attribute_enabled = virtual_attribute_enabled
+        self._recursive_group_search = recursive_group_search
+        self._posix_support = posix_support
+        self._user_sync_emails = user_sync_emails
+        self._user_sync_keys = user_sync_keys
+        self._user_sync_interval = user_sync_interval
+        self._team_sync_interval = team_sync_interval
+        self._sync_enabled = sync_enabled
+        self._reconciliation = reconciliation
+        self._profile = profile
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _gethost(self):
+        return self._host
+        
+    host = property(_gethost)
+
+    ##
+    ##
+    def _getport(self):
+        return self._port
+        
+    port = property(_getport)
+
+    ##
+    ##
+    def _getbase(self):
+        return self._base and [ entry for entry in self._base ]
+        
+    base = property(_getbase)
+
+    ##
+    ##
+    def _getuid(self):
+        return self._uid
+        
+    uid = property(_getuid)
+
+    ##
+    ##
+    def _getbind_dn(self):
+        return self._bind_dn
+        
+    bind_dn = property(_getbind_dn)
+
+    ##
+    ##
+    def _getpassword(self):
+        return self._password
+        
+    password = property(_getpassword)
+
+    ##
+    ##
+    def _getmethod(self):
+        return self._method
+        
+    method = property(_getmethod)
+
+    ##
+    ##
+    def _getsearch_strategy(self):
+        return self._search_strategy
+        
+    search_strategy = property(_getsearch_strategy)
+
+    ##
+    ##
+    def _getuser_groups(self):
+        return self._user_groups and [ entry for entry in self._user_groups ]
+        
+    user_groups = property(_getuser_groups)
+
+    ##
+    ##
+    def _getadmin_group(self):
+        return self._admin_group
+        
+    admin_group = property(_getadmin_group)
+
+    ##
+    ##
+    def _getvirtual_attribute_enabled(self):
+        return self._virtual_attribute_enabled
+        
+    virtual_attribute_enabled = property(_getvirtual_attribute_enabled)
+
+    ##
+    ##
+    def _getrecursive_group_search(self):
+        return self._recursive_group_search
+        
+    recursive_group_search = property(_getrecursive_group_search)
+
+    ##
+    ##
+    def _getposix_support(self):
+        return self._posix_support
+        
+    posix_support = property(_getposix_support)
+
+    ##
+    ##
+    def _getuser_sync_emails(self):
+        return self._user_sync_emails
+        
+    user_sync_emails = property(_getuser_sync_emails)
+
+    ##
+    ##
+    def _getuser_sync_keys(self):
+        return self._user_sync_keys
+        
+    user_sync_keys = property(_getuser_sync_keys)
+
+    ##
+    ##
+    def _getuser_sync_interval(self):
+        return self._user_sync_interval
+        
+    user_sync_interval = property(_getuser_sync_interval)
+
+    ##
+    ##
+    def _getteam_sync_interval(self):
+        return self._team_sync_interval
+        
+    team_sync_interval = property(_getteam_sync_interval)
+
+    ##
+    ##
+    def _getsync_enabled(self):
+        return self._sync_enabled
+        
+    sync_enabled = property(_getsync_enabled)
+
+    ##
+    ##
+    def _getreconciliation(self):
+        return self._reconciliation and Enterprisesettings_enterprise_ldap_reconciliation(**self._reconciliation)
+        
+    reconciliation = property(_getreconciliation)
+
+    ##
+    ##
+    def _getprofile(self):
+        return self._profile and Enterprisesettings_enterprise_ldap_profile(**self._profile)
+        
+    profile = property(_getprofile)
+
+
+    ##
+##
+##
+class Enterprisesettings_enterprise_cas(ResponseBase):
+    def __init__(self, url:str=None):
+        ResponseBase.__init__(self)
+        self._url = url
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _geturl(self):
+        return self._url
+        
+    url = property(_geturl)
+
+
+    ##
+##
+##
+class Enterprisesettings_enterprise_saml(ResponseBase):
+    def __init__(self, sso_url:str=None, certificate:str=None, certificate_path:str=None, issuer:str=None, idp_initiated_sso:bool=None, disable_admin_demote:bool=None):
+        ResponseBase.__init__(self)
+        self._sso_url = sso_url
+        self._certificate = certificate
+        self._certificate_path = certificate_path
+        self._issuer = issuer
+        self._idp_initiated_sso = idp_initiated_sso
+        self._disable_admin_demote = disable_admin_demote
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getsso_url(self):
+        return self._sso_url
+        
+    sso_url = property(_getsso_url)
+
+    ##
+    ##
+    def _getcertificate(self):
+        return self._certificate
+        
+    certificate = property(_getcertificate)
+
+    ##
+    ##
+    def _getcertificate_path(self):
+        return self._certificate_path
+        
+    certificate_path = property(_getcertificate_path)
+
+    ##
+    ##
+    def _getissuer(self):
+        return self._issuer
+        
+    issuer = property(_getissuer)
+
+    ##
+    ##
+    def _getidp_initiated_sso(self):
+        return self._idp_initiated_sso
+        
+    idp_initiated_sso = property(_getidp_initiated_sso)
+
+    ##
+    ##
+    def _getdisable_admin_demote(self):
+        return self._disable_admin_demote
+        
+    disable_admin_demote = property(_getdisable_admin_demote)
+
+
+    ##
+##
+##
+class Enterprisesettings_enterprise_github_oauth(ResponseBase):
+    def __init__(self, client_id:str=None, client_secret:str=None, organization_name:str=None, organization_team:str=None):
+        ResponseBase.__init__(self)
+        self._client_id = client_id
+        self._client_secret = client_secret
+        self._organization_name = organization_name
+        self._organization_team = organization_team
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getclient_id(self):
+        return self._client_id
+        
+    client_id = property(_getclient_id)
+
+    ##
+    ##
+    def _getclient_secret(self):
+        return self._client_secret
+        
+    client_secret = property(_getclient_secret)
+
+    ##
+    ##
+    def _getorganization_name(self):
+        return self._organization_name
+        
+    organization_name = property(_getorganization_name)
+
+    ##
+    ##
+    def _getorganization_team(self):
+        return self._organization_team
+        
+    organization_team = property(_getorganization_team)
+
+
+    ##
+##
+##
+class Enterprisesettings_enterprise_smtp(ResponseBase):
+    def __init__(self, enabled:bool=None, address:str=None, authentication:str=None, port:str=None, domain:str=None, username:str=None, user_name:str=None, enable_starttls_auto:bool=None, password:str=None, discardtonoreplyaddress:bool=None, support_address:str=None, support_address_type:str=None, noreply_address:str=None):
+        ResponseBase.__init__(self)
+        self._enabled = enabled
+        self._address = address
+        self._authentication = authentication
+        self._port = port
+        self._domain = domain
+        self._username = username
+        self._user_name = user_name
+        self._enable_starttls_auto = enable_starttls_auto
+        self._password = password
+        self._discardtonoreplyaddress = discardtonoreplyaddress
+        self._support_address = support_address
+        self._support_address_type = support_address_type
+        self._noreply_address = noreply_address
+        return
+        
+    @classmethod
+    def patchEntry(clazz, entry):
+        entry['discardtonoreplyaddress'] = entry.pop('discard-to-noreply-address')
+        return entry
+    
+
+    
+    ##
+    ##
+    def _getenabled(self):
+        return self._enabled
+        
+    enabled = property(_getenabled)
+
+    ##
+    ##
+    def _getaddress(self):
+        return self._address
+        
+    address = property(_getaddress)
+
+    ##
+    ##
+    def _getauthentication(self):
+        return self._authentication
+        
+    authentication = property(_getauthentication)
+
+    ##
+    ##
+    def _getport(self):
+        return self._port
+        
+    port = property(_getport)
+
+    ##
+    ##
+    def _getdomain(self):
+        return self._domain
+        
+    domain = property(_getdomain)
+
+    ##
+    ##
+    def _getusername(self):
+        return self._username
+        
+    username = property(_getusername)
+
+    ##
+    ##
+    def _getuser_name(self):
+        return self._user_name
+        
+    user_name = property(_getuser_name)
+
+    ##
+    ##
+    def _getenable_starttls_auto(self):
+        return self._enable_starttls_auto
+        
+    enable_starttls_auto = property(_getenable_starttls_auto)
+
+    ##
+    ##
+    def _getpassword(self):
+        return self._password
+        
+    password = property(_getpassword)
+
+    ##
+    ##
+    def _getdiscardtonoreplyaddress(self):
+        return self._discardtonoreplyaddress
+        
+    discardtonoreplyaddress = property(_getdiscardtonoreplyaddress)
+
+    ##
+    ##
+    def _getsupport_address(self):
+        return self._support_address
+        
+    support_address = property(_getsupport_address)
+
+    ##
+    ##
+    def _getsupport_address_type(self):
+        return self._support_address_type
+        
+    support_address_type = property(_getsupport_address_type)
+
+    ##
+    ##
+    def _getnoreply_address(self):
+        return self._noreply_address
+        
+    noreply_address = property(_getnoreply_address)
+
+
+    
+    ##
+    ##
+    def _getdiscardtonoreplyaddress(self):
+        return self._discardtonoreplyaddress
+        
+    discardtonoreplyaddress = property(_getdiscardtonoreplyaddress)
+##
+##
+##
+class Enterprisesettings_enterprise_ntp(ResponseBase):
+    def __init__(self, primary_server:str=None, secondary_server:str=None):
+        ResponseBase.__init__(self)
+        self._primary_server = primary_server
+        self._secondary_server = secondary_server
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getprimary_server(self):
+        return self._primary_server
+        
+    primary_server = property(_getprimary_server)
+
+    ##
+    ##
+    def _getsecondary_server(self):
+        return self._secondary_server
+        
+    secondary_server = property(_getsecondary_server)
+
+
+    ##
+##
+##
+class Enterprisesettings_enterprise_snmp(ResponseBase):
+    def __init__(self, enabled:bool=None, community:str=None):
+        ResponseBase.__init__(self)
+        self._enabled = enabled
+        self._community = community
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getenabled(self):
+        return self._enabled
+        
+    enabled = property(_getenabled)
+
+    ##
+    ##
+    def _getcommunity(self):
+        return self._community
+        
+    community = property(_getcommunity)
+
+
+    ##
+##
+##
+class Enterprisesettings_enterprise_syslog(ResponseBase):
+    def __init__(self, enabled:bool=None, server:str=None, protocol_name:str=None):
+        ResponseBase.__init__(self)
+        self._enabled = enabled
+        self._server = server
+        self._protocol_name = protocol_name
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getenabled(self):
+        return self._enabled
+        
+    enabled = property(_getenabled)
+
+    ##
+    ##
+    def _getserver(self):
+        return self._server
+        
+    server = property(_getserver)
+
+    ##
+    ##
+    def _getprotocol_name(self):
+        return self._protocol_name
+        
+    protocol_name = property(_getprotocol_name)
+
+
+    ##
+##
+##
+class Enterprisesettings_enterprise_pages(ResponseBase):
+    def __init__(self, enabled:bool=None):
+        ResponseBase.__init__(self)
+        self._enabled = enabled
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getenabled(self):
+        return self._enabled
+        
+    enabled = property(_getenabled)
+
+
+    ##
+##
+##
+class Enterprisesettings_enterprise_collectd(ResponseBase):
+    def __init__(self, enabled:bool=None, server:str=None, port:int=None, encryption:str=None, username:str=None, password:str=None):
+        ResponseBase.__init__(self)
+        self._enabled = enabled
+        self._server = server
+        self._port = port
+        self._encryption = encryption
+        self._username = username
+        self._password = password
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getenabled(self):
+        return self._enabled
+        
+    enabled = property(_getenabled)
+
+    ##
+    ##
+    def _getserver(self):
+        return self._server
+        
+    server = property(_getserver)
+
+    ##
+    ##
+    def _getport(self):
+        return self._port
+        
+    port = property(_getport)
+
+    ##
+    ##
+    def _getencryption(self):
+        return self._encryption
+        
+    encryption = property(_getencryption)
+
+    ##
+    ##
+    def _getusername(self):
+        return self._username
+        
+    username = property(_getusername)
+
+    ##
+    ##
+    def _getpassword(self):
+        return self._password
+        
+    password = property(_getpassword)
+
+
+    ##
+##
+##
+class Enterprisesettings_enterprise_mapping(ResponseBase):
+    def __init__(self, enabled:bool=None, tileserver:str=None, basemap:str=None, token:str=None):
+        ResponseBase.__init__(self)
+        self._enabled = enabled
+        self._tileserver = tileserver
+        self._basemap = basemap
+        self._token = token
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getenabled(self):
+        return self._enabled
+        
+    enabled = property(_getenabled)
+
+    ##
+    ##
+    def _gettileserver(self):
+        return self._tileserver
+        
+    tileserver = property(_gettileserver)
+
+    ##
+    ##
+    def _getbasemap(self):
+        return self._basemap
+        
+    basemap = property(_getbasemap)
+
+    ##
+    ##
+    def _gettoken(self):
+        return self._token
+        
+    token = property(_gettoken)
+
+
+    ##
+##
+##
+class Enterprisesettings_enterprise(ResponseBase):
+    def __init__(self, private_mode:bool=None, public_pages:bool=None, subdomain_isolation:bool=None, signup_enabled:bool=None, github_hostname:str=None, identicons_host:str=None, http_proxy:str=None, auth_mode:str=None, expire_sessions:bool=None, admin_password:str=None, configuration_id:int=None, configuration_run_count:int=None, avatar:dict=None, customer:dict=None, license:dict=None, github_ssl:dict=None, ldap:dict=None, cas:dict=None, saml:dict=None, github_oauth:dict=None, smtp:dict=None, ntp:dict=None, timezone:str=None, snmp:dict=None, syslog:dict=None, assets:str=None, pages:dict=None, collectd:dict=None, mapping:dict=None, load_balancer:str=None):
+        ResponseBase.__init__(self)
+        self._private_mode = private_mode
+        self._public_pages = public_pages
+        self._subdomain_isolation = subdomain_isolation
+        self._signup_enabled = signup_enabled
+        self._github_hostname = github_hostname
+        self._identicons_host = identicons_host
+        self._http_proxy = http_proxy
+        self._auth_mode = auth_mode
+        self._expire_sessions = expire_sessions
+        self._admin_password = admin_password
+        self._configuration_id = configuration_id
+        self._configuration_run_count = configuration_run_count
+        self._avatar = avatar
+        self._customer = customer
+        self._license = license
+        self._github_ssl = github_ssl
+        self._ldap = ldap
+        self._cas = cas
+        self._saml = saml
+        self._github_oauth = github_oauth
+        self._smtp = smtp
+        self._ntp = ntp
+        self._timezone = timezone
+        self._snmp = snmp
+        self._syslog = syslog
+        self._assets = assets
+        self._pages = pages
+        self._collectd = collectd
+        self._mapping = mapping
+        self._load_balancer = load_balancer
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getprivate_mode(self):
+        return self._private_mode
+        
+    private_mode = property(_getprivate_mode)
+
+    ##
+    ##
+    def _getpublic_pages(self):
+        return self._public_pages
+        
+    public_pages = property(_getpublic_pages)
+
+    ##
+    ##
+    def _getsubdomain_isolation(self):
+        return self._subdomain_isolation
+        
+    subdomain_isolation = property(_getsubdomain_isolation)
+
+    ##
+    ##
+    def _getsignup_enabled(self):
+        return self._signup_enabled
+        
+    signup_enabled = property(_getsignup_enabled)
+
+    ##
+    ##
+    def _getgithub_hostname(self):
+        return self._github_hostname
+        
+    github_hostname = property(_getgithub_hostname)
+
+    ##
+    ##
+    def _getidenticons_host(self):
+        return self._identicons_host
+        
+    identicons_host = property(_getidenticons_host)
+
+    ##
+    ##
+    def _gethttp_proxy(self):
+        return self._http_proxy
+        
+    http_proxy = property(_gethttp_proxy)
+
+    ##
+    ##
+    def _getauth_mode(self):
+        return self._auth_mode
+        
+    auth_mode = property(_getauth_mode)
+
+    ##
+    ##
+    def _getexpire_sessions(self):
+        return self._expire_sessions
+        
+    expire_sessions = property(_getexpire_sessions)
+
+    ##
+    ##
+    def _getadmin_password(self):
+        return self._admin_password
+        
+    admin_password = property(_getadmin_password)
+
+    ##
+    ##
+    def _getconfiguration_id(self):
+        return self._configuration_id
+        
+    configuration_id = property(_getconfiguration_id)
+
+    ##
+    ##
+    def _getconfiguration_run_count(self):
+        return self._configuration_run_count
+        
+    configuration_run_count = property(_getconfiguration_run_count)
+
+    ##
+    ##
+    def _getavatar(self):
+        return self._avatar and Enterprisesettings_enterprise_avatar(**self._avatar)
+        
+    avatar = property(_getavatar)
+
+    ##
+    ##
+    def _getcustomer(self):
+        return self._customer and Enterprisesettings_enterprise_customer(**self._customer)
+        
+    customer = property(_getcustomer)
+
+    ##
+    ##
+    def _getlicense(self):
+        return self._license and Enterprisesettings_enterprise_license(**self._license)
+        
+    license = property(_getlicense)
+
+    ##
+    ##
+    def _getgithub_ssl(self):
+        return self._github_ssl and Enterprisesettings_enterprise_github_ssl(**self._github_ssl)
+        
+    github_ssl = property(_getgithub_ssl)
+
+    ##
+    ##
+    def _getldap(self):
+        return self._ldap and Enterprisesettings_enterprise_ldap(**self._ldap)
+        
+    ldap = property(_getldap)
+
+    ##
+    ##
+    def _getcas(self):
+        return self._cas and Enterprisesettings_enterprise_cas(**self._cas)
+        
+    cas = property(_getcas)
+
+    ##
+    ##
+    def _getsaml(self):
+        return self._saml and Enterprisesettings_enterprise_saml(**self._saml)
+        
+    saml = property(_getsaml)
+
+    ##
+    ##
+    def _getgithub_oauth(self):
+        return self._github_oauth and Enterprisesettings_enterprise_github_oauth(**self._github_oauth)
+        
+    github_oauth = property(_getgithub_oauth)
+
+    ##
+    ##
+    def _getsmtp(self):
+        return self._smtp and Enterprisesettings_enterprise_smtp(**Enterprisesettings_enterprise_smtp.patchEntry(self._smtp))
+        
+    smtp = property(_getsmtp)
+
+    ##
+    ##
+    def _getntp(self):
+        return self._ntp and Enterprisesettings_enterprise_ntp(**self._ntp)
+        
+    ntp = property(_getntp)
+
+    ##
+    ##
+    def _gettimezone(self):
+        return self._timezone
+        
+    timezone = property(_gettimezone)
+
+    ##
+    ##
+    def _getsnmp(self):
+        return self._snmp and Enterprisesettings_enterprise_snmp(**self._snmp)
+        
+    snmp = property(_getsnmp)
+
+    ##
+    ##
+    def _getsyslog(self):
+        return self._syslog and Enterprisesettings_enterprise_syslog(**self._syslog)
+        
+    syslog = property(_getsyslog)
+
+    ##
+    ##
+    def _getassets(self):
+        return self._assets
+        
+    assets = property(_getassets)
+
+    ##
+    ##
+    def _getpages(self):
+        return self._pages and Enterprisesettings_enterprise_pages(**self._pages)
+        
+    pages = property(_getpages)
+
+    ##
+    ##
+    def _getcollectd(self):
+        return self._collectd and Enterprisesettings_enterprise_collectd(**self._collectd)
+        
+    collectd = property(_getcollectd)
+
+    ##
+    ##
+    def _getmapping(self):
+        return self._mapping and Enterprisesettings_enterprise_mapping(**self._mapping)
+        
+    mapping = property(_getmapping)
+
+    ##
+    ##
+    def _getload_balancer(self):
+        return self._load_balancer
+        
+    load_balancer = property(_getload_balancer)
+
+
+    ##
+##
+##
+class EnterpriseSettings(ResponseBase):
+    def __init__(self, enterprise:dict=None, run_list:list=None):
+        ResponseBase.__init__(self)
+        self._enterprise = enterprise
+        self._run_list = run_list
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getenterprise(self):
+        return self._enterprise and Enterprisesettings_enterprise(**self._enterprise)
+        
+    enterprise = property(_getenterprise)
+
+    ##
+    ##
+    def _getrun_list(self):
+        return self._run_list and [ entry for entry in self._run_list ]
+        
+    run_list = property(_getrun_list)
+
+
+    ##
+##
+##
+class SshKey(ResponseBase):
+    def __init__(self, key:str=None, prettyprint:str=None):
+        ResponseBase.__init__(self)
+        self._key = key
+        self._prettyprint = prettyprint
+        return
+        
+    @classmethod
+    def patchEntry(clazz, entry):
+        entry['prettyprint'] = entry.pop('pretty-print')
+        return entry
+    
+
+    
+    ##
+    ##
+    def _getkey(self):
+        return self._key
+        
+    key = property(_getkey)
+
+    ##
+    ##
+    def _getprettyprint(self):
+        return self._prettyprint
+        
+    prettyprint = property(_getprettyprint)
+
+
+    
+    ##
+    ##
+    def _getprettyprint(self):
+        return self._prettyprint
+        
+    prettyprint = property(_getprettyprint)
+##
+##
+##
+class Privateuser_plan(ResponseBase):
     def __init__(self, private_repos:int, space:int, name:str, collaborators:int):
+        ResponseBase.__init__(self)
         self._private_repos = private_repos
         self._space = space
         self._name = name
@@ -35825,9 +37938,10 @@ class Privateuser_plan(object):
     ##
 ##
 ##
-class PrivateUser(object):
+class PrivateUser(ResponseBase):
     """Private User """
     def __init__(self, two_factor_authentication:bool, collaborators:int, disk_usage:int, owned_private_repos:int, total_private_repos:int, private_gists:int, updated_at:datetime, created_at:datetime, following:int, followers:int, public_gists:int, public_repos:int, bio:str, hireable:bool, email:str, location:str, blog:str, company:str, name:str, site_admin:bool, type:str, received_events_url:str, events_url:str, repos_url:str, organizations_url:str, subscriptions_url:str, starred_url:str, gists_url:str, following_url:str, followers_url:str, html_url:str, url:str, gravatar_id:str, avatar_url:str, node_id:str, id:int, login:str, twitter_username:str=None, plan:dict=None, suspended_at:datetime=None, business_plus:bool=None, ldap_dn:str=None):
+        ResponseBase.__init__(self)
         self._two_factor_authentication = two_factor_authentication
         self._collaborators = collaborators
         self._disk_usage = disk_usage
@@ -35920,14 +38034,14 @@ class PrivateUser(object):
     ##
     ##
     def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
+        return self._updated_at and datetime.fromisoformat(self._updated_at[0:-1])
         
     updated_at = property(_getupdated_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -36151,7 +38265,7 @@ class PrivateUser(object):
     ##
     ##
     def _getsuspended_at(self):
-        return self._suspended_at and datetime.datetime.fromisoformat(self._suspended_at[0:-1])
+        return self._suspended_at and datetime.fromisoformat(self._suspended_at[0:-1])
         
     suspended_at = property(_getsuspended_at)
 
@@ -36173,9 +38287,10 @@ class PrivateUser(object):
     ##
 ##
 ##
-class Email(object):
+class Email(ResponseBase):
     """Email """
     def __init__(self, visibility:str, verified:bool, primary:bool, email:str):
+        ResponseBase.__init__(self)
         self._visibility = visibility
         self._verified = verified
         self._primary = primary
@@ -36217,8 +38332,9 @@ class Email(object):
     ##
 ##
 ##
-class Gpgkey_emails(object):
+class Gpgkey_emails(ResponseBase):
     def __init__(self, email:str=None, verified:bool=None):
+        ResponseBase.__init__(self)
         self._email = email
         self._verified = verified
         return
@@ -36244,8 +38360,9 @@ class Gpgkey_emails(object):
     ##
 ##
 ##
-class Gpgkey_subkeys(object):
+class Gpgkey_subkeys(ResponseBase):
     def __init__(self, id:int=None, primary_key_id:int=None, key_id:str=None, public_key:str=None, emails:list=None, subkeys:list=None, can_sign:bool=None, can_encrypt_comms:bool=None, can_encrypt_storage:bool=None, can_certify:bool=None, created_at:str=None, expires_at:str=None, raw_key:str=None):
+        ResponseBase.__init__(self)
         self._id = id
         self._primary_key_id = primary_key_id
         self._key_id = key_id
@@ -36359,9 +38476,10 @@ class Gpgkey_subkeys(object):
     ##
 ##
 ##
-class GpgKey(object):
+class GpgKey(ResponseBase):
     """A unique encryption key """
     def __init__(self, raw_key:str, expires_at:datetime, created_at:datetime, can_certify:bool, can_encrypt_storage:bool, can_encrypt_comms:bool, can_sign:bool, subkeys:list, emails:list, public_key:str, key_id:str, primary_key_id:int, id:int):
+        ResponseBase.__init__(self)
         self._raw_key = raw_key
         self._expires_at = expires_at
         self._created_at = created_at
@@ -36390,14 +38508,14 @@ class GpgKey(object):
     ##
     ##
     def _getexpires_at(self):
-        return self._expires_at and datetime.datetime.fromisoformat(self._expires_at[0:-1])
+        return self._expires_at and datetime.fromisoformat(self._expires_at[0:-1])
         
     expires_at = property(_getexpires_at)
 
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -36475,9 +38593,10 @@ class GpgKey(object):
     ##
 ##
 ##
-class Key(object):
+class Key(ResponseBase):
     """Key """
     def __init__(self, read_only:bool, verified:bool, created_at:datetime, title:str, url:str, id:int, key:str):
+        ResponseBase.__init__(self)
         self._read_only = read_only
         self._verified = verified
         self._created_at = created_at
@@ -36507,7 +38626,7 @@ class Key(object):
     ##
     ##
     def _getcreated_at(self):
-        return self._created_at and datetime.datetime.fromisoformat(self._created_at[0:-1])
+        return self._created_at and datetime.fromisoformat(self._created_at[0:-1])
         
     created_at = property(_getcreated_at)
 
@@ -36543,152 +38662,10 @@ class Key(object):
     ##
 ##
 ##
-class MarketplaceAccount(object):
-    def __init__(self, login:str, type:str, id:int, url:str, node_id:str=None, email:str=None, organization_billing_email:str=None):
-        self._login = login
-        self._type = type
-        self._id = id
-        self._url = url
-        self._node_id = node_id
-        self._email = email
-        self._organization_billing_email = organization_billing_email
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getlogin(self):
-        return self._login
-        
-    login = property(_getlogin)
-
-    ##
-    ##
-    def _gettype(self):
-        return self._type
-        
-    type = property(_gettype)
-
-    ##
-    ##
-    def _getid(self):
-        return self._id
-        
-    id = property(_getid)
-
-    ##
-    ##
-    def _geturl(self):
-        return self._url
-        
-    url = property(_geturl)
-
-    ##
-    ##
-    def _getnode_id(self):
-        return self._node_id
-        
-    node_id = property(_getnode_id)
-
-    ##
-    ##
-    def _getemail(self):
-        return self._email
-        
-    email = property(_getemail)
-
-    ##
-    ##
-    def _getorganization_billing_email(self):
-        return self._organization_billing_email
-        
-    organization_billing_email = property(_getorganization_billing_email)
-
-
-    ##
-##
-##
-class UserMarketplacePurchase(object):
-    """User Marketplace Purchase """
-    def __init__(self, plan:dict, account:dict, updated_at:datetime, free_trial_ends_on:datetime, on_free_trial:bool, unit_count:int, next_billing_date:datetime, billing_cycle:str):
-        self._plan = plan
-        self._account = account
-        self._updated_at = updated_at
-        self._free_trial_ends_on = free_trial_ends_on
-        self._on_free_trial = on_free_trial
-        self._unit_count = unit_count
-        self._next_billing_date = next_billing_date
-        self._billing_cycle = billing_cycle
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getplan(self):
-        return self._plan and MarketplaceListingPlan(**self._plan)
-        
-    plan = property(_getplan)
-
-    ##
-    ##
-    def _getaccount(self):
-        return self._account and MarketplaceAccount(**self._account)
-        
-    account = property(_getaccount)
-
-    ##
-    ##
-    def _getupdated_at(self):
-        return self._updated_at and datetime.datetime.fromisoformat(self._updated_at[0:-1])
-        
-    updated_at = property(_getupdated_at)
-
-    ##
-    ##
-    def _getfree_trial_ends_on(self):
-        return self._free_trial_ends_on and datetime.datetime.fromisoformat(self._free_trial_ends_on[0:-1])
-        
-    free_trial_ends_on = property(_getfree_trial_ends_on)
-
-    ##
-    ##
-    def _geton_free_trial(self):
-        return self._on_free_trial
-        
-    on_free_trial = property(_geton_free_trial)
-
-    ##
-    ##
-    def _getunit_count(self):
-        return self._unit_count
-        
-    unit_count = property(_getunit_count)
-
-    ##
-    ##
-    def _getnext_billing_date(self):
-        return self._next_billing_date and datetime.datetime.fromisoformat(self._next_billing_date[0:-1])
-        
-    next_billing_date = property(_getnext_billing_date)
-
-    ##
-    ##
-    def _getbilling_cycle(self):
-        return self._billing_cycle
-        
-    billing_cycle = property(_getbilling_cycle)
-
-
-    ##
-##
-##
-class StarredRepository(object):
+class StarredRepository(ResponseBase):
     """Starred Repository """
     def __init__(self, repo:dict, starred_at:datetime):
+        ResponseBase.__init__(self)
         self._repo = repo
         self._starred_at = starred_at
         return
@@ -36706,7 +38683,7 @@ class StarredRepository(object):
     ##
     ##
     def _getstarred_at(self):
-        return self._starred_at and datetime.datetime.fromisoformat(self._starred_at[0:-1])
+        return self._starred_at and datetime.fromisoformat(self._starred_at[0:-1])
         
     starred_at = property(_getstarred_at)
 
@@ -36714,8 +38691,9 @@ class StarredRepository(object):
     ##
 ##
 ##
-class Hovercard_contexts(object):
+class Hovercard_contexts(ResponseBase):
     def __init__(self, octicon:str, message:str):
+        ResponseBase.__init__(self)
         self._octicon = octicon
         self._message = message
         return
@@ -36741,9 +38719,10 @@ class Hovercard_contexts(object):
     ##
 ##
 ##
-class Hovercard(object):
+class Hovercard(ResponseBase):
     """Hovercard """
     def __init__(self, contexts:list):
+        ResponseBase.__init__(self)
         self._contexts = contexts
         return
         
@@ -36761,9 +38740,10 @@ class Hovercard(object):
     ##
 ##
 ##
-class KeySimple(object):
+class KeySimple(ResponseBase):
     """Key Simple """
     def __init__(self, key:str, id:int):
+        ResponseBase.__init__(self)
         self._key = key
         self._id = id
         return
@@ -36789,8 +38769,9 @@ class KeySimple(object):
     ##
 ##
 ##
-class Preview_header_missing(object):
+class Preview_header_missing(ResponseBase):
     def __init__(self, documentation_url:str, message:str):
+        ResponseBase.__init__(self)
         self._documentation_url = documentation_url
         self._message = message
         return
@@ -36816,9 +38797,10 @@ class Preview_header_missing(object):
     ##
 ##
 ##
-class NotModified(object):
+class NotModified(ResponseBase):
     """Not modified """
     def __init__(self):
+        ResponseBase.__init__(self)
         return
         
     
@@ -36828,8 +38810,9 @@ class NotModified(object):
     ##
 ##
 ##
-class Service_unavailable(object):
+class Service_unavailable(ResponseBase):
     def __init__(self, code:str=None, message:str=None, documentation_url:str=None):
+        ResponseBase.__init__(self)
         self._code = code
         self._message = message
         self._documentation_url = documentation_url
@@ -36863,8 +38846,9 @@ class Service_unavailable(object):
     ##
 ##
 ##
-class Forbidden_gist_block(object):
+class Forbidden_gist_block(ResponseBase):
     def __init__(self, reason:str=None, created_at:str=None, html_url:str=None):
+        ResponseBase.__init__(self)
         self._reason = reason
         self._created_at = created_at
         self._html_url = html_url
@@ -36898,8 +38882,9 @@ class Forbidden_gist_block(object):
     ##
 ##
 ##
-class Forbidden_gist(object):
+class Forbidden_gist(ResponseBase):
     def __init__(self, block:dict=None, message:str=None, documentation_url:str=None):
+        ResponseBase.__init__(self)
         self._block = block
         self._message = message
         self._documentation_url = documentation_url
@@ -36933,9 +38918,10 @@ class Forbidden_gist(object):
     ##
 ##
 ##
-class Found(object):
+class Found(ResponseBase):
     """Found """
     def __init__(self):
+        ResponseBase.__init__(self)
         return
         
     
@@ -36945,9 +38931,10 @@ class Found(object):
     ##
 ##
 ##
-class NoContent(object):
+class NoContent(ResponseBase):
     """A header with no content is returned. """
     def __init__(self):
+        ResponseBase.__init__(self)
         return
         
     
@@ -36957,8 +38944,9 @@ class NoContent(object):
     ##
 ##
 ##
-class MetaRootSuccess(object):
+class MetaRootSuccess(ResponseBase):
     def __init__(self, user_search_url:str, user_repositories_url:str, user_organizations_url:str, user_url:str, starred_gists_url:str, starred_url:str, current_user_repositories_url:str, repository_search_url:str, repository_url:str, rate_limit_url:str, public_gists_url:str, organization_teams_url:str, organization_repositories_url:str, organization_url:str, notifications_url:str, label_search_url:str, keys_url:str, issues_url:str, issue_search_url:str, hub_url:str, gists_url:str, following_url:str, followers_url:str, feeds_url:str, events_url:str, emojis_url:str, emails_url:str, commit_search_url:str, code_search_url:str, authorizations_url:str, current_user_authorizations_html_url:str, current_user_url:str, topic_search_url:str=None):
+        ResponseBase.__init__(self)
         self._user_search_url = user_search_url
         self._user_repositories_url = user_repositories_url
         self._user_organizations_url = user_organizations_url
@@ -37232,8 +39220,359 @@ class MetaRootSuccess(object):
     ##
 ##
 ##
-class EnterpriseAdminListSelectedOrganizationsEnabledGithubActionsEnterpriseSuccess(object):
+class Enterpriseadmincreateglobalwebhook_config(ResponseBase):
+    """Key/value pairs to provide settings for this webhook. """
+    def __init__(self, url:str, content_type:str=None, secret:str=None, insecure_ssl:str=None):
+        ResponseBase.__init__(self)
+        self._url = url
+        self._content_type = content_type
+        self._secret = secret
+        self._insecure_ssl = insecure_ssl
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _geturl(self):
+        return self._url
+        
+    url = property(_geturl, doc="""The URL to which the payloads will be delivered. """)
+
+    ##
+    ##
+    def _getcontent_type(self):
+        return self._content_type
+        
+    content_type = property(_getcontent_type, doc="""The media type used to serialize the payloads. Supported values include `json` and `form`. The default is `form`. """)
+
+    ##
+    ##
+    def _getsecret(self):
+        return self._secret
+        
+    secret = property(_getsecret, doc="""If provided, the `secret` will be used as the `key` to generate the HMAC hex digest value in the [`X-Hub-Signature`](https://docs.github.com/enterprise-server@3.3/webhooks/event-payloads/#delivery-headers) header. """)
+
+    ##
+    ##
+    def _getinsecure_ssl(self):
+        return self._insecure_ssl
+        
+    insecure_ssl = property(_getinsecure_ssl, doc="""Determines whether the SSL certificate of the host for `url` will be verified when delivering payloads. Supported values include `0` (verification is performed) and `1` (verification is not performed). The default is `0`. **We strongly recommend not setting this to `1` as you are subject to man-in-the-middle and other attacks.** """)
+
+
+    ##
+##
+##
+class Enterpriseadminupdateglobalwebhook_config(ResponseBase):
+    """Key/value pairs to provide settings for this webhook. """
+    def __init__(self, url:str, content_type:str=None, secret:str=None, insecure_ssl:str=None):
+        ResponseBase.__init__(self)
+        self._url = url
+        self._content_type = content_type
+        self._secret = secret
+        self._insecure_ssl = insecure_ssl
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _geturl(self):
+        return self._url
+        
+    url = property(_geturl, doc="""The URL to which the payloads will be delivered. """)
+
+    ##
+    ##
+    def _getcontent_type(self):
+        return self._content_type
+        
+    content_type = property(_getcontent_type, doc="""The media type used to serialize the payloads. Supported values include `json` and `form`. The default is `form`. """)
+
+    ##
+    ##
+    def _getsecret(self):
+        return self._secret
+        
+    secret = property(_getsecret, doc="""If provided, the `secret` will be used as the `key` to generate the HMAC hex digest value in the [`X-Hub-Signature`](https://docs.github.com/enterprise-server@3.3/webhooks/event-payloads/#delivery-headers) header. """)
+
+    ##
+    ##
+    def _getinsecure_ssl(self):
+        return self._insecure_ssl
+        
+    insecure_ssl = property(_getinsecure_ssl, doc="""Determines whether the SSL certificate of the host for `url` will be verified when delivering payloads. Supported values include `0` (verification is performed) and `1` (verification is not performed). The default is `0`. **We strongly recommend not setting this to `1` as you are subject to man-in-the-middle and other attacks.** """)
+
+
+    ##
+##
+##
+class EnterpriseAdminSyncLdapMappingForTeamSuccess(ResponseBase):
+    def __init__(self, status:str=None):
+        ResponseBase.__init__(self)
+        self._status = status
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getstatus(self):
+        return self._status
+        
+    status = property(_getstatus)
+
+
+    ##
+##
+##
+class EnterpriseAdminSyncLdapMappingForUserSuccess(ResponseBase):
+    def __init__(self, status:str=None):
+        ResponseBase.__init__(self)
+        self._status = status
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getstatus(self):
+        return self._status
+        
+    status = property(_getstatus)
+
+
+    ##
+##
+##
+class EnterpriseAdminUpdateOrgName202(ResponseBase):
+    def __init__(self, message:str=None, url:str=None):
+        ResponseBase.__init__(self)
+        self._message = message
+        self._url = url
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getmessage(self):
+        return self._message
+        
+    message = property(_getmessage)
+
+    ##
+    ##
+    def _geturl(self):
+        return self._url
+        
+    url = property(_geturl)
+
+
+    ##
+##
+##
+class Errors(ResponseBase):
+    def __init__(self, code:str=None, message:str=None):
+        ResponseBase.__init__(self)
+        self._code = code
+        self._message = message
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getcode(self):
+        return self._code
+        
+    code = property(_getcode)
+
+    ##
+    ##
+    def _getmessage(self):
+        return self._message
+        
+    message = property(_getmessage)
+
+
+    ##
+##
+##
+class EnterpriseAdminUpdatePreReceiveEnvironment422(ResponseBase):
+    def __init__(self, message:str=None, errors:list=None):
+        ResponseBase.__init__(self)
+        self._message = message
+        self._errors = errors
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getmessage(self):
+        return self._message
+        
+    message = property(_getmessage)
+
+    ##
+    ##
+    def _geterrors(self):
+        return self._errors and [ entry and Errors(**entry) for entry in self._errors ]
+        
+    errors = property(_geterrors)
+
+
+    ##
+##
+##
+class EnterpriseAdminDeletePreReceiveEnvironment422(ResponseBase):
+    def __init__(self, message:str=None, errors:list=None):
+        ResponseBase.__init__(self)
+        self._message = message
+        self._errors = errors
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getmessage(self):
+        return self._message
+        
+    message = property(_getmessage)
+
+    ##
+    ##
+    def _geterrors(self):
+        return self._errors and [ entry and Errors(**entry) for entry in self._errors ]
+        
+    errors = property(_geterrors)
+
+
+    ##
+##
+##
+class EnterpriseAdminStartPreReceiveEnvironmentDownload422(ResponseBase):
+    def __init__(self, message:str=None, errors:list=None):
+        ResponseBase.__init__(self)
+        self._message = message
+        self._errors = errors
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getmessage(self):
+        return self._message
+        
+    message = property(_getmessage)
+
+    ##
+    ##
+    def _geterrors(self):
+        return self._errors and [ entry and Errors(**entry) for entry in self._errors ]
+        
+    errors = property(_geterrors)
+
+
+    ##
+##
+##
+class Enterpriseadmincreateprereceivehook_script_repository(ResponseBase):
+    """The GitHub repository where the script is kept. """
+    def __init__(self):
+        ResponseBase.__init__(self)
+        return
+        
+    
+
+    
+
+    ##
+##
+##
+class Enterpriseadmincreateprereceivehook_environment(ResponseBase):
+    """The pre-receive environment where the script is executed. """
+    def __init__(self):
+        ResponseBase.__init__(self)
+        return
+        
+    
+
+    
+
+    ##
+##
+##
+class Enterpriseadminupdateprereceivehook_script_repository(ResponseBase):
+    """The GitHub repository where the script is kept. """
+    def __init__(self):
+        ResponseBase.__init__(self)
+        return
+        
+    
+
+    
+
+    ##
+##
+##
+class Enterpriseadminupdateprereceivehook_environment(ResponseBase):
+    """The pre-receive environment where the script is executed. """
+    def __init__(self):
+        ResponseBase.__init__(self)
+        return
+        
+    
+
+    
+
+    ##
+##
+##
+class EnterpriseAdminUpdateUsernameForUser202(ResponseBase):
+    def __init__(self, message:str=None, url:str=None):
+        ResponseBase.__init__(self)
+        self._message = message
+        self._url = url
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getmessage(self):
+        return self._message
+        
+    message = property(_getmessage)
+
+    ##
+    ##
+    def _geturl(self):
+        return self._url
+        
+    url = property(_geturl)
+
+
+    ##
+##
+##
+class EnterpriseAdminListSelectedOrganizationsEnabledGithubActionsEnterpriseSuccess(ResponseBase):
     def __init__(self, organizations:list, total_count:int):
+        ResponseBase.__init__(self)
         self._organizations = organizations
         self._total_count = total_count
         return
@@ -37259,8 +39598,9 @@ class EnterpriseAdminListSelectedOrganizationsEnabledGithubActionsEnterpriseSucc
     ##
 ##
 ##
-class EnterpriseAdminListSelfHostedRunnerGroupsForEnterpriseSuccess(object):
+class EnterpriseAdminListSelfHostedRunnerGroupsForEnterpriseSuccess(ResponseBase):
     def __init__(self, runner_groups:list, total_count:int):
+        ResponseBase.__init__(self)
         self._runner_groups = runner_groups
         self._total_count = total_count
         return
@@ -37286,8 +39626,9 @@ class EnterpriseAdminListSelfHostedRunnerGroupsForEnterpriseSuccess(object):
     ##
 ##
 ##
-class EnterpriseAdminListOrgAccessToSelfHostedRunnerGroupInEnterpriseSuccess(object):
+class EnterpriseAdminListOrgAccessToSelfHostedRunnerGroupInEnterpriseSuccess(ResponseBase):
     def __init__(self, organizations:list, total_count:int):
+        ResponseBase.__init__(self)
         self._organizations = organizations
         self._total_count = total_count
         return
@@ -37313,8 +39654,9 @@ class EnterpriseAdminListOrgAccessToSelfHostedRunnerGroupInEnterpriseSuccess(obj
     ##
 ##
 ##
-class EnterpriseAdminListSelfHostedRunnersInGroupForEnterpriseSuccess(object):
+class EnterpriseAdminListSelfHostedRunnersInGroupForEnterpriseSuccess(ResponseBase):
     def __init__(self, runners:list, total_count:int):
+        ResponseBase.__init__(self)
         self._runners = runners
         self._total_count = total_count
         return
@@ -37340,8 +39682,9 @@ class EnterpriseAdminListSelfHostedRunnersInGroupForEnterpriseSuccess(object):
     ##
 ##
 ##
-class EnterpriseAdminListSelfHostedRunnersForEnterpriseSuccess(object):
+class EnterpriseAdminListSelfHostedRunnersForEnterpriseSuccess(ResponseBase):
     def __init__(self, total_count:int=None, runners:list=None):
+        ResponseBase.__init__(self)
         self._total_count = total_count
         self._runners = runners
         return
@@ -37367,8 +39710,9 @@ class EnterpriseAdminListSelfHostedRunnersForEnterpriseSuccess(object):
     ##
 ##
 ##
-class GistsCheckIsStarredNotFound(object):
+class GistsCheckIsStarredNotFound(ResponseBase):
     def __init__(self):
+        ResponseBase.__init__(self)
         return
         
     
@@ -37378,8 +39722,9 @@ class GistsCheckIsStarredNotFound(object):
     ##
 ##
 ##
-class AppsListReposAccessibleToInstallationSuccess(object):
+class AppsListReposAccessibleToInstallationSuccess(ResponseBase):
     def __init__(self, repositories:list, total_count:int, repository_selection:str=None):
+        ResponseBase.__init__(self)
         self._repositories = repositories
         self._total_count = total_count
         self._repository_selection = repository_selection
@@ -37413,8 +39758,9 @@ class AppsListReposAccessibleToInstallationSuccess(object):
     ##
 ##
 ##
-class ActivityMarkNotificationsAsRead202(object):
+class ActivityMarkNotificationsAsRead202(ResponseBase):
     def __init__(self, message:str=None):
+        ResponseBase.__init__(self)
         self._message = message
         return
         
@@ -37432,8 +39778,9 @@ class ActivityMarkNotificationsAsRead202(object):
     ##
 ##
 ##
-class ActionsListSelectedRepositoriesEnabledGithubActionsOrganizationSuccess(object):
+class ActionsListSelectedRepositoriesEnabledGithubActionsOrganizationSuccess(ResponseBase):
     def __init__(self, repositories:list, total_count:int):
+        ResponseBase.__init__(self)
         self._repositories = repositories
         self._total_count = total_count
         return
@@ -37459,8 +39806,9 @@ class ActionsListSelectedRepositoriesEnabledGithubActionsOrganizationSuccess(obj
     ##
 ##
 ##
-class ActionsListSelfHostedRunnerGroupsForOrgSuccess(object):
+class ActionsListSelfHostedRunnerGroupsForOrgSuccess(ResponseBase):
     def __init__(self, runner_groups:list, total_count:int):
+        ResponseBase.__init__(self)
         self._runner_groups = runner_groups
         self._total_count = total_count
         return
@@ -37486,8 +39834,9 @@ class ActionsListSelfHostedRunnerGroupsForOrgSuccess(object):
     ##
 ##
 ##
-class ActionsListRepoAccessToSelfHostedRunnerGroupInOrgSuccess(object):
+class ActionsListRepoAccessToSelfHostedRunnerGroupInOrgSuccess(ResponseBase):
     def __init__(self, repositories:list, total_count:int):
+        ResponseBase.__init__(self)
         self._repositories = repositories
         self._total_count = total_count
         return
@@ -37513,8 +39862,9 @@ class ActionsListRepoAccessToSelfHostedRunnerGroupInOrgSuccess(object):
     ##
 ##
 ##
-class ActionsListSelfHostedRunnersInGroupForOrgSuccess(object):
+class ActionsListSelfHostedRunnersInGroupForOrgSuccess(ResponseBase):
     def __init__(self, runners:list, total_count:int):
+        ResponseBase.__init__(self)
         self._runners = runners
         self._total_count = total_count
         return
@@ -37540,8 +39890,9 @@ class ActionsListSelfHostedRunnersInGroupForOrgSuccess(object):
     ##
 ##
 ##
-class ActionsListSelfHostedRunnersForOrgSuccess(object):
+class ActionsListSelfHostedRunnersForOrgSuccess(ResponseBase):
     def __init__(self, runners:list, total_count:int):
+        ResponseBase.__init__(self)
         self._runners = runners
         self._total_count = total_count
         return
@@ -37567,8 +39918,9 @@ class ActionsListSelfHostedRunnersForOrgSuccess(object):
     ##
 ##
 ##
-class ActionsListOrgSecretsSuccess(object):
+class ActionsListOrgSecretsSuccess(ResponseBase):
     def __init__(self, secrets:list, total_count:int):
+        ResponseBase.__init__(self)
         self._secrets = secrets
         self._total_count = total_count
         return
@@ -37594,8 +39946,9 @@ class ActionsListOrgSecretsSuccess(object):
     ##
 ##
 ##
-class ActionsListSelectedReposForOrgSecretSuccess(object):
+class ActionsListSelectedReposForOrgSecretSuccess(ResponseBase):
     def __init__(self, repositories:list, total_count:int):
+        ResponseBase.__init__(self)
         self._repositories = repositories
         self._total_count = total_count
         return
@@ -37621,9 +39974,10 @@ class ActionsListSelectedReposForOrgSecretSuccess(object):
     ##
 ##
 ##
-class Orgscreatewebhook_config(object):
-    """Key/value pairs to provide settings for this webhook. [These are defined below](https://docs.github.com/rest/reference/orgs#create-hook-config-params). """
+class Orgscreatewebhook_config(ResponseBase):
+    """Key/value pairs to provide settings for this webhook. [These are defined below](https://docs.github.com/enterprise-server@3.3/rest/reference/orgs#create-hook-config-params). """
     def __init__(self, url:str, content_type:str=None, secret:str=None, insecure_ssl=None, username:str=None, password:str=None):
+        ResponseBase.__init__(self)
         self._url = url
         self._content_type = content_type
         self._secret = secret
@@ -37681,9 +40035,10 @@ class Orgscreatewebhook_config(object):
     ##
 ##
 ##
-class Orgsupdatewebhook_config(object):
-    """Key/value pairs to provide settings for this webhook. [These are defined below](https://docs.github.com/rest/reference/orgs#update-hook-config-params). """
+class Orgsupdatewebhook_config(ResponseBase):
+    """Key/value pairs to provide settings for this webhook. [These are defined below](https://docs.github.com/enterprise-server@3.3/rest/reference/orgs#update-hook-config-params). """
     def __init__(self, url:str, content_type:str=None, secret:str=None, insecure_ssl=None):
+        ResponseBase.__init__(self)
         self._url = url
         self._content_type = content_type
         self._secret = secret
@@ -37725,8 +40080,9 @@ class Orgsupdatewebhook_config(object):
     ##
 ##
 ##
-class OrgsListAppInstallationsSuccess(object):
+class OrgsListAppInstallationsSuccess(ResponseBase):
     def __init__(self, installations:list, total_count:int):
+        ResponseBase.__init__(self)
         self._installations = installations
         self._total_count = total_count
         return
@@ -37752,8 +40108,9 @@ class OrgsListAppInstallationsSuccess(object):
     ##
 ##
 ##
-class OrgsConvertMemberToOutsideCollaborator202(object):
+class OrgsConvertMemberToOutsideCollaborator202(ResponseBase):
     def __init__(self):
+        ResponseBase.__init__(self)
         return
         
     
@@ -37763,8 +40120,9 @@ class OrgsConvertMemberToOutsideCollaborator202(object):
     ##
 ##
 ##
-class OrgsRemoveOutsideCollaborator422(object):
+class OrgsRemoveOutsideCollaborator422(ResponseBase):
     def __init__(self, message:str=None, documentation_url:str=None):
+        ResponseBase.__init__(self)
         self._message = message
         self._documentation_url = documentation_url
         return
@@ -37790,8 +40148,9 @@ class OrgsRemoveOutsideCollaborator422(object):
     ##
 ##
 ##
-class TeamsAddOrUpdateProjectPermissionsInOrgForbidden(object):
+class TeamsAddOrUpdateProjectPermissionsInOrgForbidden(ResponseBase):
     def __init__(self, message:str=None, documentation_url:str=None):
+        ResponseBase.__init__(self)
         self._message = message
         self._documentation_url = documentation_url
         return
@@ -37817,43 +40176,9 @@ class TeamsAddOrUpdateProjectPermissionsInOrgForbidden(object):
     ##
 ##
 ##
-class Teamscreateorupdateidpgroupconnectionsinorg_groups(object):
-    def __init__(self, group_description:str, group_name:str, group_id:str):
-        self._group_description = group_description
-        self._group_name = group_name
-        self._group_id = group_id
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getgroup_description(self):
-        return self._group_description
-        
-    group_description = property(_getgroup_description, doc="""Description of the IdP group. """)
-
-    ##
-    ##
-    def _getgroup_name(self):
-        return self._group_name
-        
-    group_name = property(_getgroup_name, doc="""Name of the IdP group. """)
-
-    ##
-    ##
-    def _getgroup_id(self):
-        return self._group_id
-        
-    group_id = property(_getgroup_id, doc="""ID of the IdP group. """)
-
-
-    ##
-##
-##
-class ProjectsDeleteCardForbidden(object):
+class ProjectsDeleteCardForbidden(ResponseBase):
     def __init__(self, message:str=None, documentation_url:str=None, errors:list=None):
+        ResponseBase.__init__(self)
         self._message = message
         self._documentation_url = documentation_url
         self._errors = errors
@@ -37887,8 +40212,9 @@ class ProjectsDeleteCardForbidden(object):
     ##
 ##
 ##
-class ProjectsMoveCardSuccess(object):
+class ProjectsMoveCardSuccess(ResponseBase):
     def __init__(self):
+        ResponseBase.__init__(self)
         return
         
     
@@ -37898,35 +40224,9 @@ class ProjectsMoveCardSuccess(object):
     ##
 ##
 ##
-class Errors(object):
-    def __init__(self, code:str=None, message:str=None):
-        self._code = code
-        self._message = message
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getcode(self):
-        return self._code
-        
-    code = property(_getcode)
-
-    ##
-    ##
-    def _getmessage(self):
-        return self._message
-        
-    message = property(_getmessage)
-
-
-    ##
-##
-##
-class ProjectsMoveCardForbidden(object):
+class ProjectsMoveCardForbidden(ResponseBase):
     def __init__(self, message:str=None, documentation_url:str=None, errors:list=None):
+        ResponseBase.__init__(self)
         self._message = message
         self._documentation_url = documentation_url
         self._errors = errors
@@ -37960,8 +40260,9 @@ class ProjectsMoveCardForbidden(object):
     ##
 ##
 ##
-class ProjectsMoveCard503(object):
+class ProjectsMoveCard503(ResponseBase):
     def __init__(self, code:str=None, message:str=None, documentation_url:str=None, errors:list=None):
+        ResponseBase.__init__(self)
         self._code = code
         self._message = message
         self._documentation_url = documentation_url
@@ -38003,8 +40304,9 @@ class ProjectsMoveCard503(object):
     ##
 ##
 ##
-class ProjectsCreateCard503(object):
+class ProjectsCreateCard503(ResponseBase):
     def __init__(self, code:str=None, message:str=None, documentation_url:str=None, errors:list=None):
+        ResponseBase.__init__(self)
         self._code = code
         self._message = message
         self._documentation_url = documentation_url
@@ -38046,8 +40348,9 @@ class ProjectsCreateCard503(object):
     ##
 ##
 ##
-class ProjectsMoveColumnSuccess(object):
+class ProjectsMoveColumnSuccess(ResponseBase):
     def __init__(self):
+        ResponseBase.__init__(self)
         return
         
     
@@ -38057,8 +40360,9 @@ class ProjectsMoveColumnSuccess(object):
     ##
 ##
 ##
-class ProjectsUpdateForbidden(object):
+class ProjectsUpdateForbidden(ResponseBase):
     def __init__(self, message:str=None, documentation_url:str=None, errors:list=None):
+        ResponseBase.__init__(self)
         self._message = message
         self._documentation_url = documentation_url
         self._errors = errors
@@ -38092,8 +40396,9 @@ class ProjectsUpdateForbidden(object):
     ##
 ##
 ##
-class ProjectsDeleteForbidden(object):
+class ProjectsDeleteForbidden(ResponseBase):
     def __init__(self, message:str=None, documentation_url:str=None, errors:list=None):
+        ResponseBase.__init__(self)
         self._message = message
         self._documentation_url = documentation_url
         self._errors = errors
@@ -38127,9 +40432,10 @@ class ProjectsDeleteForbidden(object):
     ##
 ##
 ##
-class Reposupdate_security_and_analysis_advanced_security(object):
+class Reposupdate_security_and_analysis_advanced_security(ResponseBase):
     """Use the `status` property to enable or disable GitHub Advanced Security for this repository. For more information, see "[About GitHub Advanced Security](/github/getting-started-with-github/learning-about-github/about-github-advanced-security)." """
     def __init__(self, status:str=None):
+        ResponseBase.__init__(self)
         self._status = status
         return
         
@@ -38147,9 +40453,10 @@ class Reposupdate_security_and_analysis_advanced_security(object):
     ##
 ##
 ##
-class Reposupdate_security_and_analysis_secret_scanning(object):
+class Reposupdate_security_and_analysis_secret_scanning(ResponseBase):
     """Use the `status` property to enable or disable secret scanning for this repository. For more information, see "[About secret scanning](/code-security/secret-security/about-secret-scanning)." """
     def __init__(self, status:str=None):
+        ResponseBase.__init__(self)
         self._status = status
         return
         
@@ -38167,9 +40474,10 @@ class Reposupdate_security_and_analysis_secret_scanning(object):
     ##
 ##
 ##
-class Reposupdate_security_and_analysis(object):
+class Reposupdate_security_and_analysis(ResponseBase):
     """Specify which security and analysis features to enable or disable. For example, to enable GitHub Advanced Security, use this data in the body of the PATCH request: `{"security_and_analysis": {"advanced_security": {"status": "enabled"}}}`. If you have admin permissions for a private repository covered by an Advanced Security license, you can check which security and analysis features are currently enabled by using a `GET /repos/{owner}/{repo}` request. """
     def __init__(self, advanced_security:dict=None, secret_scanning:dict=None):
+        ResponseBase.__init__(self)
         self._advanced_security = advanced_security
         self._secret_scanning = secret_scanning
         return
@@ -38195,8 +40503,9 @@ class Reposupdate_security_and_analysis(object):
     ##
 ##
 ##
-class ReposDeleteForbidden(object):
+class ReposDeleteForbidden(ResponseBase):
     def __init__(self, message:str=None, documentation_url:str=None):
+        ResponseBase.__init__(self)
         self._message = message
         self._documentation_url = documentation_url
         return
@@ -38222,8 +40531,9 @@ class ReposDeleteForbidden(object):
     ##
 ##
 ##
-class ActionsListArtifactsForRepoSuccess(object):
+class ActionsListArtifactsForRepoSuccess(ResponseBase):
     def __init__(self, artifacts:list, total_count:int):
+        ResponseBase.__init__(self)
         self._artifacts = artifacts
         self._total_count = total_count
         return
@@ -38249,8 +40559,9 @@ class ActionsListArtifactsForRepoSuccess(object):
     ##
 ##
 ##
-class ActionsListSelfHostedRunnersForRepoSuccess(object):
+class ActionsListSelfHostedRunnersForRepoSuccess(ResponseBase):
     def __init__(self, runners:list, total_count:int):
+        ResponseBase.__init__(self)
         self._runners = runners
         self._total_count = total_count
         return
@@ -38276,8 +40587,9 @@ class ActionsListSelfHostedRunnersForRepoSuccess(object):
     ##
 ##
 ##
-class ActionsListWorkflowRunsForRepoSuccess(object):
+class ActionsListWorkflowRunsForRepoSuccess(ResponseBase):
     def __init__(self, workflow_runs:list, total_count:int):
+        ResponseBase.__init__(self)
         self._workflow_runs = workflow_runs
         self._total_count = total_count
         return
@@ -38303,8 +40615,9 @@ class ActionsListWorkflowRunsForRepoSuccess(object):
     ##
 ##
 ##
-class ActionsListWorkflowRunArtifactsSuccess(object):
+class ActionsListWorkflowRunArtifactsSuccess(ResponseBase):
     def __init__(self, artifacts:list, total_count:int):
+        ResponseBase.__init__(self)
         self._artifacts = artifacts
         self._total_count = total_count
         return
@@ -38330,19 +40643,9 @@ class ActionsListWorkflowRunArtifactsSuccess(object):
     ##
 ##
 ##
-class ActionsCancelWorkflowRun202(object):
-    def __init__(self):
-        return
-        
-    
-
-    
-
-    ##
-##
-##
-class ActionsListJobsForWorkflowRunSuccess(object):
+class ActionsListJobsForWorkflowRunAttemptSuccess(ResponseBase):
     def __init__(self, jobs:list, total_count:int):
+        ResponseBase.__init__(self)
         self._jobs = jobs
         self._total_count = total_count
         return
@@ -38368,8 +40671,9 @@ class ActionsListJobsForWorkflowRunSuccess(object):
     ##
 ##
 ##
-class ActionsReRunWorkflowSuccess(object):
+class ActionsCancelWorkflowRun202(ResponseBase):
     def __init__(self):
+        ResponseBase.__init__(self)
         return
         
     
@@ -38379,8 +40683,49 @@ class ActionsReRunWorkflowSuccess(object):
     ##
 ##
 ##
-class ActionsListRepoSecretsSuccess(object):
+class ActionsListJobsForWorkflowRunSuccess(ResponseBase):
+    def __init__(self, jobs:list, total_count:int):
+        ResponseBase.__init__(self)
+        self._jobs = jobs
+        self._total_count = total_count
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getjobs(self):
+        return self._jobs and [ entry and Job(**entry) for entry in self._jobs ]
+        
+    jobs = property(_getjobs)
+
+    ##
+    ##
+    def _gettotal_count(self):
+        return self._total_count
+        
+    total_count = property(_gettotal_count)
+
+
+    ##
+##
+##
+class ActionsReRunWorkflowSuccess(ResponseBase):
+    def __init__(self):
+        ResponseBase.__init__(self)
+        return
+        
+    
+
+    
+
+    ##
+##
+##
+class ActionsListRepoSecretsSuccess(ResponseBase):
     def __init__(self, secrets:list, total_count:int):
+        ResponseBase.__init__(self)
         self._secrets = secrets
         self._total_count = total_count
         return
@@ -38406,8 +40751,9 @@ class ActionsListRepoSecretsSuccess(object):
     ##
 ##
 ##
-class ActionsCreateOrUpdateRepoSecretSuccess(object):
+class ActionsCreateOrUpdateRepoSecretSuccess(ResponseBase):
     def __init__(self):
+        ResponseBase.__init__(self)
         return
         
     
@@ -38417,8 +40763,9 @@ class ActionsCreateOrUpdateRepoSecretSuccess(object):
     ##
 ##
 ##
-class ActionsListRepoWorkflowsSuccess(object):
+class ActionsListRepoWorkflowsSuccess(ResponseBase):
     def __init__(self, workflows:list, total_count:int):
+        ResponseBase.__init__(self)
         self._workflows = workflows
         self._total_count = total_count
         return
@@ -38444,8 +40791,9 @@ class ActionsListRepoWorkflowsSuccess(object):
     ##
 ##
 ##
-class ActionsListWorkflowRunsSuccess(object):
+class ActionsListWorkflowRunsSuccess(ResponseBase):
     def __init__(self, workflow_runs:list, total_count:int):
+        ResponseBase.__init__(self)
         self._workflow_runs = workflow_runs
         self._total_count = total_count
         return
@@ -38471,11 +40819,41 @@ class ActionsListWorkflowRunsSuccess(object):
     ##
 ##
 ##
-class Reposupdatebranchprotection_required_status_checks(object):
+class Reposupdatebranchprotection_required_status_checks_checks(ResponseBase):
+    def __init__(self, context:str, app_id:int=None):
+        ResponseBase.__init__(self)
+        self._context = context
+        self._app_id = app_id
+        return
+        
+    
+
+    
+    ##
+    ##
+    def _getcontext(self):
+        return self._context
+        
+    context = property(_getcontext, doc="""The name of the required check """)
+
+    ##
+    ##
+    def _getapp_id(self):
+        return self._app_id
+        
+    app_id = property(_getapp_id, doc="""The ID of the GitHub App that must provide this check. Omit this field to automatically select the GitHub App that has recently provided this check, or any app if it was not set by a GitHub App. Pass -1 to explicitly allow any app to set the status. """)
+
+
+    ##
+##
+##
+class Reposupdatebranchprotection_required_status_checks(ResponseBase):
     """Require status checks to pass before merging. Set to `null` to disable. """
-    def __init__(self, contexts:list, strict:bool):
+    def __init__(self, contexts, strict:bool, checks:list=None):
+        ResponseBase.__init__(self)
         self._contexts = contexts
         self._strict = strict
+        self._checks = checks
         return
         
     
@@ -38484,9 +40862,10 @@ class Reposupdatebranchprotection_required_status_checks(object):
     ##
     ##
     def _getcontexts(self):
-        return self._contexts and [ entry for entry in self._contexts ]
+        return self._contexts # deprecated
         
-    contexts = property(_getcontexts, doc="""The list of status checks to require in order to merge into this branch """)
+    contexts = property(_getcontexts, doc="""**Deprecated**: The list of status checks to require in order to merge into this branch. If any of these checks have recently been set by a particular GitHub App, they will be required to come from that app in future for the branch to merge. Use `checks` instead of `contexts` for more fine-grained control.
+ """)
 
     ##
     ##
@@ -38495,13 +40874,21 @@ class Reposupdatebranchprotection_required_status_checks(object):
         
     strict = property(_getstrict, doc="""Require branches to be up to date before merging. """)
 
+    ##
+    ##
+    def _getchecks(self):
+        return self._checks and [ entry and Reposupdatebranchprotection_required_status_checks_checks(**entry) for entry in self._checks ]
+        
+    checks = property(_getchecks, doc="""The list of status checks to require in order to merge into this branch. """)
+
 
     ##
 ##
 ##
-class Reposupdatebranchprotection_required_pull_request_reviews_dismissal_restrictions(object):
+class Reposupdatebranchprotection_required_pull_request_reviews_dismissal_restrictions(ResponseBase):
     """Specify which users and teams can dismiss pull request reviews. Pass an empty `dismissal_restrictions` object to disable. User and team `dismissal_restrictions` are only available for organization-owned repositories. Omit this parameter for personal repositories. """
     def __init__(self, users:list=None, teams:list=None):
+        ResponseBase.__init__(self)
         self._users = users
         self._teams = teams
         return
@@ -38527,9 +40914,10 @@ class Reposupdatebranchprotection_required_pull_request_reviews_dismissal_restri
     ##
 ##
 ##
-class Reposupdatebranchprotection_required_pull_request_reviews(object):
+class Reposupdatebranchprotection_required_pull_request_reviews(ResponseBase):
     """Require at least one approving review on a pull request, before merging. Set to `null` to disable. """
     def __init__(self, dismissal_restrictions:dict=None, dismiss_stale_reviews:bool=None, require_code_owner_reviews:bool=None, required_approving_review_count:int=None):
+        ResponseBase.__init__(self)
         self._dismissal_restrictions = dismissal_restrictions
         self._dismiss_stale_reviews = dismiss_stale_reviews
         self._require_code_owner_reviews = require_code_owner_reviews
@@ -38571,9 +40959,10 @@ class Reposupdatebranchprotection_required_pull_request_reviews(object):
     ##
 ##
 ##
-class Reposupdatebranchprotection_restrictions(object):
+class Reposupdatebranchprotection_restrictions(ResponseBase):
     """Restrict who can push to the protected branch. User, app, and team `restrictions` are only available for organization-owned repositories. Set to `null` to disable. """
     def __init__(self, teams:list, users:list, apps:list=None):
+        ResponseBase.__init__(self)
         self._teams = teams
         self._users = users
         self._apps = apps
@@ -38607,9 +40996,10 @@ class Reposupdatebranchprotection_restrictions(object):
     ##
 ##
 ##
-class Reposupdatepullrequestreviewprotection_dismissal_restrictions(object):
+class Reposupdatepullrequestreviewprotection_dismissal_restrictions(ResponseBase):
     """Specify which users and teams can dismiss pull request reviews. Pass an empty `dismissal_restrictions` object to disable. User and team `dismissal_restrictions` are only available for organization-owned repositories. Omit this parameter for personal repositories. """
     def __init__(self, users:list=None, teams:list=None):
+        ResponseBase.__init__(self)
         self._users = users
         self._teams = teams
         return
@@ -38635,8 +41025,9 @@ class Reposupdatepullrequestreviewprotection_dismissal_restrictions(object):
     ##
 ##
 ##
-class Checkscreate_output_annotations(object):
+class Checkscreate_output_annotations(ResponseBase):
     def __init__(self, message:str, annotation_level:str, end_line:int, start_line:int, path:str, start_column:int=None, end_column:int=None, title:str=None, raw_details:str=None):
+        ResponseBase.__init__(self)
         self._message = message
         self._annotation_level = annotation_level
         self._end_line = end_line
@@ -38718,8 +41109,9 @@ class Checkscreate_output_annotations(object):
     ##
 ##
 ##
-class Checkscreate_output_images(object):
+class Checkscreate_output_images(ResponseBase):
     def __init__(self, image_url:str, alt:str, caption:str=None):
+        ResponseBase.__init__(self)
         self._image_url = image_url
         self._alt = alt
         self._caption = caption
@@ -38753,9 +41145,10 @@ class Checkscreate_output_images(object):
     ##
 ##
 ##
-class Checkscreate_output(object):
-    """Check runs can accept a variety of data in the `output` object, including a `title` and `summary` and can optionally provide descriptive details about the run. See the [`output` object](https://docs.github.com/rest/reference/checks#output-object) description. """
+class Checkscreate_output(ResponseBase):
+    """Check runs can accept a variety of data in the `output` object, including a `title` and `summary` and can optionally provide descriptive details about the run. See the [`output` object](https://docs.github.com/enterprise-server@3.3/rest/reference/checks#output-object) description. """
     def __init__(self, summary:str, title:str, text:str=None, annotations:list=None, images:list=None):
+        ResponseBase.__init__(self)
         self._summary = summary
         self._title = title
         self._text = text
@@ -38792,21 +41185,22 @@ class Checkscreate_output(object):
     def _getannotations(self):
         return self._annotations and [ entry and Checkscreate_output_annotations(**entry) for entry in self._annotations ]
         
-    annotations = property(_getannotations, doc="""Adds information from your analysis to specific lines of code. Annotations are visible on GitHub in the **Checks** and **Files changed** tab of the pull request. The Checks API limits the number of annotations to a maximum of 50 per API request. To create more than 50 annotations, you have to make multiple requests to the [Update a check run](https://docs.github.com/rest/reference/checks#update-a-check-run) endpoint. Each time you update the check run, annotations are appended to the list of annotations that already exist for the check run. For details about how you can view annotations on GitHub, see "[About status checks](https://help.github.com/articles/about-status-checks#checks)". See the [`annotations` object](https://docs.github.com/rest/reference/checks#annotations-object) description for details about how to use this parameter. """)
+    annotations = property(_getannotations, doc="""Adds information from your analysis to specific lines of code. Annotations are visible on GitHub in the **Checks** and **Files changed** tab of the pull request. The Checks API limits the number of annotations to a maximum of 50 per API request. To create more than 50 annotations, you have to make multiple requests to the [Update a check run](https://docs.github.com/enterprise-server@3.3/rest/reference/checks#update-a-check-run) endpoint. Each time you update the check run, annotations are appended to the list of annotations that already exist for the check run. For details about how you can view annotations on GitHub, see "[About status checks](https://help.github.com/articles/about-status-checks#checks)". See the [`annotations` object](https://docs.github.com/enterprise-server@3.3/rest/reference/checks#annotations-object) description for details about how to use this parameter. """)
 
     ##
     ##
     def _getimages(self):
         return self._images and [ entry and Checkscreate_output_images(**entry) for entry in self._images ]
         
-    images = property(_getimages, doc="""Adds images to the output displayed in the GitHub pull request UI. See the [`images` object](https://docs.github.com/rest/reference/checks#images-object) description for details. """)
+    images = property(_getimages, doc="""Adds images to the output displayed in the GitHub pull request UI. See the [`images` object](https://docs.github.com/enterprise-server@3.3/rest/reference/checks#images-object) description for details. """)
 
 
     ##
 ##
 ##
-class Checkscreate_actions(object):
+class Checkscreate_actions(ResponseBase):
     def __init__(self, identifier:str, description:str, label:str):
+        ResponseBase.__init__(self)
         self._identifier = identifier
         self._description = description
         self._label = label
@@ -38840,8 +41234,9 @@ class Checkscreate_actions(object):
     ##
 ##
 ##
-class Checksupdate_output_annotations(object):
+class Checksupdate_output_annotations(ResponseBase):
     def __init__(self, message:str, annotation_level:str, end_line:int, start_line:int, path:str, start_column:int=None, end_column:int=None, title:str=None, raw_details:str=None):
+        ResponseBase.__init__(self)
         self._message = message
         self._annotation_level = annotation_level
         self._end_line = end_line
@@ -38923,8 +41318,9 @@ class Checksupdate_output_annotations(object):
     ##
 ##
 ##
-class Checksupdate_output_images(object):
+class Checksupdate_output_images(ResponseBase):
     def __init__(self, image_url:str, alt:str, caption:str=None):
+        ResponseBase.__init__(self)
         self._image_url = image_url
         self._alt = alt
         self._caption = caption
@@ -38958,9 +41354,10 @@ class Checksupdate_output_images(object):
     ##
 ##
 ##
-class Checksupdate_output(object):
-    """Check runs can accept a variety of data in the `output` object, including a `title` and `summary` and can optionally provide descriptive details about the run. See the [`output` object](https://docs.github.com/rest/reference/checks#output-object-1) description. """
+class Checksupdate_output(ResponseBase):
+    """Check runs can accept a variety of data in the `output` object, including a `title` and `summary` and can optionally provide descriptive details about the run. See the [`output` object](https://docs.github.com/enterprise-server@3.3/rest/reference/checks#output-object-1) description. """
     def __init__(self, summary:str, title:str=None, text:str=None, annotations:list=None, images:list=None):
+        ResponseBase.__init__(self)
         self._summary = summary
         self._title = title
         self._text = text
@@ -38997,21 +41394,22 @@ class Checksupdate_output(object):
     def _getannotations(self):
         return self._annotations and [ entry and Checksupdate_output_annotations(**entry) for entry in self._annotations ]
         
-    annotations = property(_getannotations, doc="""Adds information from your analysis to specific lines of code. Annotations are visible in GitHub's pull request UI. Annotations are visible in GitHub's pull request UI. The Checks API limits the number of annotations to a maximum of 50 per API request. To create more than 50 annotations, you have to make multiple requests to the [Update a check run](https://docs.github.com/rest/reference/checks#update-a-check-run) endpoint. Each time you update the check run, annotations are appended to the list of annotations that already exist for the check run. For details about annotations in the UI, see "[About status checks](https://help.github.com/articles/about-status-checks#checks)". See the [`annotations` object](https://docs.github.com/rest/reference/checks#annotations-object-1) description for details. """)
+    annotations = property(_getannotations, doc="""Adds information from your analysis to specific lines of code. Annotations are visible in GitHub's pull request UI. Annotations are visible in GitHub's pull request UI. The Checks API limits the number of annotations to a maximum of 50 per API request. To create more than 50 annotations, you have to make multiple requests to the [Update a check run](https://docs.github.com/enterprise-server@3.3/rest/reference/checks#update-a-check-run) endpoint. Each time you update the check run, annotations are appended to the list of annotations that already exist for the check run. For details about annotations in the UI, see "[About status checks](https://help.github.com/articles/about-status-checks#checks)". See the [`annotations` object](https://docs.github.com/enterprise-server@3.3/rest/reference/checks#annotations-object-1) description for details. """)
 
     ##
     ##
     def _getimages(self):
         return self._images and [ entry and Checksupdate_output_images(**entry) for entry in self._images ]
         
-    images = property(_getimages, doc="""Adds images to the output displayed in the GitHub pull request UI. See the [`images` object](https://docs.github.com/rest/reference/checks#annotations-object-1) description for details. """)
+    images = property(_getimages, doc="""Adds images to the output displayed in the GitHub pull request UI. See the [`images` object](https://docs.github.com/enterprise-server@3.3/rest/reference/checks#annotations-object-1) description for details. """)
 
 
     ##
 ##
 ##
-class Checksupdate_actions(object):
+class Checksupdate_actions(ResponseBase):
     def __init__(self, identifier:str, description:str, label:str):
+        ResponseBase.__init__(self)
         self._identifier = identifier
         self._description = description
         self._label = label
@@ -39045,8 +41443,21 @@ class Checksupdate_actions(object):
     ##
 ##
 ##
-class Checkssetsuitespreferences_auto_trigger_checks(object):
+class ChecksRerequestRunSuccess(ResponseBase):
+    def __init__(self):
+        ResponseBase.__init__(self)
+        return
+        
+    
+
+    
+
+    ##
+##
+##
+class Checkssetsuitespreferences_auto_trigger_checks(ResponseBase):
     def __init__(self, app_id:int, setting:bool=True):
+        ResponseBase.__init__(self)
         self._app_id = app_id
         self._setting = setting
         return
@@ -39072,8 +41483,9 @@ class Checkssetsuitespreferences_auto_trigger_checks(object):
     ##
 ##
 ##
-class ChecksListForSuiteSuccess(object):
+class ChecksListForSuiteSuccess(ResponseBase):
     def __init__(self, check_runs:list, total_count:int):
+        ResponseBase.__init__(self)
         self._check_runs = check_runs
         self._total_count = total_count
         return
@@ -39099,8 +41511,9 @@ class ChecksListForSuiteSuccess(object):
     ##
 ##
 ##
-class ChecksRerequestSuiteSuccess(object):
+class ChecksRerequestSuiteSuccess(ResponseBase):
     def __init__(self):
+        ResponseBase.__init__(self)
         return
         
     
@@ -39110,8 +41523,9 @@ class ChecksRerequestSuiteSuccess(object):
     ##
 ##
 ##
-class ChecksListForRefSuccess(object):
+class ChecksListForRefSuccess(ResponseBase):
     def __init__(self, check_runs:list, total_count:int):
+        ResponseBase.__init__(self)
         self._check_runs = check_runs
         self._total_count = total_count
         return
@@ -39137,8 +41551,9 @@ class ChecksListForRefSuccess(object):
     ##
 ##
 ##
-class ChecksListSuitesForRefSuccess(object):
+class ChecksListSuitesForRefSuccess(ResponseBase):
     def __init__(self, check_suites:list, total_count:int):
+        ResponseBase.__init__(self)
         self._check_suites = check_suites
         self._total_count = total_count
         return
@@ -39164,9 +41579,10 @@ class ChecksListSuitesForRefSuccess(object):
     ##
 ##
 ##
-class Reposcreateorupdatefilecontents_committer(object):
+class Reposcreateorupdatefilecontents_committer(ResponseBase):
     """The person that committed the file. Default: the authenticated user. """
     def __init__(self, email:str, name:str, date:str=None):
+        ResponseBase.__init__(self)
         self._email = email
         self._name = name
         self._date = date
@@ -39200,9 +41616,10 @@ class Reposcreateorupdatefilecontents_committer(object):
     ##
 ##
 ##
-class Reposcreateorupdatefilecontents_author(object):
+class Reposcreateorupdatefilecontents_author(ResponseBase):
     """The author of the file. Default: The `committer` or the authenticated user if you omit `committer`. """
     def __init__(self, email:str, name:str, date:str=None):
+        ResponseBase.__init__(self)
         self._email = email
         self._name = name
         self._date = date
@@ -39236,9 +41653,10 @@ class Reposcreateorupdatefilecontents_author(object):
     ##
 ##
 ##
-class Reposdeletefile_committer(object):
+class Reposdeletefile_committer(ResponseBase):
     """object containing information about the committer. """
     def __init__(self, name:str=None, email:str=None):
+        ResponseBase.__init__(self)
         self._name = name
         self._email = email
         return
@@ -39264,9 +41682,10 @@ class Reposdeletefile_committer(object):
     ##
 ##
 ##
-class Reposdeletefile_author(object):
+class Reposdeletefile_author(ResponseBase):
     """object containing information about the author. """
     def __init__(self, name:str=None, email:str=None):
+        ResponseBase.__init__(self)
         self._name = name
         self._email = email
         return
@@ -39292,8 +41711,9 @@ class Reposdeletefile_author(object):
     ##
 ##
 ##
-class ReposCreateDeployment202(object):
+class ReposCreateDeployment202(ResponseBase):
     def __init__(self, message:str=None):
+        ResponseBase.__init__(self)
         self._message = message
         return
         
@@ -39311,8 +41731,9 @@ class ReposCreateDeployment202(object):
     ##
 ##
 ##
-class ReposGetAllEnvironmentsSuccess(object):
+class ReposGetAllEnvironmentsSuccess(ResponseBase):
     def __init__(self, total_count:int=None, environments:list=None):
+        ResponseBase.__init__(self)
         self._total_count = total_count
         self._environments = environments
         return
@@ -39338,8 +41759,9 @@ class ReposGetAllEnvironmentsSuccess(object):
     ##
 ##
 ##
-class Reposcreateorupdateenvironment_reviewers(object):
+class Reposcreateorupdateenvironment_reviewers(ResponseBase):
     def __init__(self, type:str=None, id:int=None):
+        ResponseBase.__init__(self)
         self._type = type
         self._id = id
         return
@@ -39365,9 +41787,10 @@ class Reposcreateorupdateenvironment_reviewers(object):
     ##
 ##
 ##
-class Gitcreatecommit_author(object):
+class Gitcreatecommit_author(ResponseBase):
     """Information about the author of the commit. By default, the `author` will be the authenticated user and the current date. See the `author` and `committer` object below for details. """
     def __init__(self, email:str, name:str, date:datetime=None):
+        ResponseBase.__init__(self)
         self._email = email
         self._name = name
         self._date = date
@@ -39393,7 +41816,7 @@ class Gitcreatecommit_author(object):
     ##
     ##
     def _getdate(self):
-        return self._date and datetime.datetime.fromisoformat(self._date[0:-1])
+        return self._date and datetime.fromisoformat(self._date[0:-1])
         
     date = property(_getdate, doc="""Indicates when this commit was authored (or committed). This is a timestamp in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format: `YYYY-MM-DDTHH:MM:SSZ`. """)
 
@@ -39401,9 +41824,10 @@ class Gitcreatecommit_author(object):
     ##
 ##
 ##
-class Gitcreatecommit_committer(object):
+class Gitcreatecommit_committer(ResponseBase):
     """Information about the person who is making the commit. By default, `committer` will use the information set in `author`. See the `author` and `committer` object below for details. """
     def __init__(self, name:str=None, email:str=None, date:datetime=None):
+        ResponseBase.__init__(self)
         self._name = name
         self._email = email
         self._date = date
@@ -39429,7 +41853,7 @@ class Gitcreatecommit_committer(object):
     ##
     ##
     def _getdate(self):
-        return self._date and datetime.datetime.fromisoformat(self._date[0:-1])
+        return self._date and datetime.fromisoformat(self._date[0:-1])
         
     date = property(_getdate, doc="""Indicates when this commit was authored (or committed). This is a timestamp in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format: `YYYY-MM-DDTHH:MM:SSZ`. """)
 
@@ -39437,9 +41861,10 @@ class Gitcreatecommit_committer(object):
     ##
 ##
 ##
-class Gitcreatetag_tagger(object):
+class Gitcreatetag_tagger(ResponseBase):
     """An object with information about the individual creating the tag. """
     def __init__(self, email:str, name:str, date:datetime=None):
+        ResponseBase.__init__(self)
         self._email = email
         self._name = name
         self._date = date
@@ -39465,7 +41890,7 @@ class Gitcreatetag_tagger(object):
     ##
     ##
     def _getdate(self):
-        return self._date and datetime.datetime.fromisoformat(self._date[0:-1])
+        return self._date and datetime.fromisoformat(self._date[0:-1])
         
     date = property(_getdate, doc="""When this object was tagged. This is a timestamp in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format: `YYYY-MM-DDTHH:MM:SSZ`. """)
 
@@ -39473,8 +41898,9 @@ class Gitcreatetag_tagger(object):
     ##
 ##
 ##
-class Gitcreatetree_tree(object):
+class Gitcreatetree_tree(ResponseBase):
     def __init__(self, path:str=None, mode:str=None, type:str=None, sha:str=None, content:str=None):
+        ResponseBase.__init__(self)
         self._path = path
         self._mode = mode
         self._type = type
@@ -39528,9 +41954,10 @@ class Gitcreatetree_tree(object):
     ##
 ##
 ##
-class Reposcreatewebhook_config(object):
-    """Key/value pairs to provide settings for this webhook. [These are defined below](https://docs.github.com/rest/reference/repos#create-hook-config-params). """
+class Reposcreatewebhook_config(ResponseBase):
+    """Key/value pairs to provide settings for this webhook. [These are defined below](https://docs.github.com/enterprise-server@3.3/rest/reference/repos#create-hook-config-params). """
     def __init__(self, url:str=None, content_type:str=None, secret:str=None, insecure_ssl=None, token:str=None, digest:str=None):
+        ResponseBase.__init__(self)
         self._url = url
         self._content_type = content_type
         self._secret = secret
@@ -39588,9 +42015,10 @@ class Reposcreatewebhook_config(object):
     ##
 ##
 ##
-class Reposupdatewebhook_config(object):
-    """Key/value pairs to provide settings for this webhook. [These are defined below](https://docs.github.com/rest/reference/repos#create-hook-config-params). """
+class Reposupdatewebhook_config(ResponseBase):
+    """Key/value pairs to provide settings for this webhook. [These are defined below](https://docs.github.com/enterprise-server@3.3/rest/reference/repos#create-hook-config-params). """
     def __init__(self, url:str, content_type:str=None, secret:str=None, insecure_ssl=None, address:str=None, room:str=None):
+        ResponseBase.__init__(self)
         self._url = url
         self._content_type = content_type
         self._secret = secret
@@ -39648,8 +42076,9 @@ class Reposupdatewebhook_config(object):
     ##
 ##
 ##
-class Issuescreate_labels(object):
+class Issuescreate_labels(ResponseBase):
     def __init__(self, id:int=None, name:str=None, description:str=None, color:str=None):
+        ResponseBase.__init__(self)
         self._id = id
         self._name = name
         self._description = description
@@ -39691,8 +42120,9 @@ class Issuescreate_labels(object):
     ##
 ##
 ##
-class Issuesupdate_labels(object):
+class Issuesupdate_labels(ResponseBase):
     def __init__(self, id:int=None, name:str=None, description:str=None, color:str=None):
+        ResponseBase.__init__(self)
         self._id = id
         self._name = name
         self._description = description
@@ -39734,8 +42164,9 @@ class Issuesupdate_labels(object):
     ##
 ##
 ##
-class ActivityMarkRepoNotificationsAsRead202(object):
+class ActivityMarkRepoNotificationsAsRead202(ResponseBase):
     def __init__(self, message:str=None, url:str=None):
+        ResponseBase.__init__(self)
         self._message = message
         self._url = url
         return
@@ -39761,9 +42192,10 @@ class ActivityMarkRepoNotificationsAsRead202(object):
     ##
 ##
 ##
-class Reposcreatepagessite_source(object):
+class Reposcreatepagessite_source(ResponseBase):
     """The source branch and directory used to publish your Pages site. """
     def __init__(self, branch:str, path:str='/'):
+        ResponseBase.__init__(self)
         self._branch = branch
         self._path = path
         return
@@ -39789,9 +42221,10 @@ class Reposcreatepagessite_source(object):
     ##
 ##
 ##
-class Reposupdateinformationaboutpagessite_source(object):
+class Reposupdateinformationaboutpagessite_source(ResponseBase):
     """Update the source for the repository. Must include the branch name and path. """
     def __init__(self, path:str, branch:str):
+        ResponseBase.__init__(self)
         self._path = path
         self._branch = branch
         return
@@ -39817,8 +42250,9 @@ class Reposupdateinformationaboutpagessite_source(object):
     ##
 ##
 ##
-class PullsMerge405(object):
+class PullsMerge405(ResponseBase):
     def __init__(self, message:str=None, documentation_url:str=None):
+        ResponseBase.__init__(self)
         self._message = message
         self._documentation_url = documentation_url
         return
@@ -39844,8 +42278,9 @@ class PullsMerge405(object):
     ##
 ##
 ##
-class PullsMerge409(object):
+class PullsMerge409(ResponseBase):
     def __init__(self, message:str=None, documentation_url:str=None):
+        ResponseBase.__init__(self)
         self._message = message
         self._documentation_url = documentation_url
         return
@@ -39871,8 +42306,9 @@ class PullsMerge409(object):
     ##
 ##
 ##
-class Pullscreatereview_comments(object):
+class Pullscreatereview_comments(ResponseBase):
     def __init__(self, body:str, path:str, position:int=None, line:int=None, side:str=None, start_line:int=None, start_side:str=None):
+        ResponseBase.__init__(self)
         self._body = body
         self._path = path
         self._position = position
@@ -39938,8 +42374,9 @@ class Pullscreatereview_comments(object):
     ##
 ##
 ##
-class PullsUpdateBranch202(object):
+class PullsUpdateBranch202(ResponseBase):
     def __init__(self, message:str=None, url:str=None):
+        ResponseBase.__init__(self)
         self._message = message
         self._url = url
         return
@@ -39965,8 +42402,9 @@ class PullsUpdateBranch202(object):
     ##
 ##
 ##
-class ActionsListEnvironmentSecretsSuccess(object):
+class ActionsListEnvironmentSecretsSuccess(ResponseBase):
     def __init__(self, secrets:list, total_count:int):
+        ResponseBase.__init__(self)
         self._secrets = secrets
         self._total_count = total_count
         return
@@ -39992,445 +42430,9 @@ class ActionsListEnvironmentSecretsSuccess(object):
     ##
 ##
 ##
-class Enterpriseadminprovisionandinviteenterprisegroup_members(object):
-    def __init__(self, value:str):
-        self._value = value
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getvalue(self):
-        return self._value
-        
-    value = property(_getvalue, doc="""The SCIM user ID for a user. """)
-
-
-    ##
-##
-##
-class Enterpriseadminsetinformationforprovisionedenterprisegroup_members(object):
-    def __init__(self, value:str):
-        self._value = value
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getvalue(self):
-        return self._value
-        
-    value = property(_getvalue, doc="""The SCIM user ID for a user. """)
-
-
-    ##
-##
-##
-class Enterpriseadminupdateattributeforenterprisegroup_operations(object):
-    def __init__(self, op:str, path:str=None, value=None):
-        self._op = op
-        self._path = path
-        self._value = value
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getop(self):
-        return self._op
-        
-    op = property(_getop)
-
-    ##
-    ##
-    def _getpath(self):
-        return self._path
-        
-    path = property(_getpath)
-
-    ##
-    ##
-    def _getvalue(self):
-        return self._value
-        
-    value = property(_getvalue)
-
-
-    ##
-##
-##
-class Enterpriseadminprovisionandinviteenterpriseuser_name(object):
-    def __init__(self, familyName:str, givenName:str):
-        self._familyName = familyName
-        self._givenName = givenName
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getfamilyName(self):
-        return self._familyName
-        
-    familyName = property(_getfamilyName, doc="""The last name of the user. """)
-
-    ##
-    ##
-    def _getgivenName(self):
-        return self._givenName
-        
-    givenName = property(_getgivenName, doc="""The first name of the user. """)
-
-
-    ##
-##
-##
-class Enterpriseadminprovisionandinviteenterpriseuser_emails(object):
-    def __init__(self, primary:bool, type:str, value:str):
-        self._primary = primary
-        self._type = type
-        self._value = value
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getprimary(self):
-        return self._primary
-        
-    primary = property(_getprimary, doc="""Whether this email address is the primary address. """)
-
-    ##
-    ##
-    def _gettype(self):
-        return self._type
-        
-    type = property(_gettype, doc="""The type of email address. """)
-
-    ##
-    ##
-    def _getvalue(self):
-        return self._value
-        
-    value = property(_getvalue, doc="""The email address. """)
-
-
-    ##
-##
-##
-class Enterpriseadminprovisionandinviteenterpriseuser_groups(object):
-    def __init__(self, value:str=None):
-        self._value = value
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getvalue(self):
-        return self._value
-        
-    value = property(_getvalue)
-
-
-    ##
-##
-##
-class Enterpriseadminsetinformationforprovisionedenterpriseuser_name(object):
-    def __init__(self, familyName:str, givenName:str):
-        self._familyName = familyName
-        self._givenName = givenName
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getfamilyName(self):
-        return self._familyName
-        
-    familyName = property(_getfamilyName, doc="""The last name of the user. """)
-
-    ##
-    ##
-    def _getgivenName(self):
-        return self._givenName
-        
-    givenName = property(_getgivenName, doc="""The first name of the user. """)
-
-
-    ##
-##
-##
-class Enterpriseadminsetinformationforprovisionedenterpriseuser_emails(object):
-    def __init__(self, primary:bool, type:str, value:str):
-        self._primary = primary
-        self._type = type
-        self._value = value
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getprimary(self):
-        return self._primary
-        
-    primary = property(_getprimary, doc="""Whether this email address is the primary address. """)
-
-    ##
-    ##
-    def _gettype(self):
-        return self._type
-        
-    type = property(_gettype, doc="""The type of email address. """)
-
-    ##
-    ##
-    def _getvalue(self):
-        return self._value
-        
-    value = property(_getvalue, doc="""The email address. """)
-
-
-    ##
-##
-##
-class Enterpriseadminsetinformationforprovisionedenterpriseuser_groups(object):
-    def __init__(self, value:str=None):
-        self._value = value
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getvalue(self):
-        return self._value
-        
-    value = property(_getvalue)
-
-
-    ##
-##
-##
-class Scimprovisionandinviteuser_name(object):
-    def __init__(self, familyName:str, givenName:str, formatted:str=None):
-        self._familyName = familyName
-        self._givenName = givenName
-        self._formatted = formatted
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getfamilyName(self):
-        return self._familyName
-        
-    familyName = property(_getfamilyName)
-
-    ##
-    ##
-    def _getgivenName(self):
-        return self._givenName
-        
-    givenName = property(_getgivenName)
-
-    ##
-    ##
-    def _getformatted(self):
-        return self._formatted
-        
-    formatted = property(_getformatted)
-
-
-    ##
-##
-##
-class Scimprovisionandinviteuser_emails(object):
-    def __init__(self, value:str, primary:bool=None, type:str=None):
-        self._value = value
-        self._primary = primary
-        self._type = type
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getvalue(self):
-        return self._value
-        
-    value = property(_getvalue)
-
-    ##
-    ##
-    def _getprimary(self):
-        return self._primary
-        
-    primary = property(_getprimary)
-
-    ##
-    ##
-    def _gettype(self):
-        return self._type
-        
-    type = property(_gettype)
-
-
-    ##
-##
-##
-class Scimsetinformationforprovisioneduser_name(object):
-    def __init__(self, familyName:str, givenName:str, formatted:str=None):
-        self._familyName = familyName
-        self._givenName = givenName
-        self._formatted = formatted
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getfamilyName(self):
-        return self._familyName
-        
-    familyName = property(_getfamilyName)
-
-    ##
-    ##
-    def _getgivenName(self):
-        return self._givenName
-        
-    givenName = property(_getgivenName)
-
-    ##
-    ##
-    def _getformatted(self):
-        return self._formatted
-        
-    formatted = property(_getformatted)
-
-
-    ##
-##
-##
-class Scimsetinformationforprovisioneduser_emails(object):
-    def __init__(self, value:str, type:str=None, primary:bool=None):
-        self._value = value
-        self._type = type
-        self._primary = primary
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getvalue(self):
-        return self._value
-        
-    value = property(_getvalue)
-
-    ##
-    ##
-    def _gettype(self):
-        return self._type
-        
-    type = property(_gettype)
-
-    ##
-    ##
-    def _getprimary(self):
-        return self._primary
-        
-    primary = property(_getprimary)
-
-
-    ##
-##
-##
-class Scimupdateattributeforuser_operations_value(object):
-    def __init__(self, value:str=None, primary:bool=None):
-        self._value = value
-        self._primary = primary
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getvalue(self):
-        return self._value
-        
-    value = property(_getvalue)
-
-    ##
-    ##
-    def _getprimary(self):
-        return self._primary
-        
-    primary = property(_getprimary)
-
-
-    ##
-##
-##
-class Scimupdateattributeforuser_operations(object):
-    def __init__(self, op:str, path:str=None, value=None):
-        self._op = op
-        self._path = path
-        self._value = value
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getop(self):
-        return self._op
-        
-    op = property(_getop)
-
-    ##
-    ##
-    def _getpath(self):
-        return self._path
-        
-    path = property(_getpath)
-
-    ##
-    ##
-    def _getvalue(self):
-        return self._value
-        
-    value = property(_getvalue)
-
-
-    ##
-##
-##
-class SearchCodeSuccess(object):
+class SearchCodeSuccess(ResponseBase):
     def __init__(self, items:list, incomplete_results:bool, total_count:int):
+        ResponseBase.__init__(self)
         self._items = items
         self._incomplete_results = incomplete_results
         self._total_count = total_count
@@ -40464,8 +42466,9 @@ class SearchCodeSuccess(object):
     ##
 ##
 ##
-class SearchCommitsSuccess(object):
+class SearchCommitsSuccess(ResponseBase):
     def __init__(self, items:list, incomplete_results:bool, total_count:int):
+        ResponseBase.__init__(self)
         self._items = items
         self._incomplete_results = incomplete_results
         self._total_count = total_count
@@ -40499,8 +42502,9 @@ class SearchCommitsSuccess(object):
     ##
 ##
 ##
-class SearchIssuesAndPullRequestsSuccess(object):
+class SearchIssuesAndPullRequestsSuccess(ResponseBase):
     def __init__(self, items:list, incomplete_results:bool, total_count:int):
+        ResponseBase.__init__(self)
         self._items = items
         self._incomplete_results = incomplete_results
         self._total_count = total_count
@@ -40534,8 +42538,9 @@ class SearchIssuesAndPullRequestsSuccess(object):
     ##
 ##
 ##
-class SearchLabelsSuccess(object):
+class SearchLabelsSuccess(ResponseBase):
     def __init__(self, items:list, incomplete_results:bool, total_count:int):
+        ResponseBase.__init__(self)
         self._items = items
         self._incomplete_results = incomplete_results
         self._total_count = total_count
@@ -40569,8 +42574,9 @@ class SearchLabelsSuccess(object):
     ##
 ##
 ##
-class SearchReposSuccess(object):
+class SearchReposSuccess(ResponseBase):
     def __init__(self, items:list, incomplete_results:bool, total_count:int):
+        ResponseBase.__init__(self)
         self._items = items
         self._incomplete_results = incomplete_results
         self._total_count = total_count
@@ -40604,8 +42610,9 @@ class SearchReposSuccess(object):
     ##
 ##
 ##
-class SearchTopicsSuccess(object):
+class SearchTopicsSuccess(ResponseBase):
     def __init__(self, items:list, incomplete_results:bool, total_count:int):
+        ResponseBase.__init__(self)
         self._items = items
         self._incomplete_results = incomplete_results
         self._total_count = total_count
@@ -40639,8 +42646,9 @@ class SearchTopicsSuccess(object):
     ##
 ##
 ##
-class SearchUsersSuccess(object):
+class SearchUsersSuccess(ResponseBase):
     def __init__(self, items:list, incomplete_results:bool, total_count:int):
+        ResponseBase.__init__(self)
         self._items = items
         self._incomplete_results = incomplete_results
         self._total_count = total_count
@@ -40674,8 +42682,9 @@ class SearchUsersSuccess(object):
     ##
 ##
 ##
-class TeamsAddOrUpdateProjectPermissionsLegacyForbidden(object):
+class TeamsAddOrUpdateProjectPermissionsLegacyForbidden(ResponseBase):
     def __init__(self, message:str=None, documentation_url:str=None):
+        ResponseBase.__init__(self)
         self._message = message
         self._documentation_url = documentation_url
         return
@@ -40701,67 +42710,9 @@ class TeamsAddOrUpdateProjectPermissionsLegacyForbidden(object):
     ##
 ##
 ##
-class Teamscreateorupdateidpgroupconnectionslegacy_groups(object):
-    def __init__(self, group_description:str, group_name:str, group_id:str, id:str=None, name:str=None, description:str=None):
-        self._group_description = group_description
-        self._group_name = group_name
-        self._group_id = group_id
-        self._id = id
-        self._name = name
-        self._description = description
-        return
-        
-    
-
-    
-    ##
-    ##
-    def _getgroup_description(self):
-        return self._group_description
-        
-    group_description = property(_getgroup_description, doc="""Description of the IdP group. """)
-
-    ##
-    ##
-    def _getgroup_name(self):
-        return self._group_name
-        
-    group_name = property(_getgroup_name, doc="""Name of the IdP group. """)
-
-    ##
-    ##
-    def _getgroup_id(self):
-        return self._group_id
-        
-    group_id = property(_getgroup_id, doc="""ID of the IdP group. """)
-
-    ##
-    ##
-    def _getid(self):
-        return self._id
-        
-    id = property(_getid)
-
-    ##
-    ##
-    def _getname(self):
-        return self._name
-        
-    name = property(_getname)
-
-    ##
-    ##
-    def _getdescription(self):
-        return self._description
-        
-    description = property(_getdescription)
-
-
-    ##
-##
-##
-class AppsListInstallationsForAuthenticatedUserSuccess(object):
+class AppsListInstallationsForAuthenticatedUserSuccess(ResponseBase):
     def __init__(self, installations:list, total_count:int):
+        ResponseBase.__init__(self)
         self._installations = installations
         self._total_count = total_count
         return
@@ -40787,8 +42738,9 @@ class AppsListInstallationsForAuthenticatedUserSuccess(object):
     ##
 ##
 ##
-class AppsListInstallationReposForAuthenticatedUserSuccess(object):
+class AppsListInstallationReposForAuthenticatedUserSuccess(ResponseBase):
     def __init__(self, repositories:list, total_count:int, repository_selection:str=None):
+        ResponseBase.__init__(self)
         self._repositories = repositories
         self._total_count = total_count
         self._repository_selection = repository_selection
