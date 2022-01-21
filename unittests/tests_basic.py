@@ -54,7 +54,7 @@ class BasicTests(unittest.TestCase):
         commits = ghc.ReposListCommits("geodynamics", 
                                         "aspect", since=since, until=until)
         
-        self.assertEqual(3, len(commits), "number of commits not what was expected")
+        self.assertEqual(6, len(commits), "number of commits not what was expected")
         
         return
                 

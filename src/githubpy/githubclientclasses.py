@@ -13,7 +13,8 @@ class EnumParameter(enum.Enum):
         
         
 class ResponseBase(object):
-    def __init__(self):
+    def __init__(self, extra_params=None):
+        self.__extra_params = extra_params
         return
 
     def __ok(o):
@@ -23,9 +24,14 @@ class ResponseBase(object):
         return 200
 
         
-    ok = property(__ok, "Response is good")
+    ok = property(__ok, doc="Response is good")
     
     status_code = property(__status_code)
+    
+    def _get_extra_params(self):
+        return self._extra_params
+        
+    extra_params = property(_get_extra_params, doc='extra parameters')
 
 class HttpResponse(ResponseBase):
     def __init__(self, request):
@@ -148,8 +154,8 @@ class direction(EnumParameter):
 ##
 ##
 class DataResponse(ResponseBase):
-    def __init__(self, data:object):
-        ResponseBase.__init__(self)
+    def __init__(self, data:object, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._data = data
         return
         
@@ -172,8 +178,8 @@ class DataResponse(ResponseBase):
 ##
 ##
 class Globalhook_config(ResponseBase):
-    def __init__(self, url:str=None, content_type:str=None, insecure_ssl:str=None, secret:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str=None, content_type:str=None, insecure_ssl:str=None, secret:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._content_type = content_type
         self._insecure_ssl = insecure_ssl
@@ -216,8 +222,8 @@ class Globalhook_config(ResponseBase):
 ##
 ##
 class GlobalHook(ResponseBase):
-    def __init__(self, type:str=None, id:int=None, name:str=None, active:bool=None, events:list=None, config:dict=None, updated_at:str=None, created_at:str=None, url:str=None, ping_url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, type:str=None, id:int=None, name:str=None, active:bool=None, events:list=None, config:dict=None, updated_at:str=None, created_at:str=None, url:str=None, ping_url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._type = type
         self._id = id
         self._name = name
@@ -308,8 +314,8 @@ class GlobalHook(ResponseBase):
 ##
 ##
 class Globalhook2_config(ResponseBase):
-    def __init__(self, url:str=None, content_type:str=None, insecure_ssl:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str=None, content_type:str=None, insecure_ssl:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._content_type = content_type
         self._insecure_ssl = insecure_ssl
@@ -344,8 +350,8 @@ class Globalhook2_config(ResponseBase):
 ##
 ##
 class GlobalHook2(ResponseBase):
-    def __init__(self, type:str=None, id:int=None, name:str=None, active:bool=None, events:list=None, config:dict=None, updated_at:str=None, created_at:str=None, url:str=None, ping_url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, type:str=None, id:int=None, name:str=None, active:bool=None, events:list=None, config:dict=None, updated_at:str=None, created_at:str=None, url:str=None, ping_url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._type = type
         self._id = id
         self._name = name
@@ -436,8 +442,8 @@ class GlobalHook2(ResponseBase):
 ##
 ##
 class PublicKeyFull(ResponseBase):
-    def __init__(self, last_used:datetime, created_at:datetime, verified:bool, read_only:bool, title:str, url:str, repository_id:int, user_id:int, key:str, id:int):
-        ResponseBase.__init__(self)
+    def __init__(self, last_used:datetime, created_at:datetime, verified:bool, read_only:bool, title:str, url:str, repository_id:int, user_id:int, key:str, id:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._last_used = last_used
         self._created_at = created_at
         self._verified = verified
@@ -528,8 +534,8 @@ class PublicKeyFull(ResponseBase):
 ##
 ##
 class LdapMappingTeam(ResponseBase):
-    def __init__(self, ldap_dn:str=None, id:int=None, node_id:str=None, url:str=None, html_url:str=None, name:str=None, slug:str=None, description:str=None, privacy:str=None, permission:str=None, members_url:str=None, repositories_url:str=None, parent:object=None):
-        ResponseBase.__init__(self)
+    def __init__(self, ldap_dn:str=None, id:int=None, node_id:str=None, url:str=None, html_url:str=None, name:str=None, slug:str=None, description:str=None, privacy:str=None, permission:str=None, members_url:str=None, repositories_url:str=None, parent:object=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._ldap_dn = ldap_dn
         self._id = id
         self._node_id = node_id
@@ -644,8 +650,8 @@ class LdapMappingTeam(ResponseBase):
 ##
 ##
 class Ldapprivateuser_plan(ResponseBase):
-    def __init__(self, private_repos:int, space:int, name:str, collaborators:int):
-        ResponseBase.__init__(self)
+    def __init__(self, private_repos:int, space:int, name:str, collaborators:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._private_repos = private_repos
         self._space = space
         self._name = name
@@ -689,8 +695,8 @@ class Ldapprivateuser_plan(ResponseBase):
 ##
 class LdapPrivateUser(ResponseBase):
     """Ldap Private User """
-    def __init__(self, two_factor_authentication:bool, collaborators:int, disk_usage:int, owned_private_repos:int, total_private_repos:int, private_gists:int, updated_at:datetime, created_at:datetime, following:int, followers:int, public_gists:int, public_repos:int, bio:str, hireable:bool, email:str, location:str, blog:str, company:str, name:str, site_admin:bool, type:str, received_events_url:str, events_url:str, repos_url:str, organizations_url:str, subscriptions_url:str, starred_url:str, gists_url:str, following_url:str, followers_url:str, html_url:str, url:str, gravatar_id:str, avatar_url:str, node_id:str, id:int, login:str, ldap_dn:str=None, twitter_username:str=None, plan:dict=None, suspended_at:datetime=None, business_plus:bool=None):
-        ResponseBase.__init__(self)
+    def __init__(self, two_factor_authentication:bool, collaborators:int, disk_usage:int, owned_private_repos:int, total_private_repos:int, private_gists:int, updated_at:datetime, created_at:datetime, following:int, followers:int, public_gists:int, public_repos:int, bio:str, hireable:bool, email:str, location:str, blog:str, company:str, name:str, site_admin:bool, type:str, received_events_url:str, events_url:str, repos_url:str, organizations_url:str, subscriptions_url:str, starred_url:str, gists_url:str, following_url:str, followers_url:str, html_url:str, url:str, gravatar_id:str, avatar_url:str, node_id:str, id:int, login:str, ldap_dn:str=None, twitter_username:str=None, plan:dict=None, suspended_at:datetime=None, business_plus:bool=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._two_factor_authentication = two_factor_authentication
         self._collaborators = collaborators
         self._disk_usage = disk_usage
@@ -1038,8 +1044,8 @@ class LdapPrivateUser(ResponseBase):
 ##
 class OrganizationSimple(ResponseBase):
     """Organization Simple """
-    def __init__(self, description:str, avatar_url:str, public_members_url:str, members_url:str, issues_url:str, hooks_url:str, events_url:str, repos_url:str, url:str, node_id:str, id:int, login:str):
-        ResponseBase.__init__(self)
+    def __init__(self, description:str, avatar_url:str, public_members_url:str, members_url:str, issues_url:str, hooks_url:str, events_url:str, repos_url:str, url:str, node_id:str, id:int, login:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._description = description
         self._avatar_url = avatar_url
         self._public_members_url = public_members_url
@@ -1146,8 +1152,8 @@ class OrganizationSimple(ResponseBase):
 ##
 ##
 class Prereceiveenvironment_download(ResponseBase):
-    def __init__(self, url:str=None, state:str=None, downloaded_at:str=None, message:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str=None, state:str=None, downloaded_at:str=None, message:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._state = state
         self._downloaded_at = downloaded_at
@@ -1190,8 +1196,8 @@ class Prereceiveenvironment_download(ResponseBase):
 ##
 ##
 class PreReceiveEnvironment(ResponseBase):
-    def __init__(self, id:int=None, name:str=None, image_url:str=None, url:str=None, html_url:str=None, default_environment:bool=None, created_at:str=None, hooks_count:int=None, download:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, id:int=None, name:str=None, image_url:str=None, url:str=None, html_url:str=None, default_environment:bool=None, created_at:str=None, hooks_count:int=None, download:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._id = id
         self._name = name
         self._image_url = image_url
@@ -1274,8 +1280,8 @@ class PreReceiveEnvironment(ResponseBase):
 ##
 ##
 class PreReceiveEnvironmentDownloadStatus(ResponseBase):
-    def __init__(self, url:str=None, state:str=None, downloaded_at:str=None, message:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str=None, state:str=None, downloaded_at:str=None, message:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._state = state
         self._downloaded_at = downloaded_at
@@ -1318,8 +1324,8 @@ class PreReceiveEnvironmentDownloadStatus(ResponseBase):
 ##
 ##
 class Prereceivehook_script_repository(ResponseBase):
-    def __init__(self, id:int=None, full_name:str=None, url:str=None, html_url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, id:int=None, full_name:str=None, url:str=None, html_url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._id = id
         self._full_name = full_name
         self._url = url
@@ -1362,8 +1368,8 @@ class Prereceivehook_script_repository(ResponseBase):
 ##
 ##
 class Prereceivehook_environment_download(ResponseBase):
-    def __init__(self, url:str=None, state:str=None, downloaded_at:str=None, message:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str=None, state:str=None, downloaded_at:str=None, message:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._state = state
         self._downloaded_at = downloaded_at
@@ -1406,8 +1412,8 @@ class Prereceivehook_environment_download(ResponseBase):
 ##
 ##
 class Prereceivehook_environment(ResponseBase):
-    def __init__(self, id:int=None, name:str=None, image_url:str=None, url:str=None, html_url:str=None, default_environment:bool=None, created_at:str=None, hooks_count:int=None, download:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, id:int=None, name:str=None, image_url:str=None, url:str=None, html_url:str=None, default_environment:bool=None, created_at:str=None, hooks_count:int=None, download:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._id = id
         self._name = name
         self._image_url = image_url
@@ -1490,8 +1496,8 @@ class Prereceivehook_environment(ResponseBase):
 ##
 ##
 class PreReceiveHook(ResponseBase):
-    def __init__(self, id:int=None, name:str=None, enforcement:str=None, script:str=None, script_repository:dict=None, environment:dict=None, allow_downstream_configuration:bool=None):
-        ResponseBase.__init__(self)
+    def __init__(self, id:int=None, name:str=None, enforcement:str=None, script:str=None, script_repository:dict=None, environment:dict=None, allow_downstream_configuration:bool=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._id = id
         self._name = name
         self._enforcement = enforcement
@@ -1559,8 +1565,8 @@ class PreReceiveHook(ResponseBase):
 ##
 class SimpleUser(ResponseBase):
     """Simple User """
-    def __init__(self, site_admin:bool, type:str, received_events_url:str, events_url:str, repos_url:str, organizations_url:str, subscriptions_url:str, starred_url:str, gists_url:str, following_url:str, followers_url:str, html_url:str, url:str, gravatar_id:str, avatar_url:str, node_id:str, id:int, login:str, name:str=None, email:str=None, starred_at:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, site_admin:bool, type:str, received_events_url:str, events_url:str, repos_url:str, organizations_url:str, subscriptions_url:str, starred_url:str, gists_url:str, following_url:str, followers_url:str, html_url:str, url:str, gravatar_id:str, avatar_url:str, node_id:str, id:int, login:str, name:str=None, email:str=None, starred_at:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._site_admin = site_admin
         self._type = type
         self._received_events_url = received_events_url
@@ -1740,8 +1746,8 @@ class SimpleUser(ResponseBase):
 ##
 class AppPermissions(ResponseBase):
     """The permissions granted to the user-to-server access token. """
-    def __init__(self, actions:str=None, administration:str=None, checks:str=None, contents:str=None, deployments:str=None, environments:str=None, issues:str=None, metadata:str=None, packages:str=None, pages:str=None, pull_requests:str=None, repository_hooks:str=None, repository_projects:str=None, secret_scanning_alerts:str=None, secrets:str=None, security_events:str=None, single_file:str=None, statuses:str=None, vulnerability_alerts:str=None, workflows:str=None, members:str=None, organization_administration:str=None, organization_hooks:str=None, organization_plan:str=None, organization_projects:str=None, organization_packages:str=None, organization_secrets:str=None, organization_self_hosted_runners:str=None, organization_user_blocking:str=None, team_discussions:str=None, content_references:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, actions:str=None, administration:str=None, checks:str=None, contents:str=None, deployments:str=None, environments:str=None, issues:str=None, metadata:str=None, packages:str=None, pages:str=None, pull_requests:str=None, repository_hooks:str=None, repository_projects:str=None, secret_scanning_alerts:str=None, secrets:str=None, security_events:str=None, single_file:str=None, statuses:str=None, vulnerability_alerts:str=None, workflows:str=None, members:str=None, organization_administration:str=None, organization_hooks:str=None, organization_plan:str=None, organization_projects:str=None, organization_packages:str=None, organization_secrets:str=None, organization_self_hosted_runners:str=None, organization_user_blocking:str=None, team_discussions:str=None, content_references:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._actions = actions
         self._administration = administration
         self._checks = checks
@@ -2001,8 +2007,8 @@ class AppPermissions(ResponseBase):
 ##
 class SimpleUser(ResponseBase):
     """Simple User """
-    def __init__(self, site_admin:bool, type:str, received_events_url:str, events_url:str, repos_url:str, organizations_url:str, subscriptions_url:str, starred_url:str, gists_url:str, following_url:str, followers_url:str, html_url:str, url:str, gravatar_id:str, avatar_url:str, node_id:str, id:int, login:str, name:str=None, email:str=None, starred_at:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, site_admin:bool, type:str, received_events_url:str, events_url:str, repos_url:str, organizations_url:str, subscriptions_url:str, starred_url:str, gists_url:str, following_url:str, followers_url:str, html_url:str, url:str, gravatar_id:str, avatar_url:str, node_id:str, id:int, login:str, name:str=None, email:str=None, starred_at:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._site_admin = site_admin
         self._type = type
         self._received_events_url = received_events_url
@@ -2181,8 +2187,8 @@ class SimpleUser(ResponseBase):
 ##
 ##
 class ScopedInstallation(ResponseBase):
-    def __init__(self, account:dict, repositories_url:str, single_file_name:str, repository_selection:str, permissions:dict, has_multiple_single_files:bool=None, single_file_paths:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, account:dict, repositories_url:str, single_file_name:str, repository_selection:str, permissions:dict, has_multiple_single_files:bool=None, single_file_paths:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._account = account
         self._repositories_url = repositories_url
         self._single_file_name = single_file_name
@@ -2249,8 +2255,8 @@ class ScopedInstallation(ResponseBase):
 ##
 ##
 class Authorization_app(ResponseBase):
-    def __init__(self, url:str, name:str, client_id:str):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str, name:str, client_id:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._name = name
         self._client_id = client_id
@@ -2286,8 +2292,8 @@ class Authorization_app(ResponseBase):
 ##
 class Authorization(ResponseBase):
     """The authorization for an OAuth app, GitHub App, or a Personal Access Token. """
-    def __init__(self, expires_at:datetime, fingerprint:str, created_at:datetime, updated_at:datetime, note_url:str, note:str, app:dict, hashed_token:str, token_last_eight:str, token:str, scopes:list, url:str, id:int, user:dict=None, installation:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, expires_at:datetime, fingerprint:str, created_at:datetime, updated_at:datetime, note_url:str, note:str, app:dict, hashed_token:str, token_last_eight:str, token:str, scopes:list, url:str, id:int, user:dict=None, installation:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._expires_at = expires_at
         self._fingerprint = fingerprint
         self._created_at = created_at
@@ -2419,8 +2425,8 @@ class Authorization(ResponseBase):
 ##
 class Githubapp_permissions(ResponseBase):
     """The set of permissions for the GitHub app """
-    def __init__(self, issues:str=None, checks:str=None, metadata:str=None, contents:str=None, deployments:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, issues:str=None, checks:str=None, metadata:str=None, contents:str=None, deployments:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._issues = issues
         self._checks = checks
         self._metadata = metadata
@@ -2472,8 +2478,8 @@ class Githubapp_permissions(ResponseBase):
 ##
 class GithubApp(ResponseBase):
     """GitHub apps are a new way to extend GitHub. They can be installed directly on organizations and user accounts and granted access to specific repositories. They come with granular permissions and built-in webhooks. GitHub apps are first class actors within GitHub. """
-    def __init__(self, events:list, permissions:dict, updated_at:datetime, created_at:datetime, html_url:str, external_url:str, description:str, name:str, owner:dict, node_id:str, id:int, slug:str=None, installations_count:int=None, client_id:str=None, client_secret:str=None, webhook_secret:str=None, pem:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, events:list, permissions:dict, updated_at:datetime, created_at:datetime, html_url:str, external_url:str, description:str, name:str, owner:dict, node_id:str, id:int, slug:str=None, installations_count:int=None, client_id:str=None, client_secret:str=None, webhook_secret:str=None, pem:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._events = events
         self._permissions = permissions
         self._updated_at = updated_at
@@ -2621,8 +2627,8 @@ class GithubApp(ResponseBase):
 ##
 class BasicError(ResponseBase):
     """Basic Error """
-    def __init__(self, message:str=None, documentation_url:str=None, url:str=None, status:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, message:str=None, documentation_url:str=None, url:str=None, status:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._message = message
         self._documentation_url = documentation_url
         self._url = url
@@ -2670,8 +2676,8 @@ class BasicError(ResponseBase):
 ##
 class ValidationErrorSimple(ResponseBase):
     """Validation Error Simple """
-    def __init__(self, documentation_url:str, message:str, errors:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, documentation_url:str, message:str, errors:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._documentation_url = documentation_url
         self._message = message
         self._errors = errors
@@ -2707,8 +2713,8 @@ class ValidationErrorSimple(ResponseBase):
 ##
 class WebhookConfiguration(ResponseBase):
     """Configuration object of the webhook """
-    def __init__(self, url:str=None, content_type:str=None, secret:str=None, insecure_ssl=None):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str=None, content_type:str=None, secret:str=None, insecure_ssl=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._content_type = content_type
         self._secret = secret
@@ -2752,8 +2758,8 @@ class WebhookConfiguration(ResponseBase):
 ##
 class SimpleWebhookDelivery(ResponseBase):
     """Delivery made by a webhook, without request and response information. """
-    def __init__(self, repository_id:int, installation_id:int, action:str, event:str, status_code:int, status:str, duration:int, redelivery:bool, delivered_at:datetime, guid:str, id:int):
-        ResponseBase.__init__(self)
+    def __init__(self, repository_id:int, installation_id:int, action:str, event:str, status_code:int, status:str, duration:int, redelivery:bool, delivered_at:datetime, guid:str, id:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._repository_id = repository_id
         self._installation_id = installation_id
         self._action = action
@@ -2853,8 +2859,8 @@ class SimpleWebhookDelivery(ResponseBase):
 ##
 class ScimError(ResponseBase):
     """Scim Error """
-    def __init__(self, message:str=None, documentation_url:str=None, detail:str=None, status:int=None, scimType:str=None, schemas:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, message:str=None, documentation_url:str=None, detail:str=None, status:int=None, scimType:str=None, schemas:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._message = message
         self._documentation_url = documentation_url
         self._detail = detail
@@ -2913,8 +2919,8 @@ class ScimError(ResponseBase):
 ##
 ##
 class Validationerror_errors(ResponseBase):
-    def __init__(self, code:str, resource:str=None, field:str=None, message:str=None, index:int=None, value=None):
-        ResponseBase.__init__(self)
+    def __init__(self, code:str, resource:str=None, field:str=None, message:str=None, index:int=None, value=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._code = code
         self._resource = resource
         self._field = field
@@ -2974,8 +2980,8 @@ class Validationerror_errors(ResponseBase):
 ##
 class ValidationError(ResponseBase):
     """Validation Error """
-    def __init__(self, documentation_url:str, message:str, errors:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, documentation_url:str, message:str, errors:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._documentation_url = documentation_url
         self._message = message
         self._errors = errors
@@ -3010,8 +3016,8 @@ class ValidationError(ResponseBase):
 ##
 ##
 class Webhookdelivery_request(ResponseBase):
-    def __init__(self, payload:object, headers:object):
-        ResponseBase.__init__(self)
+    def __init__(self, payload:object, headers:object, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._payload = payload
         self._headers = headers
         return
@@ -3038,8 +3044,8 @@ class Webhookdelivery_request(ResponseBase):
 ##
 ##
 class Webhookdelivery_response(ResponseBase):
-    def __init__(self, payload:str, headers:object):
-        ResponseBase.__init__(self)
+    def __init__(self, payload:str, headers:object, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._payload = payload
         self._headers = headers
         return
@@ -3067,8 +3073,8 @@ class Webhookdelivery_response(ResponseBase):
 ##
 class WebhookDelivery(ResponseBase):
     """Delivery made by a webhook. """
-    def __init__(self, response:dict, request:dict, repository_id:int, installation_id:int, action:str, event:str, status_code:int, status:str, duration:int, redelivery:bool, delivered_at:datetime, guid:str, id:int, url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, response:dict, request:dict, repository_id:int, installation_id:int, action:str, event:str, status_code:int, status:str, duration:int, redelivery:bool, delivered_at:datetime, guid:str, id:int, url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._response = response
         self._request = request
         self._repository_id = repository_id
@@ -3192,8 +3198,8 @@ class WebhookDelivery(ResponseBase):
 ##
 class Enterprise(ResponseBase):
     """An enterprise account """
-    def __init__(self, avatar_url:str, updated_at:datetime, created_at:datetime, slug:str, name:str, node_id:str, id:int, html_url:str, description:str=None, website_url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, avatar_url:str, updated_at:datetime, created_at:datetime, slug:str, name:str, node_id:str, id:int, html_url:str, description:str=None, website_url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._avatar_url = avatar_url
         self._updated_at = updated_at
         self._created_at = created_at
@@ -3285,8 +3291,8 @@ class Enterprise(ResponseBase):
 ##
 class Installation(ResponseBase):
     """Installation """
-    def __init__(self, suspended_at:datetime, suspended_by:dict, app_slug:str, single_file_name:str, updated_at:datetime, created_at:datetime, events:list, permissions:dict, target_type:str, target_id:int, app_id:int, html_url:str, repositories_url:str, access_tokens_url:str, repository_selection:str, account, id:int, has_multiple_single_files:bool=None, single_file_paths:list=None, contact_email:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, suspended_at:datetime, suspended_by:dict, app_slug:str, single_file_name:str, updated_at:datetime, created_at:datetime, events:list, permissions:dict, target_type:str, target_id:int, app_id:int, html_url:str, repositories_url:str, access_tokens_url:str, repository_selection:str, account, id:int, has_multiple_single_files:bool=None, single_file_paths:list=None, contact_email:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._suspended_at = suspended_at
         self._suspended_by = suspended_by
         self._app_slug = app_slug
@@ -3458,8 +3464,8 @@ class Installation(ResponseBase):
 ##
 class LicenseSimple(ResponseBase):
     """License Simple """
-    def __init__(self, node_id:str, spdx_id:str, url:str, name:str, key:str, html_url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, node_id:str, spdx_id:str, url:str, name:str, key:str, html_url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._node_id = node_id
         self._spdx_id = spdx_id
         self._url = url
@@ -3518,8 +3524,8 @@ class LicenseSimple(ResponseBase):
 ##
 ##
 class Repository_permissions(ResponseBase):
-    def __init__(self, push:bool, pull:bool, admin:bool, triage:bool=None, maintain:bool=None):
-        ResponseBase.__init__(self)
+    def __init__(self, push:bool, pull:bool, admin:bool, triage:bool=None, maintain:bool=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._push = push
         self._pull = pull
         self._admin = admin
@@ -3570,8 +3576,8 @@ class Repository_permissions(ResponseBase):
 ##
 ##
 class Repository_template_repository_owner(ResponseBase):
-    def __init__(self, login:str=None, id:int=None, node_id:str=None, avatar_url:str=None, gravatar_id:str=None, url:str=None, html_url:str=None, followers_url:str=None, following_url:str=None, gists_url:str=None, starred_url:str=None, subscriptions_url:str=None, organizations_url:str=None, repos_url:str=None, events_url:str=None, received_events_url:str=None, type:str=None, site_admin:bool=None):
-        ResponseBase.__init__(self)
+    def __init__(self, login:str=None, id:int=None, node_id:str=None, avatar_url:str=None, gravatar_id:str=None, url:str=None, html_url:str=None, followers_url:str=None, following_url:str=None, gists_url:str=None, starred_url:str=None, subscriptions_url:str=None, organizations_url:str=None, repos_url:str=None, events_url:str=None, received_events_url:str=None, type:str=None, site_admin:bool=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._login = login
         self._id = id
         self._node_id = node_id
@@ -3726,8 +3732,8 @@ class Repository_template_repository_owner(ResponseBase):
 ##
 ##
 class Repository_template_repository_permissions(ResponseBase):
-    def __init__(self, admin:bool=None, maintain:bool=None, push:bool=None, triage:bool=None, pull:bool=None):
-        ResponseBase.__init__(self)
+    def __init__(self, admin:bool=None, maintain:bool=None, push:bool=None, triage:bool=None, pull:bool=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._admin = admin
         self._maintain = maintain
         self._push = push
@@ -3778,8 +3784,8 @@ class Repository_template_repository_permissions(ResponseBase):
 ##
 ##
 class Repository_template_repository(ResponseBase):
-    def __init__(self, id:int=None, node_id:str=None, name:str=None, full_name:str=None, owner:dict=None, private:bool=None, html_url:str=None, description:str=None, fork:bool=None, url:str=None, archive_url:str=None, assignees_url:str=None, blobs_url:str=None, branches_url:str=None, collaborators_url:str=None, comments_url:str=None, commits_url:str=None, compare_url:str=None, contents_url:str=None, contributors_url:str=None, deployments_url:str=None, downloads_url:str=None, events_url:str=None, forks_url:str=None, git_commits_url:str=None, git_refs_url:str=None, git_tags_url:str=None, git_url:str=None, issue_comment_url:str=None, issue_events_url:str=None, issues_url:str=None, keys_url:str=None, labels_url:str=None, languages_url:str=None, merges_url:str=None, milestones_url:str=None, notifications_url:str=None, pulls_url:str=None, releases_url:str=None, ssh_url:str=None, stargazers_url:str=None, statuses_url:str=None, subscribers_url:str=None, subscription_url:str=None, tags_url:str=None, teams_url:str=None, trees_url:str=None, clone_url:str=None, mirror_url:str=None, hooks_url:str=None, svn_url:str=None, homepage:str=None, language:str=None, forks_count:int=None, stargazers_count:int=None, watchers_count:int=None, size:int=None, default_branch:str=None, open_issues_count:int=None, is_template:bool=None, topics:list=None, has_issues:bool=None, has_projects:bool=None, has_wiki:bool=None, has_pages:bool=None, has_downloads:bool=None, archived:bool=None, disabled:bool=None, visibility:str=None, pushed_at:str=None, created_at:str=None, updated_at:str=None, permissions:dict=None, allow_rebase_merge:bool=None, temp_clone_token:str=None, allow_squash_merge:bool=None, allow_auto_merge:bool=None, delete_branch_on_merge:bool=None, allow_update_branch:bool=None, allow_merge_commit:bool=None, subscribers_count:int=None, network_count:int=None):
-        ResponseBase.__init__(self)
+    def __init__(self, id:int=None, node_id:str=None, name:str=None, full_name:str=None, owner:dict=None, private:bool=None, html_url:str=None, description:str=None, fork:bool=None, url:str=None, archive_url:str=None, assignees_url:str=None, blobs_url:str=None, branches_url:str=None, collaborators_url:str=None, comments_url:str=None, commits_url:str=None, compare_url:str=None, contents_url:str=None, contributors_url:str=None, deployments_url:str=None, downloads_url:str=None, events_url:str=None, forks_url:str=None, git_commits_url:str=None, git_refs_url:str=None, git_tags_url:str=None, git_url:str=None, issue_comment_url:str=None, issue_events_url:str=None, issues_url:str=None, keys_url:str=None, labels_url:str=None, languages_url:str=None, merges_url:str=None, milestones_url:str=None, notifications_url:str=None, pulls_url:str=None, releases_url:str=None, ssh_url:str=None, stargazers_url:str=None, statuses_url:str=None, subscribers_url:str=None, subscription_url:str=None, tags_url:str=None, teams_url:str=None, trees_url:str=None, clone_url:str=None, mirror_url:str=None, hooks_url:str=None, svn_url:str=None, homepage:str=None, language:str=None, forks_count:int=None, stargazers_count:int=None, watchers_count:int=None, size:int=None, default_branch:str=None, open_issues_count:int=None, is_template:bool=None, topics:list=None, has_issues:bool=None, has_projects:bool=None, has_wiki:bool=None, has_pages:bool=None, has_downloads:bool=None, archived:bool=None, disabled:bool=None, visibility:str=None, pushed_at:str=None, created_at:str=None, updated_at:str=None, permissions:dict=None, allow_rebase_merge:bool=None, temp_clone_token:str=None, allow_squash_merge:bool=None, allow_auto_merge:bool=None, delete_branch_on_merge:bool=None, allow_update_branch:bool=None, allow_merge_commit:bool=None, subscribers_count:int=None, network_count:int=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._id = id
         self._node_id = node_id
         self._name = name
@@ -4447,8 +4453,8 @@ class Repository_template_repository(ResponseBase):
 ##
 class Repository(ResponseBase):
     """A git repository """
-    def __init__(self, watchers:int, open_issues:int, updated_at:datetime, created_at:datetime, pushed_at:datetime, disabled:bool, has_pages:bool, open_issues_count:int, default_branch:str, size:int, watchers_count:int, stargazers_count:int, forks_count:int, language:str, homepage:str, svn_url:str, hooks_url:str, mirror_url:str, clone_url:str, trees_url:str, teams_url:str, tags_url:str, subscription_url:str, subscribers_url:str, statuses_url:str, stargazers_url:str, ssh_url:str, releases_url:str, pulls_url:str, notifications_url:str, milestones_url:str, merges_url:str, languages_url:str, labels_url:str, keys_url:str, issues_url:str, issue_events_url:str, issue_comment_url:str, git_url:str, git_tags_url:str, git_refs_url:str, git_commits_url:str, forks_url:str, events_url:str, downloads_url:str, deployments_url:str, contributors_url:str, contents_url:str, compare_url:str, commits_url:str, comments_url:str, collaborators_url:str, branches_url:str, blobs_url:str, assignees_url:str, archive_url:str, url:str, fork:bool, description:str, html_url:str, owner:dict, forks:int, license:dict, full_name:str, name:str, node_id:str, id:int, organization:dict=None, permissions:dict=None, private:bool=False, is_template:bool=False, topics:list=None, has_issues:bool=True, has_projects:bool=True, has_wiki:bool=True, has_downloads:bool=True, archived:bool=False, visibility:str='public', allow_rebase_merge:bool=True, template_repository:dict=None, temp_clone_token:str=None, allow_squash_merge:bool=True, allow_auto_merge:bool=False, delete_branch_on_merge:bool=False, allow_merge_commit:bool=True, allow_forking:bool=None, subscribers_count:int=None, network_count:int=None, master_branch:str=None, starred_at:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, watchers:int, open_issues:int, updated_at:datetime, created_at:datetime, pushed_at:datetime, disabled:bool, has_pages:bool, open_issues_count:int, default_branch:str, size:int, watchers_count:int, stargazers_count:int, forks_count:int, language:str, homepage:str, svn_url:str, hooks_url:str, mirror_url:str, clone_url:str, trees_url:str, teams_url:str, tags_url:str, subscription_url:str, subscribers_url:str, statuses_url:str, stargazers_url:str, ssh_url:str, releases_url:str, pulls_url:str, notifications_url:str, milestones_url:str, merges_url:str, languages_url:str, labels_url:str, keys_url:str, issues_url:str, issue_events_url:str, issue_comment_url:str, git_url:str, git_tags_url:str, git_refs_url:str, git_commits_url:str, forks_url:str, events_url:str, downloads_url:str, deployments_url:str, contributors_url:str, contents_url:str, compare_url:str, commits_url:str, comments_url:str, collaborators_url:str, branches_url:str, blobs_url:str, assignees_url:str, archive_url:str, url:str, fork:bool, description:str, html_url:str, owner:dict, forks:int, license:dict, full_name:str, name:str, node_id:str, id:int, organization:dict=None, permissions:dict=None, private:bool=False, is_template:bool=False, topics:list=None, has_issues:bool=True, has_projects:bool=True, has_wiki:bool=True, has_downloads:bool=True, archived:bool=False, visibility:str='public', allow_rebase_merge:bool=True, template_repository:dict=None, temp_clone_token:str=None, allow_squash_merge:bool=True, allow_auto_merge:bool=False, delete_branch_on_merge:bool=False, allow_merge_commit:bool=True, allow_forking:bool=None, subscribers_count:int=None, network_count:int=None, master_branch:str=None, starred_at:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._watchers = watchers
         self._open_issues = open_issues
         self._updated_at = updated_at
@@ -5180,8 +5186,8 @@ class Repository(ResponseBase):
 ##
 class InstallationToken(ResponseBase):
     """Authentication token for a GitHub App installed on a user or org. """
-    def __init__(self, expires_at:str, token:str, permissions:dict=None, repository_selection:str=None, repositories:list=None, single_file:str=None, has_multiple_single_files:bool=None, single_file_paths:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, expires_at:str, token:str, permissions:dict=None, repository_selection:str=None, repositories:list=None, single_file:str=None, has_multiple_single_files:bool=None, single_file_paths:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._expires_at = expires_at
         self._token = token
         self._permissions = permissions
@@ -5256,8 +5262,8 @@ class InstallationToken(ResponseBase):
 ##
 ##
 class Applicationgrant_app(ResponseBase):
-    def __init__(self, url:str, name:str, client_id:str):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str, name:str, client_id:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._name = name
         self._client_id = client_id
@@ -5293,8 +5299,8 @@ class Applicationgrant_app(ResponseBase):
 ##
 class ApplicationGrant(ResponseBase):
     """The authorization associated with an OAuth Access. """
-    def __init__(self, scopes:list, updated_at:datetime, created_at:datetime, app:dict, url:str, id:int, user:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, scopes:list, updated_at:datetime, created_at:datetime, app:dict, url:str, id:int, user:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._scopes = scopes
         self._updated_at = updated_at
         self._created_at = created_at
@@ -5362,8 +5368,8 @@ class ApplicationGrant(ResponseBase):
 ##
 class Authorization(ResponseBase):
     """The authorization for an OAuth app, GitHub App, or a Personal Access Token. """
-    def __init__(self, expires_at:datetime, fingerprint:str, created_at:datetime, updated_at:datetime, note_url:str, note:str, app:dict, hashed_token:str, token_last_eight:str, token:str, scopes:list, url:str, id:int, user:dict=None, installation:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, expires_at:datetime, fingerprint:str, created_at:datetime, updated_at:datetime, note_url:str, note:str, app:dict, hashed_token:str, token_last_eight:str, token:str, scopes:list, url:str, id:int, user:dict=None, installation:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._expires_at = expires_at
         self._fingerprint = fingerprint
         self._created_at = created_at
@@ -5495,8 +5501,8 @@ class Authorization(ResponseBase):
 ##
 class CodeOfConduct(ResponseBase):
     """Code Of Conduct """
-    def __init__(self, html_url:str, url:str, name:str, key:str, body:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, html_url:str, url:str, name:str, key:str, body:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._html_url = html_url
         self._url = url
         self._name = name
@@ -5548,8 +5554,8 @@ class CodeOfConduct(ResponseBase):
 ##
 class EnterpriseAnnouncement(ResponseBase):
     """Enterprise global announcement """
-    def __init__(self, announcement:str, expires_at:datetime=None):
-        ResponseBase.__init__(self)
+    def __init__(self, announcement:str, expires_at:datetime=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._announcement = announcement
         self._expires_at = expires_at
         return
@@ -5576,8 +5582,8 @@ class EnterpriseAnnouncement(ResponseBase):
 ##
 ##
 class LicenseInfo(ResponseBase):
-    def __init__(self, seats=None, seats_used:int=None, seats_available=None, kind:str=None, days_until_expiration:int=None, expire_at:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, seats=None, seats_used:int=None, seats_available=None, kind:str=None, days_until_expiration:int=None, expire_at:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._seats = seats
         self._seats_used = seats_used
         self._seats_available = seats_available
@@ -5636,8 +5642,8 @@ class LicenseInfo(ResponseBase):
 ##
 ##
 class RepositoryEnterpriseStats(ResponseBase):
-    def __init__(self, total_wikis:int, total_pushes:int, org_repos:int, fork_repos:int, root_repos:int, total_repos:int):
-        ResponseBase.__init__(self)
+    def __init__(self, total_wikis:int, total_pushes:int, org_repos:int, fork_repos:int, root_repos:int, total_repos:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._total_wikis = total_wikis
         self._total_pushes = total_pushes
         self._org_repos = org_repos
@@ -5696,8 +5702,8 @@ class RepositoryEnterpriseStats(ResponseBase):
 ##
 ##
 class HooksEnterpriseStats(ResponseBase):
-    def __init__(self, inactive_hooks:int, active_hooks:int, total_hooks:int):
-        ResponseBase.__init__(self)
+    def __init__(self, inactive_hooks:int, active_hooks:int, total_hooks:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._inactive_hooks = inactive_hooks
         self._active_hooks = active_hooks
         self._total_hooks = total_hooks
@@ -5732,8 +5738,8 @@ class HooksEnterpriseStats(ResponseBase):
 ##
 ##
 class EnterprisePagesStats(ResponseBase):
-    def __init__(self, total_pages:int):
-        ResponseBase.__init__(self)
+    def __init__(self, total_pages:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._total_pages = total_pages
         return
         
@@ -5752,8 +5758,8 @@ class EnterprisePagesStats(ResponseBase):
 ##
 ##
 class EnterpriseOrganizationStats(ResponseBase):
-    def __init__(self, total_team_members:int, total_teams:int, disabled_orgs:int, total_orgs:int):
-        ResponseBase.__init__(self)
+    def __init__(self, total_team_members:int, total_teams:int, disabled_orgs:int, total_orgs:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._total_team_members = total_team_members
         self._total_teams = total_teams
         self._disabled_orgs = disabled_orgs
@@ -5796,8 +5802,8 @@ class EnterpriseOrganizationStats(ResponseBase):
 ##
 ##
 class EnterpriseUserStats(ResponseBase):
-    def __init__(self, suspended_users:int, admin_users:int, total_users:int):
-        ResponseBase.__init__(self)
+    def __init__(self, suspended_users:int, admin_users:int, total_users:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._suspended_users = suspended_users
         self._admin_users = admin_users
         self._total_users = total_users
@@ -5832,8 +5838,8 @@ class EnterpriseUserStats(ResponseBase):
 ##
 ##
 class EnterprisePullRequestStats(ResponseBase):
-    def __init__(self, unmergeable_pulls:int, mergeable_pulls:int, merged_pulls:int, total_pulls:int):
-        ResponseBase.__init__(self)
+    def __init__(self, unmergeable_pulls:int, mergeable_pulls:int, merged_pulls:int, total_pulls:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._unmergeable_pulls = unmergeable_pulls
         self._mergeable_pulls = mergeable_pulls
         self._merged_pulls = merged_pulls
@@ -5876,8 +5882,8 @@ class EnterprisePullRequestStats(ResponseBase):
 ##
 ##
 class EnterpriseIssueStats(ResponseBase):
-    def __init__(self, closed_issues:int, open_issues:int, total_issues:int):
-        ResponseBase.__init__(self)
+    def __init__(self, closed_issues:int, open_issues:int, total_issues:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._closed_issues = closed_issues
         self._open_issues = open_issues
         self._total_issues = total_issues
@@ -5912,8 +5918,8 @@ class EnterpriseIssueStats(ResponseBase):
 ##
 ##
 class EnterpriseMilestoneStats(ResponseBase):
-    def __init__(self, closed_milestones:int, open_milestones:int, total_milestones:int):
-        ResponseBase.__init__(self)
+    def __init__(self, closed_milestones:int, open_milestones:int, total_milestones:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._closed_milestones = closed_milestones
         self._open_milestones = open_milestones
         self._total_milestones = total_milestones
@@ -5948,8 +5954,8 @@ class EnterpriseMilestoneStats(ResponseBase):
 ##
 ##
 class EnterpriseGistStats(ResponseBase):
-    def __init__(self, public_gists:int, private_gists:int, total_gists:int):
-        ResponseBase.__init__(self)
+    def __init__(self, public_gists:int, private_gists:int, total_gists:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._public_gists = public_gists
         self._private_gists = private_gists
         self._total_gists = total_gists
@@ -5984,8 +5990,8 @@ class EnterpriseGistStats(ResponseBase):
 ##
 ##
 class EnterpriseCommentStats(ResponseBase):
-    def __init__(self, total_pull_request_comments:int, total_issue_comments:int, total_gist_comments:int, total_commit_comments:int):
-        ResponseBase.__init__(self)
+    def __init__(self, total_pull_request_comments:int, total_issue_comments:int, total_gist_comments:int, total_commit_comments:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._total_pull_request_comments = total_pull_request_comments
         self._total_issue_comments = total_issue_comments
         self._total_gist_comments = total_gist_comments
@@ -6028,8 +6034,8 @@ class EnterpriseCommentStats(ResponseBase):
 ##
 ##
 class EnterpriseOverview(ResponseBase):
-    def __init__(self, repos:dict=None, hooks:dict=None, pages:dict=None, orgs:dict=None, users:dict=None, pulls:dict=None, issues:dict=None, milestones:dict=None, gists:dict=None, comments:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, repos:dict=None, hooks:dict=None, pages:dict=None, orgs:dict=None, users:dict=None, pulls:dict=None, issues:dict=None, milestones:dict=None, gists:dict=None, comments:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._repos = repos
         self._hooks = hooks
         self._pages = pages
@@ -6120,8 +6126,8 @@ class EnterpriseOverview(ResponseBase):
 ##
 ##
 class ActionsEnterprisePermissions(ResponseBase):
-    def __init__(self, enabled_organizations:str, selected_organizations_url:str=None, allowed_actions:str=None, selected_actions_url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, enabled_organizations:str, selected_organizations_url:str=None, allowed_actions:str=None, selected_actions_url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._enabled_organizations = enabled_organizations
         self._selected_organizations_url = selected_organizations_url
         self._allowed_actions = allowed_actions
@@ -6164,8 +6170,8 @@ class ActionsEnterprisePermissions(ResponseBase):
 ##
 ##
 class SelectedActions(ResponseBase):
-    def __init__(self, patterns_allowed:list, github_owned_allowed:bool):
-        ResponseBase.__init__(self)
+    def __init__(self, patterns_allowed:list, github_owned_allowed:bool, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._patterns_allowed = patterns_allowed
         self._github_owned_allowed = github_owned_allowed
         return
@@ -6192,8 +6198,8 @@ class SelectedActions(ResponseBase):
 ##
 ##
 class RunnerGroupsEnterprise(ResponseBase):
-    def __init__(self, allows_public_repositories:bool, runners_url:str, default:bool, visibility:str, name:str, id:int, selected_organizations_url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, allows_public_repositories:bool, runners_url:str, default:bool, visibility:str, name:str, id:int, selected_organizations_url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._allows_public_repositories = allows_public_repositories
         self._runners_url = runners_url
         self._default = default
@@ -6261,8 +6267,8 @@ class RunnerGroupsEnterprise(ResponseBase):
 ##
 class SelfHostedRunnerLabel(ResponseBase):
     """A label for a self hosted runner """
-    def __init__(self, name:str, id:int=None, type:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, name:str, id:int=None, type:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._name = name
         self._id = id
         self._type = type
@@ -6298,8 +6304,8 @@ class SelfHostedRunnerLabel(ResponseBase):
 ##
 class SelfHostedRunners(ResponseBase):
     """A self hosted runner """
-    def __init__(self, labels:list, busy:bool, status:str, os:str, name:str, id:int):
-        ResponseBase.__init__(self)
+    def __init__(self, labels:list, busy:bool, status:str, os:str, name:str, id:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._labels = labels
         self._busy = busy
         self._status = status
@@ -6359,8 +6365,8 @@ class SelfHostedRunners(ResponseBase):
 ##
 class RunnerApplication(ResponseBase):
     """Runner Application """
-    def __init__(self, filename:str, download_url:str, architecture:str, os:str, temp_download_token:str=None, sha256_checksum:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, filename:str, download_url:str, architecture:str, os:str, temp_download_token:str=None, sha256_checksum:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._filename = filename
         self._download_url = download_url
         self._architecture = architecture
@@ -6420,8 +6426,8 @@ class RunnerApplication(ResponseBase):
 ##
 class AuthenticationToken(ResponseBase):
     """Authentication Token """
-    def __init__(self, expires_at:datetime, token:str, permissions:object=None, repositories:list=None, single_file:str=None, repository_selection:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, expires_at:datetime, token:str, permissions:object=None, repositories:list=None, single_file:str=None, repository_selection:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._expires_at = expires_at
         self._token = token
         self._permissions = permissions
@@ -6480,8 +6486,8 @@ class AuthenticationToken(ResponseBase):
 ##
 ##
 class Auditlogevent_actor_location(ResponseBase):
-    def __init__(self, country_name:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, country_name:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._country_name = country_name
         return
         
@@ -6500,8 +6506,8 @@ class Auditlogevent_actor_location(ResponseBase):
 ##
 ##
 class AuditLogEvent(ResponseBase):
-    def __init__(self, timestamp:int=None, action:str=None, active:bool=None, active_was:bool=None, actor:str=None, actor_id:int=None, actor_location:dict=None, data:object=None, org_id:int=None, blocked_user:str=None, business:str=None, config:list=None, config_was:list=None, content_type:str=None, created_at:int=None, deploy_key_fingerprint:str=None, _document_id:str=None, emoji:str=None, events:list=None, events_were:list=None, explanation:str=None, fingerprint:str=None, hook_id:int=None, limited_availability:bool=None, message:str=None, name:str=None, old_user:str=None, openssh_public_key:str=None, org:str=None, previous_visibility:str=None, read_only:bool=None, repo:str=None, repository:str=None, repository_public:bool=None, target_login:str=None, team:str=None, transport_protocol:int=None, transport_protocol_name:str=None, user:str=None, visibility:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, timestamp:int=None, action:str=None, active:bool=None, active_was:bool=None, actor:str=None, actor_id:int=None, actor_location:dict=None, data:object=None, org_id:int=None, blocked_user:str=None, business:str=None, config:list=None, config_was:list=None, content_type:str=None, created_at:int=None, deploy_key_fingerprint:str=None, _document_id:str=None, emoji:str=None, events:list=None, events_were:list=None, explanation:str=None, fingerprint:str=None, hook_id:int=None, limited_availability:bool=None, message:str=None, name:str=None, old_user:str=None, openssh_public_key:str=None, org:str=None, previous_visibility:str=None, read_only:bool=None, repo:str=None, repository:str=None, repository_public:bool=None, target_login:str=None, team:str=None, transport_protocol:int=None, transport_protocol_name:str=None, user:str=None, visibility:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._timestamp = timestamp
         self._action = action
         self._active = active
@@ -6844,8 +6850,8 @@ class AuditLogEvent(ResponseBase):
 ##
 class Actor(ResponseBase):
     """Actor """
-    def __init__(self, avatar_url:str, url:str, gravatar_id:str, login:str, id:int, display_login:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, avatar_url:str, url:str, gravatar_id:str, login:str, id:int, display_login:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._avatar_url = avatar_url
         self._url = url
         self._gravatar_id = gravatar_id
@@ -6905,8 +6911,8 @@ class Actor(ResponseBase):
 ##
 class Milestone(ResponseBase):
     """A collection of related issues and pull requests. """
-    def __init__(self, due_on:datetime, closed_at:datetime, updated_at:datetime, created_at:datetime, closed_issues:int, open_issues:int, creator:dict, description:str, title:str, number:int, node_id:str, id:int, labels_url:str, html_url:str, url:str, state:str='open'):
-        ResponseBase.__init__(self)
+    def __init__(self, due_on:datetime, closed_at:datetime, updated_at:datetime, created_at:datetime, closed_issues:int, open_issues:int, creator:dict, description:str, title:str, number:int, node_id:str, id:int, labels_url:str, html_url:str, url:str, state:str='open', **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._due_on = due_on
         self._closed_at = closed_at
         self._updated_at = updated_at
@@ -7046,8 +7052,8 @@ class Milestone(ResponseBase):
 ##
 class GithubApp(ResponseBase):
     """GitHub apps are a new way to extend GitHub. They can be installed directly on organizations and user accounts and granted access to specific repositories. They come with granular permissions and built-in webhooks. GitHub apps are first class actors within GitHub. """
-    def __init__(self, events:list, permissions:dict, updated_at:datetime, created_at:datetime, html_url:str, external_url:str, description:str, name:str, owner:dict, node_id:str, id:int, slug:str=None, installations_count:int=None, client_id:str=None, client_secret:str=None, webhook_secret:str=None, pem:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, events:list, permissions:dict, updated_at:datetime, created_at:datetime, html_url:str, external_url:str, description:str, name:str, owner:dict, node_id:str, id:int, slug:str=None, installations_count:int=None, client_id:str=None, client_secret:str=None, webhook_secret:str=None, pem:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._events = events
         self._permissions = permissions
         self._updated_at = updated_at
@@ -7194,8 +7200,8 @@ class GithubApp(ResponseBase):
 ##
 ##
 class ReactionRollup(ResponseBase):
-    def __init__(self, rocket:int, eyes:int, hooray:int, heart:int, confused:int, laugh:int, minusone:int, plusone:int, total_count:int, url:str):
-        ResponseBase.__init__(self)
+    def __init__(self, rocket:int, eyes:int, hooray:int, heart:int, confused:int, laugh:int, minusone:int, plusone:int, total_count:int, url:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._rocket = rocket
         self._eyes = eyes
         self._hooray = hooray
@@ -7305,8 +7311,8 @@ class ReactionRollup(ResponseBase):
 ##
 ##
 class Issue_labels(ResponseBase):
-    def __init__(self, id:int=None, node_id:str=None, url:str=None, name:str=None, description:str=None, color:str=None, default:bool=None):
-        ResponseBase.__init__(self)
+    def __init__(self, id:int=None, node_id:str=None, url:str=None, name:str=None, description:str=None, color:str=None, default:bool=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._id = id
         self._node_id = node_id
         self._url = url
@@ -7373,8 +7379,8 @@ class Issue_labels(ResponseBase):
 ##
 ##
 class Issue_pull_request(ResponseBase):
-    def __init__(self, url:str, patch_url:str, html_url:str, diff_url:str, merged_at:datetime=None):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str, patch_url:str, html_url:str, diff_url:str, merged_at:datetime=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._patch_url = patch_url
         self._html_url = html_url
@@ -7426,8 +7432,8 @@ class Issue_pull_request(ResponseBase):
 ##
 class Issue(ResponseBase):
     """Issues are a great way to keep track of tasks, enhancements, and bugs for your projects. """
-    def __init__(self, author_association:str, updated_at:datetime, created_at:datetime, closed_at:datetime, comments:int, locked:bool, milestone:dict, assignee:dict, labels, user:dict, title:str, state:str, number:int, html_url:str, events_url:str, comments_url:str, labels_url:str, repository_url:str, url:str, node_id:str, id:int, body:str=None, assignees:list=None, active_lock_reason:str=None, pull_request:dict=None, draft:bool=None, closed_by:dict=None, body_html:str=None, body_text:str=None, timeline_url:str=None, repository:dict=None, performed_via_github_app:dict=None, reactions:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, author_association:str, updated_at:datetime, created_at:datetime, closed_at:datetime, comments:int, locked:bool, milestone:dict, assignee:dict, labels, user:dict, title:str, state:str, number:int, html_url:str, events_url:str, comments_url:str, labels_url:str, repository_url:str, url:str, node_id:str, id:int, body:str=None, assignees:list=None, active_lock_reason:str=None, pull_request:dict=None, draft:bool=None, closed_by:dict=None, body_html:str=None, body_text:str=None, timeline_url:str=None, repository:dict=None, performed_via_github_app:dict=None, reactions:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._author_association = author_association
         self._updated_at = updated_at
         self._created_at = created_at
@@ -7703,8 +7709,8 @@ class Issue(ResponseBase):
 ##
 class IssueComment(ResponseBase):
     """Comments provide a way for people to collaborate on an issue. """
-    def __init__(self, author_association:str, issue_url:str, updated_at:datetime, created_at:datetime, user:dict, html_url:str, url:str, node_id:str, id:int, body:str=None, body_text:str=None, body_html:str=None, performed_via_github_app:dict=None, reactions:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, author_association:str, issue_url:str, updated_at:datetime, created_at:datetime, user:dict, html_url:str, url:str, node_id:str, id:int, body:str=None, body_text:str=None, body_html:str=None, performed_via_github_app:dict=None, reactions:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._author_association = author_association
         self._issue_url = issue_url
         self._updated_at = updated_at
@@ -7827,8 +7833,8 @@ class IssueComment(ResponseBase):
 ##
 ##
 class Event_repo(ResponseBase):
-    def __init__(self, url:str, name:str, id:int):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str, name:str, id:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._name = name
         self._id = id
@@ -7863,8 +7869,8 @@ class Event_repo(ResponseBase):
 ##
 ##
 class Event_payload_pages(ResponseBase):
-    def __init__(self, page_name:str=None, title:str=None, summary:str=None, action:str=None, sha:str=None, html_url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, page_name:str=None, title:str=None, summary:str=None, action:str=None, sha:str=None, html_url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._page_name = page_name
         self._title = title
         self._summary = summary
@@ -7923,8 +7929,8 @@ class Event_payload_pages(ResponseBase):
 ##
 ##
 class Event_payload(ResponseBase):
-    def __init__(self, action:str=None, issue:dict=None, comment:dict=None, pages:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, action:str=None, issue:dict=None, comment:dict=None, pages:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._action = action
         self._issue = issue
         self._comment = comment
@@ -7968,8 +7974,8 @@ class Event_payload(ResponseBase):
 ##
 class Event(ResponseBase):
     """Event """
-    def __init__(self, created_at:datetime, public:bool, payload:dict, repo:dict, actor:dict, type:str, id:str, org:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, created_at:datetime, public:bool, payload:dict, repo:dict, actor:dict, type:str, id:str, org:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._created_at = created_at
         self._public = public
         self._payload = payload
@@ -8045,8 +8051,8 @@ class Event(ResponseBase):
 ##
 class LinkWithType(ResponseBase):
     """Hypermedia Link with Type """
-    def __init__(self, type:str, href:str):
-        ResponseBase.__init__(self)
+    def __init__(self, type:str, href:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._type = type
         self._href = href
         return
@@ -8073,8 +8079,8 @@ class LinkWithType(ResponseBase):
 ##
 ##
 class Feed__links(ResponseBase):
-    def __init__(self, user:dict, timeline:dict, security_advisories:dict=None, current_user:dict=None, current_user_public:dict=None, current_user_actor:dict=None, current_user_organization:dict=None, current_user_organizations:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, user:dict, timeline:dict, security_advisories:dict=None, current_user:dict=None, current_user_public:dict=None, current_user_actor:dict=None, current_user_organization:dict=None, current_user_organizations:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._user = user
         self._timeline = timeline
         self._security_advisories = security_advisories
@@ -8150,8 +8156,8 @@ class Feed__links(ResponseBase):
 ##
 class Feed(ResponseBase):
     """Feed """
-    def __init__(self, _links:dict, user_url:str, timeline_url:str, current_user_public_url:str=None, current_user_url:str=None, current_user_actor_url:str=None, current_user_organization_url:str=None, current_user_organization_urls:list=None, security_advisories_url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, _links:dict, user_url:str, timeline_url:str, current_user_public_url:str=None, current_user_url:str=None, current_user_actor_url:str=None, current_user_organization_url:str=None, current_user_organization_urls:list=None, security_advisories_url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self.__links = _links
         self._user_url = user_url
         self._timeline_url = timeline_url
@@ -8235,8 +8241,8 @@ class Feed(ResponseBase):
 ##
 class BaseGist(ResponseBase):
     """Base Gist """
-    def __init__(self, comments_url:str, user:dict, comments:int, description:str, updated_at:datetime, created_at:datetime, public:bool, files:object, html_url:str, git_push_url:str, git_pull_url:str, node_id:str, id:str, commits_url:str, forks_url:str, url:str, owner:dict=None, truncated:bool=None, forks:list=None, history:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, comments_url:str, user:dict, comments:int, description:str, updated_at:datetime, created_at:datetime, public:bool, files:object, html_url:str, git_push_url:str, git_pull_url:str, node_id:str, id:str, commits_url:str, forks_url:str, url:str, owner:dict=None, truncated:bool=None, forks:list=None, history:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._comments_url = comments_url
         self._user = user
         self._comments = comments
@@ -8407,8 +8413,8 @@ class BaseGist(ResponseBase):
 ##
 ##
 class Publicuser_plan(ResponseBase):
-    def __init__(self, private_repos:int, space:int, name:str, collaborators:int):
-        ResponseBase.__init__(self)
+    def __init__(self, private_repos:int, space:int, name:str, collaborators:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._private_repos = private_repos
         self._space = space
         self._name = name
@@ -8452,8 +8458,8 @@ class Publicuser_plan(ResponseBase):
 ##
 class PublicUser(ResponseBase):
     """Public User """
-    def __init__(self, updated_at:datetime, created_at:datetime, following:int, followers:int, public_gists:int, public_repos:int, bio:str, hireable:bool, email:str, location:str, blog:str, company:str, name:str, site_admin:bool, type:str, received_events_url:str, events_url:str, repos_url:str, organizations_url:str, subscriptions_url:str, starred_url:str, gists_url:str, following_url:str, followers_url:str, html_url:str, url:str, gravatar_id:str, avatar_url:str, node_id:str, id:int, login:str, twitter_username:str=None, plan:dict=None, suspended_at:datetime=None, private_gists:int=None, total_private_repos:int=None, owned_private_repos:int=None, disk_usage:int=None, collaborators:int=None):
-        ResponseBase.__init__(self)
+    def __init__(self, updated_at:datetime, created_at:datetime, following:int, followers:int, public_gists:int, public_repos:int, bio:str, hireable:bool, email:str, location:str, blog:str, company:str, name:str, site_admin:bool, type:str, received_events_url:str, events_url:str, repos_url:str, organizations_url:str, subscriptions_url:str, starred_url:str, gists_url:str, following_url:str, followers_url:str, html_url:str, url:str, gravatar_id:str, avatar_url:str, node_id:str, id:int, login:str, twitter_username:str=None, plan:dict=None, suspended_at:datetime=None, private_gists:int=None, total_private_repos:int=None, owned_private_repos:int=None, disk_usage:int=None, collaborators:int=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._updated_at = updated_at
         self._created_at = created_at
         self._following = following
@@ -8776,8 +8782,8 @@ class PublicUser(ResponseBase):
 ##
 ##
 class Gisthistory_change_status(ResponseBase):
-    def __init__(self, total:int=None, additions:int=None, deletions:int=None):
-        ResponseBase.__init__(self)
+    def __init__(self, total:int=None, additions:int=None, deletions:int=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._total = total
         self._additions = additions
         self._deletions = deletions
@@ -8813,8 +8819,8 @@ class Gisthistory_change_status(ResponseBase):
 ##
 class GistHistory(ResponseBase):
     """Gist History """
-    def __init__(self, user:dict=None, version:str=None, committed_at:datetime=None, change_status:dict=None, url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, user:dict=None, version:str=None, committed_at:datetime=None, change_status:dict=None, url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._user = user
         self._version = version
         self._committed_at = committed_at
@@ -8866,8 +8872,8 @@ class GistHistory(ResponseBase):
 ##
 class Gistsimple_fork_of(ResponseBase):
     """Gist """
-    def __init__(self, comments_url:str, user:dict, comments:int, description:str, updated_at:datetime, created_at:datetime, public:bool, files:object, html_url:str, git_push_url:str, git_pull_url:str, node_id:str, id:str, commits_url:str, forks_url:str, url:str, owner:dict=None, truncated:bool=None, forks:list=None, history:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, comments_url:str, user:dict, comments:int, description:str, updated_at:datetime, created_at:datetime, public:bool, files:object, html_url:str, git_push_url:str, git_pull_url:str, node_id:str, id:str, commits_url:str, forks_url:str, url:str, owner:dict=None, truncated:bool=None, forks:list=None, history:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._comments_url = comments_url
         self._user = user
         self._comments = comments
@@ -9039,8 +9045,8 @@ class Gistsimple_fork_of(ResponseBase):
 ##
 class GistSimple(ResponseBase):
     """Gist Simple """
-    def __init__(self, forks=None, history=None, fork_of:dict=None, url:str=None, forks_url:str=None, commits_url:str=None, id:str=None, node_id:str=None, git_pull_url:str=None, git_push_url:str=None, html_url:str=None, files:object=None, public:bool=None, created_at:str=None, updated_at:str=None, description:str=None, comments:int=None, user:str=None, comments_url:str=None, owner:dict=None, truncated:bool=None):
-        ResponseBase.__init__(self)
+    def __init__(self, forks=None, history=None, fork_of:dict=None, url:str=None, forks_url:str=None, commits_url:str=None, id:str=None, node_id:str=None, git_pull_url:str=None, git_push_url:str=None, html_url:str=None, files:object=None, public:bool=None, created_at:str=None, updated_at:str=None, description:str=None, comments:int=None, user:str=None, comments_url:str=None, owner:dict=None, truncated:bool=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._forks = forks
         self._history = history
         self._fork_of = fork_of
@@ -9220,8 +9226,8 @@ class GistSimple(ResponseBase):
 ##
 class GistComment(ResponseBase):
     """A comment made to a gist. """
-    def __init__(self, author_association:str, updated_at:datetime, created_at:datetime, user:dict, body:str, url:str, node_id:str, id:int):
-        ResponseBase.__init__(self)
+    def __init__(self, author_association:str, updated_at:datetime, created_at:datetime, user:dict, body:str, url:str, node_id:str, id:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._author_association = author_association
         self._updated_at = updated_at
         self._created_at = created_at
@@ -9296,8 +9302,8 @@ class GistComment(ResponseBase):
 ##
 ##
 class Gistcommit_change_status(ResponseBase):
-    def __init__(self, total:int=None, additions:int=None, deletions:int=None):
-        ResponseBase.__init__(self)
+    def __init__(self, total:int=None, additions:int=None, deletions:int=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._total = total
         self._additions = additions
         self._deletions = deletions
@@ -9333,8 +9339,8 @@ class Gistcommit_change_status(ResponseBase):
 ##
 class GistCommit(ResponseBase):
     """Gist Commit """
-    def __init__(self, committed_at:datetime, change_status:dict, user:dict, version:str, url:str):
-        ResponseBase.__init__(self)
+    def __init__(self, committed_at:datetime, change_status:dict, user:dict, version:str, url:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._committed_at = committed_at
         self._change_status = change_status
         self._user = user
@@ -9386,8 +9392,8 @@ class GistCommit(ResponseBase):
 ##
 class GitignoreTemplate(ResponseBase):
     """Gitignore Template """
-    def __init__(self, source:str, name:str):
-        ResponseBase.__init__(self)
+    def __init__(self, source:str, name:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._source = source
         self._name = name
         return
@@ -9415,8 +9421,8 @@ class GitignoreTemplate(ResponseBase):
 ##
 class LicenseSimple(ResponseBase):
     """License Simple """
-    def __init__(self, node_id:str, spdx_id:str, url:str, name:str, key:str, html_url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, node_id:str, spdx_id:str, url:str, name:str, key:str, html_url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._node_id = node_id
         self._spdx_id = spdx_id
         self._url = url
@@ -9476,8 +9482,8 @@ class LicenseSimple(ResponseBase):
 ##
 class License(ResponseBase):
     """License """
-    def __init__(self, featured:bool, body:str, limitations:list, conditions:list, permissions:list, implementation:str, description:str, html_url:str, node_id:str, url:str, spdx_id:str, name:str, key:str):
-        ResponseBase.__init__(self)
+    def __init__(self, featured:bool, body:str, limitations:list, conditions:list, permissions:list, implementation:str, description:str, html_url:str, node_id:str, url:str, spdx_id:str, name:str, key:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._featured = featured
         self._body = body
         self._limitations = limitations
@@ -9593,8 +9599,8 @@ class License(ResponseBase):
 ##
 class ApiOverview(ResponseBase):
     """Api Overview """
-    def __init__(self, verifiable_password_authentication:bool, packages:list=None, dependabot:list=None, installed_version:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, verifiable_password_authentication:bool, packages:list=None, dependabot:list=None, installed_version:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._verifiable_password_authentication = verifiable_password_authentication
         self._packages = packages
         self._dependabot = dependabot
@@ -9638,8 +9644,8 @@ class ApiOverview(ResponseBase):
 ##
 class Repository(ResponseBase):
     """A git repository """
-    def __init__(self, watchers:int, open_issues:int, updated_at:datetime, created_at:datetime, pushed_at:datetime, disabled:bool, has_pages:bool, open_issues_count:int, default_branch:str, size:int, watchers_count:int, stargazers_count:int, forks_count:int, language:str, homepage:str, svn_url:str, hooks_url:str, mirror_url:str, clone_url:str, trees_url:str, teams_url:str, tags_url:str, subscription_url:str, subscribers_url:str, statuses_url:str, stargazers_url:str, ssh_url:str, releases_url:str, pulls_url:str, notifications_url:str, milestones_url:str, merges_url:str, languages_url:str, labels_url:str, keys_url:str, issues_url:str, issue_events_url:str, issue_comment_url:str, git_url:str, git_tags_url:str, git_refs_url:str, git_commits_url:str, forks_url:str, events_url:str, downloads_url:str, deployments_url:str, contributors_url:str, contents_url:str, compare_url:str, commits_url:str, comments_url:str, collaborators_url:str, branches_url:str, blobs_url:str, assignees_url:str, archive_url:str, url:str, fork:bool, description:str, html_url:str, owner:dict, forks:int, license:dict, full_name:str, name:str, node_id:str, id:int, organization:dict=None, permissions:dict=None, private:bool=False, is_template:bool=False, topics:list=None, has_issues:bool=True, has_projects:bool=True, has_wiki:bool=True, has_downloads:bool=True, archived:bool=False, visibility:str='public', allow_rebase_merge:bool=True, template_repository:dict=None, temp_clone_token:str=None, allow_squash_merge:bool=True, allow_auto_merge:bool=False, delete_branch_on_merge:bool=False, allow_merge_commit:bool=True, allow_forking:bool=None, subscribers_count:int=None, network_count:int=None, master_branch:str=None, starred_at:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, watchers:int, open_issues:int, updated_at:datetime, created_at:datetime, pushed_at:datetime, disabled:bool, has_pages:bool, open_issues_count:int, default_branch:str, size:int, watchers_count:int, stargazers_count:int, forks_count:int, language:str, homepage:str, svn_url:str, hooks_url:str, mirror_url:str, clone_url:str, trees_url:str, teams_url:str, tags_url:str, subscription_url:str, subscribers_url:str, statuses_url:str, stargazers_url:str, ssh_url:str, releases_url:str, pulls_url:str, notifications_url:str, milestones_url:str, merges_url:str, languages_url:str, labels_url:str, keys_url:str, issues_url:str, issue_events_url:str, issue_comment_url:str, git_url:str, git_tags_url:str, git_refs_url:str, git_commits_url:str, forks_url:str, events_url:str, downloads_url:str, deployments_url:str, contributors_url:str, contents_url:str, compare_url:str, commits_url:str, comments_url:str, collaborators_url:str, branches_url:str, blobs_url:str, assignees_url:str, archive_url:str, url:str, fork:bool, description:str, html_url:str, owner:dict, forks:int, license:dict, full_name:str, name:str, node_id:str, id:int, organization:dict=None, permissions:dict=None, private:bool=False, is_template:bool=False, topics:list=None, has_issues:bool=True, has_projects:bool=True, has_wiki:bool=True, has_downloads:bool=True, archived:bool=False, visibility:str='public', allow_rebase_merge:bool=True, template_repository:dict=None, temp_clone_token:str=None, allow_squash_merge:bool=True, allow_auto_merge:bool=False, delete_branch_on_merge:bool=False, allow_merge_commit:bool=True, allow_forking:bool=None, subscribers_count:int=None, network_count:int=None, master_branch:str=None, starred_at:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._watchers = watchers
         self._open_issues = open_issues
         self._updated_at = updated_at
@@ -10370,8 +10376,8 @@ class Repository(ResponseBase):
 ##
 ##
 class Minimalrepository_permissions(ResponseBase):
-    def __init__(self, admin:bool=None, maintain:bool=None, push:bool=None, triage:bool=None, pull:bool=None):
-        ResponseBase.__init__(self)
+    def __init__(self, admin:bool=None, maintain:bool=None, push:bool=None, triage:bool=None, pull:bool=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._admin = admin
         self._maintain = maintain
         self._push = push
@@ -10422,8 +10428,8 @@ class Minimalrepository_permissions(ResponseBase):
 ##
 ##
 class Minimalrepository_license(ResponseBase):
-    def __init__(self, key:str=None, name:str=None, spdx_id:str=None, url:str=None, node_id:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, key:str=None, name:str=None, spdx_id:str=None, url:str=None, node_id:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._key = key
         self._name = name
         self._spdx_id = spdx_id
@@ -10475,8 +10481,8 @@ class Minimalrepository_license(ResponseBase):
 ##
 class MinimalRepository(ResponseBase):
     """Minimal Repository """
-    def __init__(self, hooks_url:str, trees_url:str, teams_url:str, tags_url:str, subscription_url:str, subscribers_url:str, statuses_url:str, stargazers_url:str, releases_url:str, pulls_url:str, notifications_url:str, milestones_url:str, merges_url:str, languages_url:str, labels_url:str, keys_url:str, issues_url:str, issue_events_url:str, issue_comment_url:str, git_tags_url:str, git_refs_url:str, git_commits_url:str, forks_url:str, events_url:str, downloads_url:str, deployments_url:str, contributors_url:str, contents_url:str, compare_url:str, commits_url:str, comments_url:str, collaborators_url:str, branches_url:str, blobs_url:str, assignees_url:str, archive_url:str, url:str, fork:bool, description:str, html_url:str, private:bool, owner:dict, full_name:str, name:str, node_id:str, id:int, git_url:str=None, ssh_url:str=None, clone_url:str=None, mirror_url:str=None, svn_url:str=None, homepage:str=None, language:str=None, forks_count:int=None, stargazers_count:int=None, watchers_count:int=None, size:int=None, default_branch:str=None, open_issues_count:int=None, is_template:bool=None, topics:list=None, has_issues:bool=None, has_projects:bool=None, has_wiki:bool=None, has_pages:bool=None, has_downloads:bool=None, archived:bool=None, disabled:bool=None, visibility:str=None, pushed_at:datetime=None, created_at:datetime=None, updated_at:datetime=None, permissions:dict=None, template_repository:dict=None, temp_clone_token:str=None, delete_branch_on_merge:bool=None, subscribers_count:int=None, network_count:int=None, code_of_conduct:dict=None, license:dict=None, forks:int=None, open_issues:int=None, watchers:int=None, allow_forking:bool=None):
-        ResponseBase.__init__(self)
+    def __init__(self, hooks_url:str, trees_url:str, teams_url:str, tags_url:str, subscription_url:str, subscribers_url:str, statuses_url:str, stargazers_url:str, releases_url:str, pulls_url:str, notifications_url:str, milestones_url:str, merges_url:str, languages_url:str, labels_url:str, keys_url:str, issues_url:str, issue_events_url:str, issue_comment_url:str, git_tags_url:str, git_refs_url:str, git_commits_url:str, forks_url:str, events_url:str, downloads_url:str, deployments_url:str, contributors_url:str, contents_url:str, compare_url:str, commits_url:str, comments_url:str, collaborators_url:str, branches_url:str, blobs_url:str, assignees_url:str, archive_url:str, url:str, fork:bool, description:str, html_url:str, private:bool, owner:dict, full_name:str, name:str, node_id:str, id:int, git_url:str=None, ssh_url:str=None, clone_url:str=None, mirror_url:str=None, svn_url:str=None, homepage:str=None, language:str=None, forks_count:int=None, stargazers_count:int=None, watchers_count:int=None, size:int=None, default_branch:str=None, open_issues_count:int=None, is_template:bool=None, topics:list=None, has_issues:bool=None, has_projects:bool=None, has_wiki:bool=None, has_pages:bool=None, has_downloads:bool=None, archived:bool=None, disabled:bool=None, visibility:str=None, pushed_at:datetime=None, created_at:datetime=None, updated_at:datetime=None, permissions:dict=None, template_repository:dict=None, temp_clone_token:str=None, delete_branch_on_merge:bool=None, subscribers_count:int=None, network_count:int=None, code_of_conduct:dict=None, license:dict=None, forks:int=None, open_issues:int=None, watchers:int=None, allow_forking:bool=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._hooks_url = hooks_url
         self._trees_url = trees_url
         self._teams_url = teams_url
@@ -11159,8 +11165,8 @@ class MinimalRepository(ResponseBase):
 ##
 ##
 class Thread_subject(ResponseBase):
-    def __init__(self, type:str, latest_comment_url:str, url:str, title:str):
-        ResponseBase.__init__(self)
+    def __init__(self, type:str, latest_comment_url:str, url:str, title:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._type = type
         self._latest_comment_url = latest_comment_url
         self._url = url
@@ -11204,8 +11210,8 @@ class Thread_subject(ResponseBase):
 ##
 class Thread(ResponseBase):
     """Thread """
-    def __init__(self, subscription_url:str, url:str, last_read_at:str, updated_at:str, unread:bool, reason:str, subject:dict, repository:dict, id:str):
-        ResponseBase.__init__(self)
+    def __init__(self, subscription_url:str, url:str, last_read_at:str, updated_at:str, unread:bool, reason:str, subject:dict, repository:dict, id:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._subscription_url = subscription_url
         self._url = url
         self._last_read_at = last_read_at
@@ -11289,8 +11295,8 @@ class Thread(ResponseBase):
 ##
 class ThreadSubscription(ResponseBase):
     """Thread Subscription """
-    def __init__(self, url:str, created_at:datetime, reason:str, ignored:bool, subscribed:bool, thread_url:str=None, repository_url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str, created_at:datetime, reason:str, ignored:bool, subscribed:bool, thread_url:str=None, repository_url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._created_at = created_at
         self._reason = reason
@@ -11357,8 +11363,8 @@ class ThreadSubscription(ResponseBase):
 ##
 ##
 class Organizationfull_plan(ResponseBase):
-    def __init__(self, private_repos:int, space:int, name:str, filled_seats:int=None, seats:int=None):
-        ResponseBase.__init__(self)
+    def __init__(self, private_repos:int, space:int, name:str, filled_seats:int=None, seats:int=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._private_repos = private_repos
         self._space = space
         self._name = name
@@ -11410,8 +11416,8 @@ class Organizationfull_plan(ResponseBase):
 ##
 class OrganizationFull(ResponseBase):
     """Organization Full """
-    def __init__(self, updated_at:datetime, type:str, created_at:datetime, html_url:str, following:int, followers:int, public_gists:int, public_repos:int, has_repository_projects:bool, has_organization_projects:bool, description:str, avatar_url:str, public_members_url:str, members_url:str, issues_url:str, hooks_url:str, events_url:str, repos_url:str, url:str, node_id:str, id:int, login:str, name:str=None, company:str=None, blog:str=None, location:str=None, email:str=None, twitter_username:str=None, is_verified:bool=None, total_private_repos:int=None, owned_private_repos:int=None, private_gists:int=None, disk_usage:int=None, collaborators:int=None, billing_email:str=None, plan:dict=None, default_repository_permission:str=None, members_can_create_repositories:bool=None, two_factor_requirement_enabled:bool=None, members_allowed_repository_creation_type:str=None, members_can_create_public_repositories:bool=None, members_can_create_private_repositories:bool=None, members_can_create_internal_repositories:bool=None, members_can_create_pages:bool=None, members_can_create_public_pages:bool=None, members_can_create_private_pages:bool=None, members_can_fork_private_repositories:bool=None):
-        ResponseBase.__init__(self)
+    def __init__(self, updated_at:datetime, type:str, created_at:datetime, html_url:str, following:int, followers:int, public_gists:int, public_repos:int, has_repository_projects:bool, has_organization_projects:bool, description:str, avatar_url:str, public_members_url:str, members_url:str, issues_url:str, hooks_url:str, events_url:str, repos_url:str, url:str, node_id:str, id:int, login:str, name:str=None, company:str=None, blog:str=None, location:str=None, email:str=None, twitter_username:str=None, is_verified:bool=None, total_private_repos:int=None, owned_private_repos:int=None, private_gists:int=None, disk_usage:int=None, collaborators:int=None, billing_email:str=None, plan:dict=None, default_repository_permission:str=None, members_can_create_repositories:bool=None, two_factor_requirement_enabled:bool=None, members_allowed_repository_creation_type:str=None, members_can_create_public_repositories:bool=None, members_can_create_private_repositories:bool=None, members_can_create_internal_repositories:bool=None, members_can_create_pages:bool=None, members_can_create_public_pages:bool=None, members_can_create_private_pages:bool=None, members_can_fork_private_repositories:bool=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._updated_at = updated_at
         self._type = type
         self._created_at = created_at
@@ -11798,8 +11804,8 @@ class OrganizationFull(ResponseBase):
 ##
 ##
 class ActionsOrganizationPermissions(ResponseBase):
-    def __init__(self, enabled_repositories:str, selected_repositories_url:str=None, allowed_actions:str=None, selected_actions_url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, enabled_repositories:str, selected_repositories_url:str=None, allowed_actions:str=None, selected_actions_url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._enabled_repositories = enabled_repositories
         self._selected_repositories_url = selected_repositories_url
         self._allowed_actions = allowed_actions
@@ -11842,8 +11848,8 @@ class ActionsOrganizationPermissions(ResponseBase):
 ##
 ##
 class RunnerGroupsOrg(ResponseBase):
-    def __init__(self, allows_public_repositories:bool, inherited:bool, runners_url:str, default:bool, visibility:str, name:str, id:int, selected_repositories_url:str=None, inherited_allows_public_repositories:bool=None):
-        ResponseBase.__init__(self)
+    def __init__(self, allows_public_repositories:bool, inherited:bool, runners_url:str, default:bool, visibility:str, name:str, id:int, selected_repositories_url:str=None, inherited_allows_public_repositories:bool=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._allows_public_repositories = allows_public_repositories
         self._inherited = inherited
         self._runners_url = runners_url
@@ -11927,8 +11933,8 @@ class RunnerGroupsOrg(ResponseBase):
 ##
 class ActionsSecretForAnOrganization(ResponseBase):
     """Secrets for GitHub Actions for an organization. """
-    def __init__(self, visibility:str, updated_at:datetime, created_at:datetime, name:str, selected_repositories_url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, visibility:str, updated_at:datetime, created_at:datetime, name:str, selected_repositories_url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._visibility = visibility
         self._updated_at = updated_at
         self._created_at = created_at
@@ -11980,8 +11986,8 @@ class ActionsSecretForAnOrganization(ResponseBase):
 ##
 class Actionspublickey(ResponseBase):
     """The public key used for setting Actions Secrets. """
-    def __init__(self, key:str, key_id:str, id:int=None, url:str=None, title:str=None, created_at:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, key:str, key_id:str, id:int=None, url:str=None, title:str=None, created_at:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._key = key
         self._key_id = key_id
         self._id = id
@@ -12041,8 +12047,8 @@ class Actionspublickey(ResponseBase):
 ##
 class EmptyObject(ResponseBase):
     """An object without any properties. """
-    def __init__(self):
-        ResponseBase.__init__(self)
+    def __init__(self, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         return
         
     
@@ -12053,8 +12059,8 @@ class EmptyObject(ResponseBase):
 ##
 ##
 class Orghook_config(ResponseBase):
-    def __init__(self, url:str=None, insecure_ssl:str=None, content_type:str=None, secret:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str=None, insecure_ssl:str=None, content_type:str=None, secret:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._insecure_ssl = insecure_ssl
         self._content_type = content_type
@@ -12098,8 +12104,8 @@ class Orghook_config(ResponseBase):
 ##
 class OrgHook(ResponseBase):
     """Org Hook """
-    def __init__(self, type:str, created_at:datetime, updated_at:datetime, config:dict, active:bool, events:list, name:str, ping_url:str, url:str, id:int, deliveries_url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, type:str, created_at:datetime, updated_at:datetime, config:dict, active:bool, events:list, name:str, ping_url:str, url:str, id:int, deliveries_url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._type = type
         self._created_at = created_at
         self._updated_at = updated_at
@@ -12198,8 +12204,8 @@ class OrgHook(ResponseBase):
 ##
 ##
 class Orgmembership_permissions(ResponseBase):
-    def __init__(self, can_create_repository:bool):
-        ResponseBase.__init__(self)
+    def __init__(self, can_create_repository:bool, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._can_create_repository = can_create_repository
         return
         
@@ -12219,8 +12225,8 @@ class Orgmembership_permissions(ResponseBase):
 ##
 class OrgMembership(ResponseBase):
     """Org Membership """
-    def __init__(self, user:dict, organization:dict, organization_url:str, role:str, state:str, url:str, permissions:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, user:dict, organization:dict, organization_url:str, role:str, state:str, url:str, permissions:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._user = user
         self._organization = organization
         self._organization_url = organization_url
@@ -12287,8 +12293,8 @@ class OrgMembership(ResponseBase):
 ##
 ##
 class OrgPreReceiveHook(ResponseBase):
-    def __init__(self, id:int=None, name:str=None, enforcement:str=None, configuration_url:str=None, allow_downstream_configuration:bool=None):
-        ResponseBase.__init__(self)
+    def __init__(self, id:int=None, name:str=None, enforcement:str=None, configuration_url:str=None, allow_downstream_configuration:bool=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._id = id
         self._name = name
         self._enforcement = enforcement
@@ -12340,8 +12346,8 @@ class OrgPreReceiveHook(ResponseBase):
 ##
 class Project(ResponseBase):
     """Projects are a way to organize columns and cards of work. """
-    def __init__(self, updated_at:datetime, created_at:datetime, creator:dict, state:str, number:int, body:str, name:str, node_id:str, id:int, columns_url:str, html_url:str, url:str, owner_url:str, organization_permission:str=None, private:bool=None):
-        ResponseBase.__init__(self)
+    def __init__(self, updated_at:datetime, created_at:datetime, creator:dict, state:str, number:int, body:str, name:str, node_id:str, id:int, columns_url:str, html_url:str, url:str, owner_url:str, organization_permission:str=None, private:bool=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._updated_at = updated_at
         self._created_at = created_at
         self._creator = creator
@@ -12472,8 +12478,8 @@ class Project(ResponseBase):
 ##
 ##
 class OrganizationSecretScanningAlert(ResponseBase):
-    def __init__(self, number:int=None, created_at:datetime=None, url:str=None, html_url:str=None, locations_url:str=None, state:str=None, resolution:str=None, resolved_at:datetime=None, resolved_by:dict=None, secret_type:str=None, secret:str=None, repository:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, number:int=None, created_at:datetime=None, url:str=None, html_url:str=None, locations_url:str=None, state:str=None, resolution:str=None, resolved_at:datetime=None, resolved_by:dict=None, secret_type:str=None, secret:str=None, repository:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._number = number
         self._created_at = created_at
         self._url = url
@@ -12581,8 +12587,8 @@ class OrganizationSecretScanningAlert(ResponseBase):
 ##
 class TeamSimple(ResponseBase):
     """Groups of organization members that gives permissions on specified repositories. """
-    def __init__(self, slug:str, repositories_url:str, html_url:str, permission:str, description:str, name:str, members_url:str, url:str, node_id:str, id:int, privacy:str=None, ldap_dn:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, slug:str, repositories_url:str, html_url:str, permission:str, description:str, name:str, members_url:str, url:str, node_id:str, id:int, privacy:str=None, ldap_dn:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._slug = slug
         self._repositories_url = repositories_url
         self._html_url = html_url
@@ -12689,8 +12695,8 @@ class TeamSimple(ResponseBase):
 ##
 ##
 class Team_permissions(ResponseBase):
-    def __init__(self, admin:bool, maintain:bool, push:bool, triage:bool, pull:bool):
-        ResponseBase.__init__(self)
+    def __init__(self, admin:bool, maintain:bool, push:bool, triage:bool, pull:bool, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._admin = admin
         self._maintain = maintain
         self._push = push
@@ -12742,8 +12748,8 @@ class Team_permissions(ResponseBase):
 ##
 class Team(ResponseBase):
     """Groups of organization members that gives permissions on specified repositories. """
-    def __init__(self, parent:dict, repositories_url:str, members_url:str, html_url:str, url:str, permission:str, description:str, slug:str, name:str, node_id:str, id:int, privacy:str=None, permissions:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, parent:dict, repositories_url:str, members_url:str, html_url:str, url:str, permission:str, description:str, slug:str, name:str, node_id:str, id:int, privacy:str=None, permissions:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._parent = parent
         self._repositories_url = repositories_url
         self._members_url = members_url
@@ -12859,8 +12865,8 @@ class Team(ResponseBase):
 ##
 class FullTeam(ResponseBase):
     """Groups of organization members that gives permissions on specified repositories. """
-    def __init__(self, organization:dict, updated_at:datetime, created_at:datetime, repos_count:int, members_count:int, repositories_url:str, members_url:str, permission:str, description:str, slug:str, name:str, html_url:str, url:str, node_id:str, id:int, privacy:str=None, parent:dict=None, ldap_dn:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, organization:dict, updated_at:datetime, created_at:datetime, repos_count:int, members_count:int, repositories_url:str, members_url:str, permission:str, description:str, slug:str, name:str, html_url:str, url:str, node_id:str, id:int, privacy:str=None, parent:dict=None, ldap_dn:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._organization = organization
         self._updated_at = updated_at
         self._created_at = created_at
@@ -13016,8 +13022,8 @@ class FullTeam(ResponseBase):
 ##
 class TeamDiscussion(ResponseBase):
     """A team discussion is a persistent record of a free-form conversation within a team. """
-    def __init__(self, url:str, updated_at:datetime, title:str, team_url:str, private:bool, pinned:bool, number:int, node_id:str, html_url:str, last_edited_at:datetime, created_at:datetime, comments_url:str, comments_count:int, body_version:str, body_html:str, body:str, author:dict, reactions:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str, updated_at:datetime, title:str, team_url:str, private:bool, pinned:bool, number:int, node_id:str, html_url:str, last_edited_at:datetime, created_at:datetime, comments_url:str, comments_count:int, body_version:str, body_html:str, body:str, author:dict, reactions:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._updated_at = updated_at
         self._title = title
@@ -13173,8 +13179,8 @@ class TeamDiscussion(ResponseBase):
 ##
 class TeamDiscussionComment(ResponseBase):
     """A reply to a discussion within a team. """
-    def __init__(self, url:str, updated_at:datetime, number:int, node_id:str, html_url:str, discussion_url:str, last_edited_at:datetime, created_at:datetime, body_version:str, body_html:str, body:str, author:dict, reactions:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str, updated_at:datetime, number:int, node_id:str, html_url:str, discussion_url:str, last_edited_at:datetime, created_at:datetime, body_version:str, body_html:str, body:str, author:dict, reactions:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._updated_at = updated_at
         self._number = number
@@ -13290,8 +13296,8 @@ class TeamDiscussionComment(ResponseBase):
 ##
 class Reaction(ResponseBase):
     """Reactions to conversations provide a way to help people express their feelings more simply and effectively. """
-    def __init__(self, created_at:datetime, content:str, user:dict, node_id:str, id:int):
-        ResponseBase.__init__(self)
+    def __init__(self, created_at:datetime, content:str, user:dict, node_id:str, id:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._created_at = created_at
         self._content = content
         self._user = user
@@ -13343,8 +13349,8 @@ class Reaction(ResponseBase):
 ##
 class TeamMembership(ResponseBase):
     """Team Membership """
-    def __init__(self, state:str, url:str, role:str='member'):
-        ResponseBase.__init__(self)
+    def __init__(self, state:str, url:str, role:str='member', **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._state = state
         self._url = url
         self._role = role
@@ -13379,8 +13385,8 @@ class TeamMembership(ResponseBase):
 ##
 ##
 class Teamproject_permissions(ResponseBase):
-    def __init__(self, admin:bool, write:bool, read:bool):
-        ResponseBase.__init__(self)
+    def __init__(self, admin:bool, write:bool, read:bool, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._admin = admin
         self._write = write
         self._read = read
@@ -13416,8 +13422,8 @@ class Teamproject_permissions(ResponseBase):
 ##
 class TeamProject(ResponseBase):
     """A team's access to a project. """
-    def __init__(self, permissions:dict, updated_at:str, created_at:str, creator:dict, state:str, number:int, body:str, name:str, node_id:str, id:int, columns_url:str, html_url:str, url:str, owner_url:str, organization_permission:str=None, private:bool=None):
-        ResponseBase.__init__(self)
+    def __init__(self, permissions:dict, updated_at:str, created_at:str, creator:dict, state:str, number:int, body:str, name:str, node_id:str, id:int, columns_url:str, html_url:str, url:str, owner_url:str, organization_permission:str=None, private:bool=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._permissions = permissions
         self._updated_at = updated_at
         self._created_at = created_at
@@ -13556,8 +13562,8 @@ class TeamProject(ResponseBase):
 ##
 ##
 class Teamrepository_permissions(ResponseBase):
-    def __init__(self, push:bool, pull:bool, admin:bool, triage:bool=None, maintain:bool=None):
-        ResponseBase.__init__(self)
+    def __init__(self, push:bool, pull:bool, admin:bool, triage:bool=None, maintain:bool=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._push = push
         self._pull = pull
         self._admin = admin
@@ -13609,8 +13615,8 @@ class Teamrepository_permissions(ResponseBase):
 ##
 class TeamRepository(ResponseBase):
     """A team's access to a repository. """
-    def __init__(self, watchers:int, open_issues:int, updated_at:datetime, created_at:datetime, pushed_at:datetime, disabled:bool, has_pages:bool, open_issues_count:int, default_branch:str, size:int, watchers_count:int, stargazers_count:int, forks_count:int, language:str, homepage:str, svn_url:str, hooks_url:str, mirror_url:str, clone_url:str, trees_url:str, teams_url:str, tags_url:str, subscription_url:str, subscribers_url:str, statuses_url:str, stargazers_url:str, ssh_url:str, releases_url:str, pulls_url:str, notifications_url:str, milestones_url:str, merges_url:str, languages_url:str, labels_url:str, keys_url:str, issues_url:str, issue_events_url:str, issue_comment_url:str, git_url:str, git_tags_url:str, git_refs_url:str, git_commits_url:str, forks_url:str, events_url:str, downloads_url:str, deployments_url:str, contributors_url:str, contents_url:str, compare_url:str, commits_url:str, comments_url:str, collaborators_url:str, branches_url:str, blobs_url:str, assignees_url:str, archive_url:str, url:str, fork:bool, description:str, html_url:str, owner:dict, forks:int, license:dict, full_name:str, name:str, node_id:str, id:int, permissions:dict=None, private:bool=False, is_template:bool=False, topics:list=None, has_issues:bool=True, has_projects:bool=True, has_wiki:bool=True, has_downloads:bool=True, archived:bool=False, visibility:str='public', allow_rebase_merge:bool=True, template_repository:dict=None, temp_clone_token:str=None, allow_squash_merge:bool=True, allow_auto_merge:bool=False, delete_branch_on_merge:bool=False, allow_merge_commit:bool=True, allow_forking:bool=False, subscribers_count:int=None, network_count:int=None, master_branch:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, watchers:int, open_issues:int, updated_at:datetime, created_at:datetime, pushed_at:datetime, disabled:bool, has_pages:bool, open_issues_count:int, default_branch:str, size:int, watchers_count:int, stargazers_count:int, forks_count:int, language:str, homepage:str, svn_url:str, hooks_url:str, mirror_url:str, clone_url:str, trees_url:str, teams_url:str, tags_url:str, subscription_url:str, subscribers_url:str, statuses_url:str, stargazers_url:str, ssh_url:str, releases_url:str, pulls_url:str, notifications_url:str, milestones_url:str, merges_url:str, languages_url:str, labels_url:str, keys_url:str, issues_url:str, issue_events_url:str, issue_comment_url:str, git_url:str, git_tags_url:str, git_refs_url:str, git_commits_url:str, forks_url:str, events_url:str, downloads_url:str, deployments_url:str, contributors_url:str, contents_url:str, compare_url:str, commits_url:str, comments_url:str, collaborators_url:str, branches_url:str, blobs_url:str, assignees_url:str, archive_url:str, url:str, fork:bool, description:str, html_url:str, owner:dict, forks:int, license:dict, full_name:str, name:str, node_id:str, id:int, permissions:dict=None, private:bool=False, is_template:bool=False, topics:list=None, has_issues:bool=True, has_projects:bool=True, has_wiki:bool=True, has_downloads:bool=True, archived:bool=False, visibility:str='public', allow_rebase_merge:bool=True, template_repository:dict=None, temp_clone_token:str=None, allow_squash_merge:bool=True, allow_auto_merge:bool=False, delete_branch_on_merge:bool=False, allow_merge_commit:bool=True, allow_forking:bool=False, subscribers_count:int=None, network_count:int=None, master_branch:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._watchers = watchers
         self._open_issues = open_issues
         self._updated_at = updated_at
@@ -14326,8 +14332,8 @@ class TeamRepository(ResponseBase):
 ##
 class ProjectCard(ResponseBase):
     """Project cards represent a scope of work. """
-    def __init__(self, project_url:str, column_url:str, updated_at:datetime, created_at:datetime, creator:dict, note:str, node_id:str, id:int, url:str, archived:bool=None, column_name:str=None, project_id:str=None, content_url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, project_url:str, column_url:str, updated_at:datetime, created_at:datetime, creator:dict, note:str, node_id:str, id:int, url:str, archived:bool=None, column_name:str=None, project_id:str=None, content_url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._project_url = project_url
         self._column_url = column_url
         self._updated_at = updated_at
@@ -14443,8 +14449,8 @@ class ProjectCard(ResponseBase):
 ##
 class ProjectColumn(ResponseBase):
     """Project columns contain cards of work. """
-    def __init__(self, updated_at:datetime, created_at:datetime, name:str, node_id:str, id:int, cards_url:str, project_url:str, url:str):
-        ResponseBase.__init__(self)
+    def __init__(self, updated_at:datetime, created_at:datetime, name:str, node_id:str, id:int, cards_url:str, project_url:str, url:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._updated_at = updated_at
         self._created_at = created_at
         self._name = name
@@ -14520,8 +14526,8 @@ class ProjectColumn(ResponseBase):
 ##
 class ProjectCollaboratorPermission(ResponseBase):
     """Project Collaborator Permission """
-    def __init__(self, user:dict, permission:str):
-        ResponseBase.__init__(self)
+    def __init__(self, user:dict, permission:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._user = user
         self._permission = permission
         return
@@ -14548,8 +14554,8 @@ class ProjectCollaboratorPermission(ResponseBase):
 ##
 ##
 class RateLimit(ResponseBase):
-    def __init__(self, used:int, reset:int, remaining:int, limit:int):
-        ResponseBase.__init__(self)
+    def __init__(self, used:int, reset:int, remaining:int, limit:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._used = used
         self._reset = reset
         self._remaining = remaining
@@ -14592,8 +14598,8 @@ class RateLimit(ResponseBase):
 ##
 ##
 class Ratelimitoverview_resources(ResponseBase):
-    def __init__(self, search:dict, core:dict, graphql:dict=None, source_import:dict=None, integration_manifest:dict=None, code_scanning_upload:dict=None, actions_runner_registration:dict=None, scim:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, search:dict, core:dict, graphql:dict=None, source_import:dict=None, integration_manifest:dict=None, code_scanning_upload:dict=None, actions_runner_registration:dict=None, scim:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._search = search
         self._core = core
         self._graphql = graphql
@@ -14669,8 +14675,8 @@ class Ratelimitoverview_resources(ResponseBase):
 ##
 class RateLimitOverview(ResponseBase):
     """Rate Limit Overview """
-    def __init__(self, rate:dict, resources:dict):
-        ResponseBase.__init__(self)
+    def __init__(self, rate:dict, resources:dict, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._rate = rate
         self._resources = resources
         return
@@ -14698,8 +14704,8 @@ class RateLimitOverview(ResponseBase):
 ##
 class CodeOfConductSimple(ResponseBase):
     """Code of Conduct Simple """
-    def __init__(self, html_url:str, name:str, key:str, url:str):
-        ResponseBase.__init__(self)
+    def __init__(self, html_url:str, name:str, key:str, url:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._html_url = html_url
         self._name = name
         self._key = key
@@ -14742,8 +14748,8 @@ class CodeOfConductSimple(ResponseBase):
 ##
 ##
 class Fullrepository_permissions(ResponseBase):
-    def __init__(self, pull:bool, push:bool, admin:bool, maintain:bool=None, triage:bool=None):
-        ResponseBase.__init__(self)
+    def __init__(self, pull:bool, push:bool, admin:bool, maintain:bool=None, triage:bool=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._pull = pull
         self._push = push
         self._admin = admin
@@ -14794,8 +14800,8 @@ class Fullrepository_permissions(ResponseBase):
 ##
 ##
 class Fullrepository_security_and_analysis_advanced_security(ResponseBase):
-    def __init__(self, status:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, status:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._status = status
         return
         
@@ -14814,8 +14820,8 @@ class Fullrepository_security_and_analysis_advanced_security(ResponseBase):
 ##
 ##
 class Fullrepository_security_and_analysis_secret_scanning(ResponseBase):
-    def __init__(self, status:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, status:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._status = status
         return
         
@@ -14834,8 +14840,8 @@ class Fullrepository_security_and_analysis_secret_scanning(ResponseBase):
 ##
 ##
 class Fullrepository_security_and_analysis(ResponseBase):
-    def __init__(self, advanced_security:dict=None, secret_scanning:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, advanced_security:dict=None, secret_scanning:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._advanced_security = advanced_security
         self._secret_scanning = secret_scanning
         return
@@ -14863,8 +14869,8 @@ class Fullrepository_security_and_analysis(ResponseBase):
 ##
 class FullRepository(ResponseBase):
     """Full Repository """
-    def __init__(self, watchers:int, open_issues:int, forks:int, license:dict, network_count:int, subscribers_count:int, updated_at:datetime, created_at:datetime, pushed_at:datetime, disabled:bool, archived:bool, has_downloads:bool, has_pages:bool, has_wiki:bool, has_projects:bool, has_issues:bool, open_issues_count:int, default_branch:str, size:int, watchers_count:int, stargazers_count:int, forks_count:int, language:str, homepage:str, svn_url:str, hooks_url:str, mirror_url:str, clone_url:str, trees_url:str, teams_url:str, tags_url:str, subscription_url:str, subscribers_url:str, statuses_url:str, stargazers_url:str, ssh_url:str, releases_url:str, pulls_url:str, notifications_url:str, milestones_url:str, merges_url:str, languages_url:str, labels_url:str, keys_url:str, issues_url:str, issue_events_url:str, issue_comment_url:str, git_url:str, git_tags_url:str, git_refs_url:str, git_commits_url:str, forks_url:str, events_url:str, downloads_url:str, deployments_url:str, contributors_url:str, contents_url:str, compare_url:str, commits_url:str, comments_url:str, collaborators_url:str, branches_url:str, blobs_url:str, assignees_url:str, archive_url:str, url:str, fork:bool, description:str, html_url:str, private:bool, owner:dict, full_name:str, name:str, node_id:str, id:int, is_template:bool=None, topics:list=None, visibility:str=None, permissions:dict=None, allow_rebase_merge:bool=None, template_repository:dict=None, temp_clone_token:str=None, allow_squash_merge:bool=None, allow_auto_merge:bool=None, delete_branch_on_merge:bool=None, allow_merge_commit:bool=None, allow_forking:bool=None, organization:dict=None, parent:dict=None, source:dict=None, master_branch:str=None, anonymous_access_enabled:bool=True, code_of_conduct:dict=None, security_and_analysis:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, watchers:int, open_issues:int, forks:int, license:dict, network_count:int, subscribers_count:int, updated_at:datetime, created_at:datetime, pushed_at:datetime, disabled:bool, archived:bool, has_downloads:bool, has_pages:bool, has_wiki:bool, has_projects:bool, has_issues:bool, open_issues_count:int, default_branch:str, size:int, watchers_count:int, stargazers_count:int, forks_count:int, language:str, homepage:str, svn_url:str, hooks_url:str, mirror_url:str, clone_url:str, trees_url:str, teams_url:str, tags_url:str, subscription_url:str, subscribers_url:str, statuses_url:str, stargazers_url:str, ssh_url:str, releases_url:str, pulls_url:str, notifications_url:str, milestones_url:str, merges_url:str, languages_url:str, labels_url:str, keys_url:str, issues_url:str, issue_events_url:str, issue_comment_url:str, git_url:str, git_tags_url:str, git_refs_url:str, git_commits_url:str, forks_url:str, events_url:str, downloads_url:str, deployments_url:str, contributors_url:str, contents_url:str, compare_url:str, commits_url:str, comments_url:str, collaborators_url:str, branches_url:str, blobs_url:str, assignees_url:str, archive_url:str, url:str, fork:bool, description:str, html_url:str, private:bool, owner:dict, full_name:str, name:str, node_id:str, id:int, is_template:bool=None, topics:list=None, visibility:str=None, permissions:dict=None, allow_rebase_merge:bool=None, template_repository:dict=None, temp_clone_token:str=None, allow_squash_merge:bool=None, allow_auto_merge:bool=None, delete_branch_on_merge:bool=None, allow_merge_commit:bool=None, allow_forking:bool=None, organization:dict=None, parent:dict=None, source:dict=None, master_branch:str=None, anonymous_access_enabled:bool=True, code_of_conduct:dict=None, security_and_analysis:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._watchers = watchers
         self._open_issues = open_issues
         self._forks = forks
@@ -15628,8 +15634,8 @@ class FullRepository(ResponseBase):
 ##
 class Artifact(ResponseBase):
     """An artifact """
-    def __init__(self, updated_at:datetime, expires_at:datetime, created_at:datetime, expired:bool, archive_download_url:str, url:str, size_in_bytes:int, name:str, node_id:str, id:int):
-        ResponseBase.__init__(self)
+    def __init__(self, updated_at:datetime, expires_at:datetime, created_at:datetime, expired:bool, archive_download_url:str, url:str, size_in_bytes:int, name:str, node_id:str, id:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._updated_at = updated_at
         self._expires_at = expires_at
         self._created_at = created_at
@@ -15720,8 +15726,8 @@ class Artifact(ResponseBase):
 ##
 ##
 class Job_steps(ResponseBase):
-    def __init__(self, number:int, name:str, conclusion:str, status:str, started_at:datetime=None, completed_at:datetime=None):
-        ResponseBase.__init__(self)
+    def __init__(self, number:int, name:str, conclusion:str, status:str, started_at:datetime=None, completed_at:datetime=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._number = number
         self._name = name
         self._conclusion = conclusion
@@ -15781,8 +15787,8 @@ class Job_steps(ResponseBase):
 ##
 class Job(ResponseBase):
     """Information of a job execution in a workflow run """
-    def __init__(self, runner_group_name:str, runner_group_id:int, runner_name:str, runner_id:int, labels:list, check_run_url:str, name:str, completed_at:datetime, started_at:datetime, conclusion:str, status:str, html_url:str, url:str, head_sha:str, node_id:str, run_url:str, run_id:int, id:int, run_attempt:int=None, steps:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, runner_group_name:str, runner_group_id:int, runner_name:str, runner_id:int, labels:list, check_run_url:str, name:str, completed_at:datetime, started_at:datetime, conclusion:str, status:str, html_url:str, url:str, head_sha:str, node_id:str, run_url:str, run_id:int, id:int, run_attempt:int=None, steps:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._runner_group_name = runner_group_name
         self._runner_group_id = runner_group_id
         self._runner_name = runner_name
@@ -15953,8 +15959,8 @@ class Job(ResponseBase):
 ##
 ##
 class ActionsRepositoryPermissions(ResponseBase):
-    def __init__(self, enabled:bool, allowed_actions:str=None, selected_actions_url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, enabled:bool, allowed_actions:str=None, selected_actions_url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._enabled = enabled
         self._allowed_actions = allowed_actions
         self._selected_actions_url = selected_actions_url
@@ -15989,8 +15995,8 @@ class ActionsRepositoryPermissions(ResponseBase):
 ##
 ##
 class Pullrequestminimal_head_repo(ResponseBase):
-    def __init__(self, name:str, url:str, id:int):
-        ResponseBase.__init__(self)
+    def __init__(self, name:str, url:str, id:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._name = name
         self._url = url
         self._id = id
@@ -16025,8 +16031,8 @@ class Pullrequestminimal_head_repo(ResponseBase):
 ##
 ##
 class Pullrequestminimal_head(ResponseBase):
-    def __init__(self, repo:dict, sha:str, ref:str):
-        ResponseBase.__init__(self)
+    def __init__(self, repo:dict, sha:str, ref:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._repo = repo
         self._sha = sha
         self._ref = ref
@@ -16061,8 +16067,8 @@ class Pullrequestminimal_head(ResponseBase):
 ##
 ##
 class Pullrequestminimal_base_repo(ResponseBase):
-    def __init__(self, name:str, url:str, id:int):
-        ResponseBase.__init__(self)
+    def __init__(self, name:str, url:str, id:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._name = name
         self._url = url
         self._id = id
@@ -16097,8 +16103,8 @@ class Pullrequestminimal_base_repo(ResponseBase):
 ##
 ##
 class Pullrequestminimal_base(ResponseBase):
-    def __init__(self, repo:dict, sha:str, ref:str):
-        ResponseBase.__init__(self)
+    def __init__(self, repo:dict, sha:str, ref:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._repo = repo
         self._sha = sha
         self._ref = ref
@@ -16133,8 +16139,8 @@ class Pullrequestminimal_base(ResponseBase):
 ##
 ##
 class PullRequestMinimal(ResponseBase):
-    def __init__(self, base:dict, head:dict, url:str, number:int, id:int):
-        ResponseBase.__init__(self)
+    def __init__(self, base:dict, head:dict, url:str, number:int, id:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._base = base
         self._head = head
         self._url = url
@@ -16185,8 +16191,8 @@ class PullRequestMinimal(ResponseBase):
 ##
 ##
 class Simplecommit_author(ResponseBase):
-    def __init__(self, email:str, name:str):
-        ResponseBase.__init__(self)
+    def __init__(self, email:str, name:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._email = email
         self._name = name
         return
@@ -16213,8 +16219,8 @@ class Simplecommit_author(ResponseBase):
 ##
 ##
 class Simplecommit_committer(ResponseBase):
-    def __init__(self, email:str, name:str):
-        ResponseBase.__init__(self)
+    def __init__(self, email:str, name:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._email = email
         self._name = name
         return
@@ -16242,8 +16248,8 @@ class Simplecommit_committer(ResponseBase):
 ##
 class SimpleCommit(ResponseBase):
     """Simple Commit """
-    def __init__(self, committer:dict, author:dict, timestamp:datetime, message:str, tree_id:str, id:str):
-        ResponseBase.__init__(self)
+    def __init__(self, committer:dict, author:dict, timestamp:datetime, message:str, tree_id:str, id:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._committer = committer
         self._author = author
         self._timestamp = timestamp
@@ -16303,8 +16309,8 @@ class SimpleCommit(ResponseBase):
 ##
 class WorkflowRun(ResponseBase):
     """An invocation of a workflow """
-    def __init__(self, head_repository:dict, repository:dict, head_commit:dict, workflow_url:str, rerun_url:str, cancel_url:str, artifacts_url:str, check_suite_url:str, logs_url:str, jobs_url:str, updated_at:datetime, created_at:datetime, pull_requests:list, html_url:str, url:str, workflow_id:int, conclusion:str, status:str, event:str, run_number:int, head_sha:str, head_branch:str, node_id:str, id:int, name:str=None, check_suite_id:int=None, check_suite_node_id:str=None, run_attempt:int=None, run_started_at:datetime=None, previous_attempt_url:str=None, head_repository_id:int=None):
-        ResponseBase.__init__(self)
+    def __init__(self, head_repository:dict, repository:dict, head_commit:dict, workflow_url:str, rerun_url:str, cancel_url:str, artifacts_url:str, check_suite_url:str, logs_url:str, jobs_url:str, updated_at:datetime, created_at:datetime, pull_requests:list, html_url:str, url:str, workflow_id:int, conclusion:str, status:str, event:str, run_number:int, head_sha:str, head_branch:str, node_id:str, id:int, name:str=None, check_suite_id:int=None, check_suite_node_id:str=None, run_attempt:int=None, run_started_at:datetime=None, previous_attempt_url:str=None, head_repository_id:int=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._head_repository = head_repository
         self._repository = repository
         self._head_commit = head_commit
@@ -16563,8 +16569,8 @@ class WorkflowRun(ResponseBase):
 ##
 ##
 class Environmentapproval_environments(ResponseBase):
-    def __init__(self, id:int=None, node_id:str=None, name:str=None, url:str=None, html_url:str=None, created_at:datetime=None, updated_at:datetime=None):
-        ResponseBase.__init__(self)
+    def __init__(self, id:int=None, node_id:str=None, name:str=None, url:str=None, html_url:str=None, created_at:datetime=None, updated_at:datetime=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._id = id
         self._node_id = node_id
         self._name = name
@@ -16632,8 +16638,8 @@ class Environmentapproval_environments(ResponseBase):
 ##
 class EnvironmentApproval(ResponseBase):
     """An entry in the reviews log for environment deployments """
-    def __init__(self, comment:str, user:dict, state:str, environments:list):
-        ResponseBase.__init__(self)
+    def __init__(self, comment:str, user:dict, state:str, environments:list, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._comment = comment
         self._user = user
         self._state = state
@@ -16676,8 +16682,8 @@ class EnvironmentApproval(ResponseBase):
 ##
 ##
 class Pendingdeployment_environment(ResponseBase):
-    def __init__(self, id:int=None, node_id:str=None, name:str=None, url:str=None, html_url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, id:int=None, node_id:str=None, name:str=None, url:str=None, html_url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._id = id
         self._node_id = node_id
         self._name = name
@@ -16728,8 +16734,8 @@ class Pendingdeployment_environment(ResponseBase):
 ##
 ##
 class Pendingdeployment_reviewers(ResponseBase):
-    def __init__(self, type:str=None, reviewer=None):
-        ResponseBase.__init__(self)
+    def __init__(self, type:str=None, reviewer=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._type = type
         self._reviewer = reviewer
         return
@@ -16757,8 +16763,8 @@ class Pendingdeployment_reviewers(ResponseBase):
 ##
 class PendingDeployment(ResponseBase):
     """Details of a deployment that is waiting for protection rules to pass """
-    def __init__(self, reviewers:list, current_user_can_approve:bool, wait_timer_started_at:datetime, wait_timer:int, environment:dict):
-        ResponseBase.__init__(self)
+    def __init__(self, reviewers:list, current_user_can_approve:bool, wait_timer_started_at:datetime, wait_timer:int, environment:dict, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._reviewers = reviewers
         self._current_user_can_approve = current_user_can_approve
         self._wait_timer_started_at = wait_timer_started_at
@@ -16810,8 +16816,8 @@ class PendingDeployment(ResponseBase):
 ##
 class Deployment(ResponseBase):
     """A request for a specific ref(branch,sha,tag) to be deployed """
-    def __init__(self, repository_url:str, statuses_url:str, updated_at:datetime, created_at:datetime, creator:dict, description:str, environment:str, payload, task:str, ref:str, sha:str, node_id:str, id:int, url:str, original_environment:str=None, transient_environment:bool=None, production_environment:bool=None, performed_via_github_app:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, repository_url:str, statuses_url:str, updated_at:datetime, created_at:datetime, creator:dict, description:str, environment:str, payload, task:str, ref:str, sha:str, node_id:str, id:int, url:str, original_environment:str=None, transient_environment:bool=None, production_environment:bool=None, performed_via_github_app:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._repository_url = repository_url
         self._statuses_url = statuses_url
         self._updated_at = updated_at
@@ -16967,8 +16973,8 @@ class Deployment(ResponseBase):
 ##
 class ActionsSecret(ResponseBase):
     """Set secrets for GitHub Actions. """
-    def __init__(self, updated_at:datetime, created_at:datetime, name:str):
-        ResponseBase.__init__(self)
+    def __init__(self, updated_at:datetime, created_at:datetime, name:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._updated_at = updated_at
         self._created_at = created_at
         self._name = name
@@ -17004,8 +17010,8 @@ class ActionsSecret(ResponseBase):
 ##
 class Workflow(ResponseBase):
     """A GitHub Actions workflow """
-    def __init__(self, badge_url:str, html_url:str, url:str, updated_at:datetime, created_at:datetime, state:str, path:str, name:str, node_id:str, id:int, deleted_at:datetime=None):
-        ResponseBase.__init__(self)
+    def __init__(self, badge_url:str, html_url:str, url:str, updated_at:datetime, created_at:datetime, state:str, path:str, name:str, node_id:str, id:int, deleted_at:datetime=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._badge_url = badge_url
         self._html_url = html_url
         self._url = url
@@ -17105,8 +17111,8 @@ class Workflow(ResponseBase):
 ##
 class AutolinkReference(ResponseBase):
     """An autolink reference. """
-    def __init__(self, url_template:str, key_prefix:str, id:int):
-        ResponseBase.__init__(self)
+    def __init__(self, url_template:str, key_prefix:str, id:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url_template = url_template
         self._key_prefix = key_prefix
         self._id = id
@@ -17142,8 +17148,8 @@ class AutolinkReference(ResponseBase):
 ##
 class ProtectedBranchRequiredStatusCheck(ResponseBase):
     """Protected Branch Required Status Check """
-    def __init__(self, contexts:list, url:str=None, enforcement_level:str=None, contexts_url:str=None, strict:bool=None):
-        ResponseBase.__init__(self)
+    def __init__(self, contexts:list, url:str=None, enforcement_level:str=None, contexts_url:str=None, strict:bool=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._contexts = contexts
         self._url = url
         self._enforcement_level = enforcement_level
@@ -17195,8 +17201,8 @@ class ProtectedBranchRequiredStatusCheck(ResponseBase):
 ##
 class ProtectedBranchAdminEnforced(ResponseBase):
     """Protected Branch Admin Enforced """
-    def __init__(self, enabled:bool, url:str):
-        ResponseBase.__init__(self)
+    def __init__(self, enabled:bool, url:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._enabled = enabled
         self._url = url
         return
@@ -17223,8 +17229,8 @@ class ProtectedBranchAdminEnforced(ResponseBase):
 ##
 ##
 class Protectedbranchpullrequestreview_dismissal_restrictions(ResponseBase):
-    def __init__(self, users:list=None, teams:list=None, url:str=None, users_url:str=None, teams_url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, users:list=None, teams:list=None, url:str=None, users_url:str=None, teams_url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._users = users
         self._teams = teams
         self._url = url
@@ -17276,8 +17282,8 @@ class Protectedbranchpullrequestreview_dismissal_restrictions(ResponseBase):
 ##
 class ProtectedBranchPullRequestReview(ResponseBase):
     """Protected Branch Pull Request Review """
-    def __init__(self, require_code_owner_reviews:bool, dismiss_stale_reviews:bool, url:str=None, dismissal_restrictions:dict=None, required_approving_review_count:int=None):
-        ResponseBase.__init__(self)
+    def __init__(self, require_code_owner_reviews:bool, dismiss_stale_reviews:bool, url:str=None, dismissal_restrictions:dict=None, required_approving_review_count:int=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._require_code_owner_reviews = require_code_owner_reviews
         self._dismiss_stale_reviews = dismiss_stale_reviews
         self._url = url
@@ -17328,8 +17334,8 @@ class ProtectedBranchPullRequestReview(ResponseBase):
 ##
 ##
 class Branchrestrictionpolicy_users(ResponseBase):
-    def __init__(self, login:str=None, id:int=None, node_id:str=None, avatar_url:str=None, gravatar_id:str=None, url:str=None, html_url:str=None, followers_url:str=None, following_url:str=None, gists_url:str=None, starred_url:str=None, subscriptions_url:str=None, organizations_url:str=None, repos_url:str=None, events_url:str=None, received_events_url:str=None, type:str=None, site_admin:bool=None):
-        ResponseBase.__init__(self)
+    def __init__(self, login:str=None, id:int=None, node_id:str=None, avatar_url:str=None, gravatar_id:str=None, url:str=None, html_url:str=None, followers_url:str=None, following_url:str=None, gists_url:str=None, starred_url:str=None, subscriptions_url:str=None, organizations_url:str=None, repos_url:str=None, events_url:str=None, received_events_url:str=None, type:str=None, site_admin:bool=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._login = login
         self._id = id
         self._node_id = node_id
@@ -17484,8 +17490,8 @@ class Branchrestrictionpolicy_users(ResponseBase):
 ##
 ##
 class Branchrestrictionpolicy_teams(ResponseBase):
-    def __init__(self, id:int=None, node_id:str=None, url:str=None, html_url:str=None, name:str=None, slug:str=None, description:str=None, privacy:str=None, permission:str=None, members_url:str=None, repositories_url:str=None, parent:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, id:int=None, node_id:str=None, url:str=None, html_url:str=None, name:str=None, slug:str=None, description:str=None, privacy:str=None, permission:str=None, members_url:str=None, repositories_url:str=None, parent:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._id = id
         self._node_id = node_id
         self._url = url
@@ -17592,8 +17598,8 @@ class Branchrestrictionpolicy_teams(ResponseBase):
 ##
 ##
 class Branchrestrictionpolicy_apps_owner(ResponseBase):
-    def __init__(self, login:str=None, id:int=None, node_id:str=None, url:str=None, repos_url:str=None, events_url:str=None, hooks_url:str=None, issues_url:str=None, members_url:str=None, public_members_url:str=None, avatar_url:str=None, description:str=None, gravatar_id:str=None, html_url:str=None, followers_url:str=None, following_url:str=None, gists_url:str=None, starred_url:str=None, subscriptions_url:str=None, organizations_url:str=None, received_events_url:str=None, type:str=None, site_admin:bool=None):
-        ResponseBase.__init__(self)
+    def __init__(self, login:str=None, id:int=None, node_id:str=None, url:str=None, repos_url:str=None, events_url:str=None, hooks_url:str=None, issues_url:str=None, members_url:str=None, public_members_url:str=None, avatar_url:str=None, description:str=None, gravatar_id:str=None, html_url:str=None, followers_url:str=None, following_url:str=None, gists_url:str=None, starred_url:str=None, subscriptions_url:str=None, organizations_url:str=None, received_events_url:str=None, type:str=None, site_admin:bool=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._login = login
         self._id = id
         self._node_id = node_id
@@ -17788,8 +17794,8 @@ class Branchrestrictionpolicy_apps_owner(ResponseBase):
 ##
 ##
 class Branchrestrictionpolicy_apps_permissions(ResponseBase):
-    def __init__(self, metadata:str=None, contents:str=None, issues:str=None, single_file:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, metadata:str=None, contents:str=None, issues:str=None, single_file:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._metadata = metadata
         self._contents = contents
         self._issues = issues
@@ -17832,8 +17838,8 @@ class Branchrestrictionpolicy_apps_permissions(ResponseBase):
 ##
 ##
 class Branchrestrictionpolicy_apps(ResponseBase):
-    def __init__(self, id:int=None, slug:str=None, node_id:str=None, owner:dict=None, name:str=None, description:str=None, external_url:str=None, html_url:str=None, created_at:str=None, updated_at:str=None, permissions:dict=None, events:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, id:int=None, slug:str=None, node_id:str=None, owner:dict=None, name:str=None, description:str=None, external_url:str=None, html_url:str=None, created_at:str=None, updated_at:str=None, permissions:dict=None, events:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._id = id
         self._slug = slug
         self._node_id = node_id
@@ -17941,8 +17947,8 @@ class Branchrestrictionpolicy_apps(ResponseBase):
 ##
 class BranchRestrictionPolicy(ResponseBase):
     """Branch Restriction Policy """
-    def __init__(self, apps:list, teams:list, users:list, apps_url:str, teams_url:str, users_url:str, url:str):
-        ResponseBase.__init__(self)
+    def __init__(self, apps:list, teams:list, users:list, apps_url:str, teams_url:str, users_url:str, url:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._apps = apps
         self._teams = teams
         self._users = users
@@ -18009,8 +18015,8 @@ class BranchRestrictionPolicy(ResponseBase):
 ##
 ##
 class Branchprotection_required_linear_history(ResponseBase):
-    def __init__(self, enabled:bool=None):
-        ResponseBase.__init__(self)
+    def __init__(self, enabled:bool=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._enabled = enabled
         return
         
@@ -18029,8 +18035,8 @@ class Branchprotection_required_linear_history(ResponseBase):
 ##
 ##
 class Branchprotection_allow_force_pushes(ResponseBase):
-    def __init__(self, enabled:bool=None):
-        ResponseBase.__init__(self)
+    def __init__(self, enabled:bool=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._enabled = enabled
         return
         
@@ -18049,8 +18055,8 @@ class Branchprotection_allow_force_pushes(ResponseBase):
 ##
 ##
 class Branchprotection_allow_deletions(ResponseBase):
-    def __init__(self, enabled:bool=None):
-        ResponseBase.__init__(self)
+    def __init__(self, enabled:bool=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._enabled = enabled
         return
         
@@ -18069,8 +18075,8 @@ class Branchprotection_allow_deletions(ResponseBase):
 ##
 ##
 class Branchprotection_required_conversation_resolution(ResponseBase):
-    def __init__(self, enabled:bool=None):
-        ResponseBase.__init__(self)
+    def __init__(self, enabled:bool=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._enabled = enabled
         return
         
@@ -18089,8 +18095,8 @@ class Branchprotection_required_conversation_resolution(ResponseBase):
 ##
 ##
 class Branchprotection_required_signatures(ResponseBase):
-    def __init__(self, enabled:bool, url:str):
-        ResponseBase.__init__(self)
+    def __init__(self, enabled:bool, url:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._enabled = enabled
         self._url = url
         return
@@ -18118,8 +18124,8 @@ class Branchprotection_required_signatures(ResponseBase):
 ##
 class BranchProtection(ResponseBase):
     """Branch Protection """
-    def __init__(self, url:str=None, enabled:bool=None, required_status_checks:dict=None, enforce_admins:dict=None, required_pull_request_reviews:dict=None, restrictions:dict=None, required_linear_history:dict=None, allow_force_pushes:dict=None, allow_deletions:dict=None, required_conversation_resolution:dict=None, name:str=None, protection_url:str=None, required_signatures:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str=None, enabled:bool=None, required_status_checks:dict=None, enforce_admins:dict=None, required_pull_request_reviews:dict=None, restrictions:dict=None, required_linear_history:dict=None, allow_force_pushes:dict=None, allow_deletions:dict=None, required_conversation_resolution:dict=None, name:str=None, protection_url:str=None, required_signatures:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._enabled = enabled
         self._required_status_checks = required_status_checks
@@ -18234,8 +18240,8 @@ class BranchProtection(ResponseBase):
 ##
 ##
 class Shortbranch_commit(ResponseBase):
-    def __init__(self, url:str, sha:str):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str, sha:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._sha = sha
         return
@@ -18263,8 +18269,8 @@ class Shortbranch_commit(ResponseBase):
 ##
 class ShortBranch(ResponseBase):
     """Short Branch """
-    def __init__(self, protected:bool, commit:dict, name:str, protection:dict=None, protection_url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, protected:bool, commit:dict, name:str, protection:dict=None, protection_url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._protected = protected
         self._commit = commit
         self._name = name
@@ -18316,8 +18322,8 @@ class ShortBranch(ResponseBase):
 ##
 class GitUser(ResponseBase):
     """Metaproperties for Git author/committer information. """
-    def __init__(self, name:str=None, email:str=None, date:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, name:str=None, email:str=None, date:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._name = name
         self._email = email
         self._date = date
@@ -18352,8 +18358,8 @@ class GitUser(ResponseBase):
 ##
 ##
 class Verification(ResponseBase):
-    def __init__(self, signature:str, payload:str, reason:str, verified:bool):
-        ResponseBase.__init__(self)
+    def __init__(self, signature:str, payload:str, reason:str, verified:bool, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._signature = signature
         self._payload = payload
         self._reason = reason
@@ -18397,8 +18403,8 @@ class Verification(ResponseBase):
 ##
 class DiffEntry(ResponseBase):
     """Diff Entry """
-    def __init__(self, contents_url:str, raw_url:str, blob_url:str, changes:int, deletions:int, additions:int, status:str, filename:str, sha:str, patch:str=None, previous_filename:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, contents_url:str, raw_url:str, blob_url:str, changes:int, deletions:int, additions:int, status:str, filename:str, sha:str, patch:str=None, previous_filename:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._contents_url = contents_url
         self._raw_url = raw_url
         self._blob_url = blob_url
@@ -18497,8 +18503,8 @@ class DiffEntry(ResponseBase):
 ##
 ##
 class Commit_commit_tree(ResponseBase):
-    def __init__(self, url:str, sha:str):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str, sha:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._sha = sha
         return
@@ -18525,8 +18531,8 @@ class Commit_commit_tree(ResponseBase):
 ##
 ##
 class Commit_commit(ResponseBase):
-    def __init__(self, tree:dict, comment_count:int, message:str, committer:dict, author:dict, url:str, verification:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, tree:dict, comment_count:int, message:str, committer:dict, author:dict, url:str, verification:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._tree = tree
         self._comment_count = comment_count
         self._message = message
@@ -18593,8 +18599,8 @@ class Commit_commit(ResponseBase):
 ##
 ##
 class Commit_parents(ResponseBase):
-    def __init__(self, url:str, sha:str, html_url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str, sha:str, html_url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._sha = sha
         self._html_url = html_url
@@ -18629,8 +18635,8 @@ class Commit_parents(ResponseBase):
 ##
 ##
 class Commit_stats(ResponseBase):
-    def __init__(self, additions:int=None, deletions:int=None, total:int=None):
-        ResponseBase.__init__(self)
+    def __init__(self, additions:int=None, deletions:int=None, total:int=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._additions = additions
         self._deletions = deletions
         self._total = total
@@ -18666,8 +18672,8 @@ class Commit_stats(ResponseBase):
 ##
 class Commit(ResponseBase):
     """Commit """
-    def __init__(self, parents:list, committer:dict, author:dict, commit:dict, comments_url:str, html_url:str, node_id:str, sha:str, url:str, stats:dict=None, files:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, parents:list, committer:dict, author:dict, commit:dict, comments_url:str, html_url:str, node_id:str, sha:str, url:str, stats:dict=None, files:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._parents = parents
         self._committer = committer
         self._author = author
@@ -18766,8 +18772,8 @@ class Commit(ResponseBase):
 ##
 ##
 class Branchwithprotection__links(ResponseBase):
-    def __init__(self, Self:str, html:str):
-        ResponseBase.__init__(self)
+    def __init__(self, Self:str, html:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._Self = Self
         self._html = html
         return
@@ -18806,8 +18812,8 @@ class Branchwithprotection__links(ResponseBase):
 ##
 class BranchWithProtection(ResponseBase):
     """Branch With Protection """
-    def __init__(self, protection_url:str, protection:dict, protected:bool, _links:dict, commit:dict, name:str, pattern:str=None, required_approving_review_count:int=None):
-        ResponseBase.__init__(self)
+    def __init__(self, protection_url:str, protection:dict, protected:bool, _links:dict, commit:dict, name:str, pattern:str=None, required_approving_review_count:int=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._protection_url = protection_url
         self._protection = protection
         self._protected = protected
@@ -18883,8 +18889,8 @@ class BranchWithProtection(ResponseBase):
 ##
 class StatusCheckPolicy(ResponseBase):
     """Status Check Policy """
-    def __init__(self, contexts_url:str, contexts:list, strict:bool, url:str):
-        ResponseBase.__init__(self)
+    def __init__(self, contexts_url:str, contexts:list, strict:bool, url:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._contexts_url = contexts_url
         self._contexts = contexts
         self._strict = strict
@@ -18927,8 +18933,8 @@ class StatusCheckPolicy(ResponseBase):
 ##
 ##
 class Protectedbranch_required_pull_request_reviews_dismissal_restrictions(ResponseBase):
-    def __init__(self, teams:list, users:list, teams_url:str, users_url:str, url:str):
-        ResponseBase.__init__(self)
+    def __init__(self, teams:list, users:list, teams_url:str, users_url:str, url:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._teams = teams
         self._users = users
         self._teams_url = teams_url
@@ -18979,8 +18985,8 @@ class Protectedbranch_required_pull_request_reviews_dismissal_restrictions(Respo
 ##
 ##
 class Protectedbranch_required_pull_request_reviews(ResponseBase):
-    def __init__(self, url:str, dismiss_stale_reviews:bool=None, require_code_owner_reviews:bool=None, required_approving_review_count:int=None, dismissal_restrictions:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str, dismiss_stale_reviews:bool=None, require_code_owner_reviews:bool=None, required_approving_review_count:int=None, dismissal_restrictions:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._dismiss_stale_reviews = dismiss_stale_reviews
         self._require_code_owner_reviews = require_code_owner_reviews
@@ -19031,8 +19037,8 @@ class Protectedbranch_required_pull_request_reviews(ResponseBase):
 ##
 ##
 class Protectedbranch_required_signatures(ResponseBase):
-    def __init__(self, enabled:bool, url:str):
-        ResponseBase.__init__(self)
+    def __init__(self, enabled:bool, url:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._enabled = enabled
         self._url = url
         return
@@ -19059,8 +19065,8 @@ class Protectedbranch_required_signatures(ResponseBase):
 ##
 ##
 class Protectedbranch_enforce_admins(ResponseBase):
-    def __init__(self, enabled:bool, url:str):
-        ResponseBase.__init__(self)
+    def __init__(self, enabled:bool, url:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._enabled = enabled
         self._url = url
         return
@@ -19087,8 +19093,8 @@ class Protectedbranch_enforce_admins(ResponseBase):
 ##
 ##
 class Protectedbranch_required_linear_history(ResponseBase):
-    def __init__(self, enabled:bool):
-        ResponseBase.__init__(self)
+    def __init__(self, enabled:bool, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._enabled = enabled
         return
         
@@ -19107,8 +19113,8 @@ class Protectedbranch_required_linear_history(ResponseBase):
 ##
 ##
 class Protectedbranch_allow_force_pushes(ResponseBase):
-    def __init__(self, enabled:bool):
-        ResponseBase.__init__(self)
+    def __init__(self, enabled:bool, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._enabled = enabled
         return
         
@@ -19127,8 +19133,8 @@ class Protectedbranch_allow_force_pushes(ResponseBase):
 ##
 ##
 class Protectedbranch_allow_deletions(ResponseBase):
-    def __init__(self, enabled:bool):
-        ResponseBase.__init__(self)
+    def __init__(self, enabled:bool, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._enabled = enabled
         return
         
@@ -19147,8 +19153,8 @@ class Protectedbranch_allow_deletions(ResponseBase):
 ##
 ##
 class Protectedbranch_required_conversation_resolution(ResponseBase):
-    def __init__(self, enabled:bool=None):
-        ResponseBase.__init__(self)
+    def __init__(self, enabled:bool=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._enabled = enabled
         return
         
@@ -19168,8 +19174,8 @@ class Protectedbranch_required_conversation_resolution(ResponseBase):
 ##
 class ProtectedBranch(ResponseBase):
     """Branch protections protect branches """
-    def __init__(self, url:str, required_status_checks:dict=None, required_pull_request_reviews:dict=None, required_signatures:dict=None, enforce_admins:dict=None, required_linear_history:dict=None, allow_force_pushes:dict=None, allow_deletions:dict=None, restrictions:dict=None, required_conversation_resolution:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str, required_status_checks:dict=None, required_pull_request_reviews:dict=None, required_signatures:dict=None, enforce_admins:dict=None, required_linear_history:dict=None, allow_force_pushes:dict=None, allow_deletions:dict=None, restrictions:dict=None, required_conversation_resolution:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._required_status_checks = required_status_checks
         self._required_pull_request_reviews = required_pull_request_reviews
@@ -19261,8 +19267,8 @@ class ProtectedBranch(ResponseBase):
 ##
 class Deployment(ResponseBase):
     """A deployment created as the result of an Actions check run from a workflow that references an environment """
-    def __init__(self, repository_url:str, statuses_url:str, updated_at:datetime, created_at:datetime, description:str, environment:str, task:str, node_id:str, id:int, url:str, original_environment:str=None, transient_environment:bool=None, production_environment:bool=None, performed_via_github_app:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, repository_url:str, statuses_url:str, updated_at:datetime, created_at:datetime, description:str, environment:str, task:str, node_id:str, id:int, url:str, original_environment:str=None, transient_environment:bool=None, production_environment:bool=None, performed_via_github_app:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._repository_url = repository_url
         self._statuses_url = statuses_url
         self._updated_at = updated_at
@@ -19385,8 +19391,8 @@ class Deployment(ResponseBase):
 ##
 ##
 class Checkrun_output(ResponseBase):
-    def __init__(self, annotations_url:str, annotations_count:int, text:str, summary:str, title:str):
-        ResponseBase.__init__(self)
+    def __init__(self, annotations_url:str, annotations_count:int, text:str, summary:str, title:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._annotations_url = annotations_url
         self._annotations_count = annotations_count
         self._text = text
@@ -19437,8 +19443,8 @@ class Checkrun_output(ResponseBase):
 ##
 ##
 class Checkrun_check_suite(ResponseBase):
-    def __init__(self, id:int):
-        ResponseBase.__init__(self)
+    def __init__(self, id:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._id = id
         return
         
@@ -19458,8 +19464,8 @@ class Checkrun_check_suite(ResponseBase):
 ##
 class Checkrun(ResponseBase):
     """A check performed on the code of a given code change """
-    def __init__(self, pull_requests:list, app:dict, check_suite:dict, name:str, output:dict, completed_at:datetime, started_at:datetime, conclusion:str, status:str, details_url:str, html_url:str, url:str, external_id:str, node_id:str, head_sha:str, id:int, deployment:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, pull_requests:list, app:dict, check_suite:dict, name:str, output:dict, completed_at:datetime, started_at:datetime, conclusion:str, status:str, details_url:str, html_url:str, url:str, external_id:str, node_id:str, head_sha:str, id:int, deployment:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._pull_requests = pull_requests
         self._app = app
         self._check_suite = check_suite
@@ -19607,8 +19613,8 @@ class Checkrun(ResponseBase):
 ##
 class CheckAnnotation(ResponseBase):
     """Check Annotation """
-    def __init__(self, blob_href:str, raw_details:str, message:str, title:str, annotation_level:str, end_column:int, start_column:int, end_line:int, start_line:int, path:str):
-        ResponseBase.__init__(self)
+    def __init__(self, blob_href:str, raw_details:str, message:str, title:str, annotation_level:str, end_column:int, start_column:int, end_line:int, start_line:int, path:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._blob_href = blob_href
         self._raw_details = raw_details
         self._message = message
@@ -19700,8 +19706,8 @@ class CheckAnnotation(ResponseBase):
 ##
 class SimpleCommit(ResponseBase):
     """Simple Commit """
-    def __init__(self, committer:dict, author:dict, timestamp:datetime, message:str, tree_id:str, id:str):
-        ResponseBase.__init__(self)
+    def __init__(self, committer:dict, author:dict, timestamp:datetime, message:str, tree_id:str, id:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._committer = committer
         self._author = author
         self._timestamp = timestamp
@@ -19761,8 +19767,8 @@ class SimpleCommit(ResponseBase):
 ##
 class Checksuite(ResponseBase):
     """A suite of checks performed on the code of a given code change """
-    def __init__(self, check_runs_url:str, latest_check_runs_count:int, head_commit:dict, updated_at:datetime, created_at:datetime, repository:dict, app:dict, pull_requests:list, after:str, before:str, url:str, conclusion:str, status:str, head_sha:str, head_branch:str, node_id:str, id:int, rerequestable:bool=None, runs_rerequestable:bool=None):
-        ResponseBase.__init__(self)
+    def __init__(self, check_runs_url:str, latest_check_runs_count:int, head_commit:dict, updated_at:datetime, created_at:datetime, repository:dict, app:dict, pull_requests:list, after:str, before:str, url:str, conclusion:str, status:str, head_sha:str, head_branch:str, node_id:str, id:int, rerequestable:bool=None, runs_rerequestable:bool=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._check_runs_url = check_runs_url
         self._latest_check_runs_count = latest_check_runs_count
         self._head_commit = head_commit
@@ -19925,8 +19931,8 @@ class Checksuite(ResponseBase):
 ##
 ##
 class Checksuitepreference_preferences_auto_trigger_checks(ResponseBase):
-    def __init__(self, setting:bool, app_id:int):
-        ResponseBase.__init__(self)
+    def __init__(self, setting:bool, app_id:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._setting = setting
         self._app_id = app_id
         return
@@ -19953,8 +19959,8 @@ class Checksuitepreference_preferences_auto_trigger_checks(ResponseBase):
 ##
 ##
 class Checksuitepreference_preferences(ResponseBase):
-    def __init__(self, auto_trigger_checks:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, auto_trigger_checks:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._auto_trigger_checks = auto_trigger_checks
         return
         
@@ -19974,8 +19980,8 @@ class Checksuitepreference_preferences(ResponseBase):
 ##
 class CheckSuitePreference(ResponseBase):
     """Check suite configuration preferences for a repository. """
-    def __init__(self, repository:dict, preferences:dict):
-        ResponseBase.__init__(self)
+    def __init__(self, repository:dict, preferences:dict, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._repository = repository
         self._preferences = preferences
         return
@@ -20002,8 +20008,8 @@ class CheckSuitePreference(ResponseBase):
 ##
 ##
 class CodeScanningAlertRuleSummary(ResponseBase):
-    def __init__(self, id:str=None, name:str=None, severity:str=None, description:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, id:str=None, name:str=None, severity:str=None, description:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._id = id
         self._name = name
         self._severity = severity
@@ -20046,8 +20052,8 @@ class CodeScanningAlertRuleSummary(ResponseBase):
 ##
 ##
 class CodeScanningAnalysisTool(ResponseBase):
-    def __init__(self, name:str=None, version:str=None, guid:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, name:str=None, version:str=None, guid:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._name = name
         self._version = version
         self._guid = guid
@@ -20083,8 +20089,8 @@ class CodeScanningAnalysisTool(ResponseBase):
 ##
 class CodeScanningAlertLocation(ResponseBase):
     """Describe a region within a file for the alert. """
-    def __init__(self, path:str=None, start_line:int=None, end_line:int=None, start_column:int=None, end_column:int=None):
-        ResponseBase.__init__(self)
+    def __init__(self, path:str=None, start_line:int=None, end_line:int=None, start_column:int=None, end_column:int=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._path = path
         self._start_line = start_line
         self._end_line = end_line
@@ -20135,8 +20141,8 @@ class CodeScanningAlertLocation(ResponseBase):
 ##
 ##
 class Codescanningalertinstance_message(ResponseBase):
-    def __init__(self, text:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, text:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._text = text
         return
         
@@ -20155,8 +20161,8 @@ class Codescanningalertinstance_message(ResponseBase):
 ##
 ##
 class CodeScanningAlertInstance(ResponseBase):
-    def __init__(self, ref:str=None, analysis_key:str=None, environment:str=None, category:str=None, state:str=None, commit_sha:str=None, message:dict=None, location:dict=None, html_url:str=None, classifications:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, ref:str=None, analysis_key:str=None, environment:str=None, category:str=None, state:str=None, commit_sha:str=None, message:dict=None, location:dict=None, html_url:str=None, classifications:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._ref = ref
         self._analysis_key = analysis_key
         self._environment = environment
@@ -20248,8 +20254,8 @@ For example identifying it as documentation, or a generated file. """)
 ##
 ##
 class CodeScanningAlertItems(ResponseBase):
-    def __init__(self, most_recent_instance:dict, tool:dict, rule:dict, dismissed_reason:str, dismissed_at:datetime, dismissed_by:dict, state:str, instances_url:str, html_url:str, url:str, created_at:datetime, number:int):
-        ResponseBase.__init__(self)
+    def __init__(self, most_recent_instance:dict, tool:dict, rule:dict, dismissed_reason:str, dismissed_at:datetime, dismissed_by:dict, state:str, instances_url:str, html_url:str, url:str, created_at:datetime, number:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._most_recent_instance = most_recent_instance
         self._tool = tool
         self._rule = rule
@@ -20356,8 +20362,8 @@ class CodeScanningAlertItems(ResponseBase):
 ##
 ##
 class CodeScanningAlertRule(ResponseBase):
-    def __init__(self, id:str=None, name:str=None, severity:str=None, security_severity_level:str=None, description:str=None, full_description:str=None, tags:list=None, help:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, id:str=None, name:str=None, severity:str=None, security_severity_level:str=None, description:str=None, full_description:str=None, tags:list=None, help:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._id = id
         self._name = name
         self._severity = severity
@@ -20432,8 +20438,8 @@ class CodeScanningAlertRule(ResponseBase):
 ##
 ##
 class CodeScanningAlert(ResponseBase):
-    def __init__(self, most_recent_instance:dict, tool:dict, rule:dict, dismissed_reason:str, dismissed_at:datetime, dismissed_by:dict, state:str, instances_url:str, html_url:str, url:str, created_at:datetime, number:int):
-        ResponseBase.__init__(self)
+    def __init__(self, most_recent_instance:dict, tool:dict, rule:dict, dismissed_reason:str, dismissed_at:datetime, dismissed_by:dict, state:str, instances_url:str, html_url:str, url:str, created_at:datetime, number:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._most_recent_instance = most_recent_instance
         self._tool = tool
         self._rule = rule
@@ -20540,8 +20546,8 @@ class CodeScanningAlert(ResponseBase):
 ##
 ##
 class CodeScanningAnalysis(ResponseBase):
-    def __init__(self, warning:str, deletable:bool, tool:dict, sarif_id:str, url:str, id:int, rules_count:int, results_count:int, created_at:datetime, error:str, environment:str, analysis_key:str, commit_sha:str, ref:str, category:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, warning:str, deletable:bool, tool:dict, sarif_id:str, url:str, id:int, rules_count:int, results_count:int, created_at:datetime, error:str, environment:str, analysis_key:str, commit_sha:str, ref:str, category:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._warning = warning
         self._deletable = deletable
         self._tool = tool
@@ -20673,8 +20679,8 @@ class CodeScanningAnalysis(ResponseBase):
 ##
 class AnalysisDeletion(ResponseBase):
     """Successful deletion of a code scanning analysis """
-    def __init__(self, confirm_delete_url:str, next_analysis_url:str):
-        ResponseBase.__init__(self)
+    def __init__(self, confirm_delete_url:str, next_analysis_url:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._confirm_delete_url = confirm_delete_url
         self._next_analysis_url = next_analysis_url
         return
@@ -20701,8 +20707,8 @@ class AnalysisDeletion(ResponseBase):
 ##
 ##
 class CodeScanningSarifsReceipt(ResponseBase):
-    def __init__(self, id:str=None, url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, id:str=None, url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._id = id
         self._url = url
         return
@@ -20729,8 +20735,8 @@ class CodeScanningSarifsReceipt(ResponseBase):
 ##
 ##
 class CodeScanningSarifsStatus(ResponseBase):
-    def __init__(self, processing_status:str=None, analyses_url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, processing_status:str=None, analyses_url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._processing_status = processing_status
         self._analyses_url = analyses_url
         return
@@ -20757,8 +20763,8 @@ class CodeScanningSarifsStatus(ResponseBase):
 ##
 ##
 class Collaborator_permissions(ResponseBase):
-    def __init__(self, admin:bool, push:bool, pull:bool, triage:bool=None, maintain:bool=None):
-        ResponseBase.__init__(self)
+    def __init__(self, admin:bool, push:bool, pull:bool, triage:bool=None, maintain:bool=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._admin = admin
         self._push = push
         self._pull = pull
@@ -20810,8 +20816,8 @@ class Collaborator_permissions(ResponseBase):
 ##
 class Collaborator(ResponseBase):
     """Collaborator """
-    def __init__(self, site_admin:bool, type:str, received_events_url:str, events_url:str, repos_url:str, organizations_url:str, subscriptions_url:str, starred_url:str, gists_url:str, following_url:str, followers_url:str, html_url:str, url:str, gravatar_id:str, avatar_url:str, node_id:str, id:int, login:str, email:str=None, name:str=None, permissions:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, site_admin:bool, type:str, received_events_url:str, events_url:str, repos_url:str, organizations_url:str, subscriptions_url:str, starred_url:str, gists_url:str, following_url:str, followers_url:str, html_url:str, url:str, gravatar_id:str, avatar_url:str, node_id:str, id:int, login:str, email:str=None, name:str=None, permissions:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._site_admin = site_admin
         self._type = type
         self._received_events_url = received_events_url
@@ -20991,8 +20997,8 @@ class Collaborator(ResponseBase):
 ##
 class RepositoryInvitation(ResponseBase):
     """Repository invitations let you manage who you collaborate with. """
-    def __init__(self, node_id:str, html_url:str, url:str, created_at:datetime, permissions:str, inviter:dict, invitee:dict, repository:dict, id:int, expired:bool=None):
-        ResponseBase.__init__(self)
+    def __init__(self, node_id:str, html_url:str, url:str, created_at:datetime, permissions:str, inviter:dict, invitee:dict, repository:dict, id:int, expired:bool=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._node_id = node_id
         self._html_url = html_url
         self._url = url
@@ -21084,8 +21090,8 @@ class RepositoryInvitation(ResponseBase):
 ##
 class Collaborator(ResponseBase):
     """Collaborator """
-    def __init__(self, site_admin:bool, type:str, received_events_url:str, events_url:str, repos_url:str, organizations_url:str, subscriptions_url:str, starred_url:str, gists_url:str, following_url:str, followers_url:str, html_url:str, url:str, gravatar_id:str, avatar_url:str, node_id:str, id:int, login:str, email:str=None, name:str=None, permissions:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, site_admin:bool, type:str, received_events_url:str, events_url:str, repos_url:str, organizations_url:str, subscriptions_url:str, starred_url:str, gists_url:str, following_url:str, followers_url:str, html_url:str, url:str, gravatar_id:str, avatar_url:str, node_id:str, id:int, login:str, email:str=None, name:str=None, permissions:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._site_admin = site_admin
         self._type = type
         self._received_events_url = received_events_url
@@ -21265,8 +21271,8 @@ class Collaborator(ResponseBase):
 ##
 class RepositoryCollaboratorPermission(ResponseBase):
     """Repository Collaborator Permission """
-    def __init__(self, user:dict, permission:str):
-        ResponseBase.__init__(self)
+    def __init__(self, user:dict, permission:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._user = user
         self._permission = permission
         return
@@ -21294,8 +21300,8 @@ class RepositoryCollaboratorPermission(ResponseBase):
 ##
 class CommitComment(ResponseBase):
     """Commit Comment """
-    def __init__(self, author_association:str, updated_at:datetime, created_at:datetime, user:dict, commit_id:str, line:int, position:int, path:str, body:str, node_id:str, id:int, url:str, html_url:str, reactions:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, author_association:str, updated_at:datetime, created_at:datetime, user:dict, commit_id:str, line:int, position:int, path:str, body:str, node_id:str, id:int, url:str, html_url:str, reactions:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._author_association = author_association
         self._updated_at = updated_at
         self._created_at = created_at
@@ -21418,8 +21424,8 @@ class CommitComment(ResponseBase):
 ##
 ##
 class Branchshort_commit(ResponseBase):
-    def __init__(self, url:str, sha:str):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str, sha:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._sha = sha
         return
@@ -21447,8 +21453,8 @@ class Branchshort_commit(ResponseBase):
 ##
 class BranchShort(ResponseBase):
     """Branch Short """
-    def __init__(self, protected:bool, commit:dict, name:str):
-        ResponseBase.__init__(self)
+    def __init__(self, protected:bool, commit:dict, name:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._protected = protected
         self._commit = commit
         self._name = name
@@ -21484,8 +21490,8 @@ class BranchShort(ResponseBase):
 ##
 class Link(ResponseBase):
     """Hypermedia Link """
-    def __init__(self, href:str):
-        ResponseBase.__init__(self)
+    def __init__(self, href:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._href = href
         return
         
@@ -21505,8 +21511,8 @@ class Link(ResponseBase):
 ##
 class AutoMerge(ResponseBase):
     """The status of auto merging a pull request. """
-    def __init__(self, commit_message:str, commit_title:str, merge_method:str, enabled_by:dict):
-        ResponseBase.__init__(self)
+    def __init__(self, commit_message:str, commit_title:str, merge_method:str, enabled_by:dict, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._commit_message = commit_message
         self._commit_title = commit_title
         self._merge_method = merge_method
@@ -21549,8 +21555,8 @@ class AutoMerge(ResponseBase):
 ##
 ##
 class Pullrequestsimple_labels(ResponseBase):
-    def __init__(self, default:bool, color:str, description:str, name:str, url:str, node_id:str, id:int):
-        ResponseBase.__init__(self)
+    def __init__(self, default:bool, color:str, description:str, name:str, url:str, node_id:str, id:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._default = default
         self._color = color
         self._description = description
@@ -21617,8 +21623,8 @@ class Pullrequestsimple_labels(ResponseBase):
 ##
 ##
 class Pullrequestsimple_head(ResponseBase):
-    def __init__(self, user:dict, sha:str, repo:dict, ref:str, label:str):
-        ResponseBase.__init__(self)
+    def __init__(self, user:dict, sha:str, repo:dict, ref:str, label:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._user = user
         self._sha = sha
         self._repo = repo
@@ -21669,8 +21675,8 @@ class Pullrequestsimple_head(ResponseBase):
 ##
 ##
 class Pullrequestsimple_base(ResponseBase):
-    def __init__(self, user:dict, sha:str, repo:dict, ref:str, label:str):
-        ResponseBase.__init__(self)
+    def __init__(self, user:dict, sha:str, repo:dict, ref:str, label:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._user = user
         self._sha = sha
         self._repo = repo
@@ -21721,8 +21727,8 @@ class Pullrequestsimple_base(ResponseBase):
 ##
 ##
 class Pullrequestsimple__links(ResponseBase):
-    def __init__(self, Self:dict, review_comment:dict, review_comments:dict, issue:dict, html:dict, statuses:dict, commits:dict, comments:dict):
-        ResponseBase.__init__(self)
+    def __init__(self, Self:dict, review_comment:dict, review_comments:dict, issue:dict, html:dict, statuses:dict, commits:dict, comments:dict, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._Self = Self
         self._review_comment = review_comment
         self._review_comments = review_comments
@@ -21809,8 +21815,8 @@ class Pullrequestsimple__links(ResponseBase):
 ##
 class PullRequestSimple(ResponseBase):
     """Pull Request Simple """
-    def __init__(self, auto_merge:dict, author_association:str, _links:dict, base:dict, head:dict, assignee:dict, merge_commit_sha:str, merged_at:datetime, closed_at:datetime, updated_at:datetime, created_at:datetime, milestone:dict, labels:list, body:str, user:dict, title:str, locked:bool, state:str, number:int, statuses_url:str, comments_url:str, review_comment_url:str, review_comments_url:str, commits_url:str, issue_url:str, patch_url:str, diff_url:str, html_url:str, node_id:str, id:int, url:str, active_lock_reason:str=None, assignees:list=None, requested_reviewers:list=None, requested_teams:list=None, draft:bool=None):
-        ResponseBase.__init__(self)
+    def __init__(self, auto_merge:dict, author_association:str, _links:dict, base:dict, head:dict, assignee:dict, merge_commit_sha:str, merged_at:datetime, closed_at:datetime, updated_at:datetime, created_at:datetime, milestone:dict, labels:list, body:str, user:dict, title:str, locked:bool, state:str, number:int, statuses_url:str, comments_url:str, review_comment_url:str, review_comments_url:str, commits_url:str, issue_url:str, patch_url:str, diff_url:str, html_url:str, node_id:str, id:int, url:str, active_lock_reason:str=None, assignees:list=None, requested_reviewers:list=None, requested_teams:list=None, draft:bool=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._auto_merge = auto_merge
         self._author_association = author_association
         self.__links = _links
@@ -22109,8 +22115,8 @@ class PullRequestSimple(ResponseBase):
 ##
 ##
 class SimpleCommitStatus(ResponseBase):
-    def __init__(self, updated_at:datetime, created_at:datetime, url:str, avatar_url:str, target_url:str, context:str, state:str, node_id:str, id:int, description:str, required:bool=None):
-        ResponseBase.__init__(self)
+    def __init__(self, updated_at:datetime, created_at:datetime, url:str, avatar_url:str, target_url:str, context:str, state:str, node_id:str, id:int, description:str, required:bool=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._updated_at = updated_at
         self._created_at = created_at
         self._url = url
@@ -22210,8 +22216,8 @@ class SimpleCommitStatus(ResponseBase):
 ##
 class CombinedCommitStatus(ResponseBase):
     """Combined Commit Status """
-    def __init__(self, url:str, commit_url:str, repository:dict, total_count:int, sha:str, statuses:list, state:str):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str, commit_url:str, repository:dict, total_count:int, sha:str, statuses:list, state:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._commit_url = commit_url
         self._repository = repository
@@ -22279,8 +22285,8 @@ class CombinedCommitStatus(ResponseBase):
 ##
 class Status(ResponseBase):
     """The status of a commit. """
-    def __init__(self, creator:dict, updated_at:str, created_at:str, context:str, target_url:str, description:str, state:str, node_id:str, id:int, avatar_url:str, url:str):
-        ResponseBase.__init__(self)
+    def __init__(self, creator:dict, updated_at:str, created_at:str, context:str, target_url:str, description:str, state:str, node_id:str, id:int, avatar_url:str, url:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._creator = creator
         self._updated_at = updated_at
         self._created_at = created_at
@@ -22380,8 +22386,8 @@ class Status(ResponseBase):
 ##
 class CommitComparison(ResponseBase):
     """Commit Comparison """
-    def __init__(self, commits:list, total_commits:int, behind_by:int, ahead_by:int, status:str, merge_base_commit:dict, base_commit:dict, patch_url:str, diff_url:str, permalink_url:str, html_url:str, url:str, files:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, commits:list, total_commits:int, behind_by:int, ahead_by:int, status:str, merge_base_commit:dict, base_commit:dict, patch_url:str, diff_url:str, permalink_url:str, html_url:str, url:str, files:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._commits = commits
         self._total_commits = total_commits
         self._behind_by = behind_by
@@ -22497,8 +22503,8 @@ class CommitComparison(ResponseBase):
 ##
 class Contentreferenceattachment(ResponseBase):
     """Content Reference attachments allow you to provide context around URLs posted in comments """
-    def __init__(self, body:str, title:str, id:int, node_id:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, body:str, title:str, id:int, node_id:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._body = body
         self._title = title
         self._id = id
@@ -22541,8 +22547,8 @@ class Contentreferenceattachment(ResponseBase):
 ##
 ##
 class Contenttree_entries__links(ResponseBase):
-    def __init__(self, Self:str, html:str, git:str):
-        ResponseBase.__init__(self)
+    def __init__(self, Self:str, html:str, git:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._Self = Self
         self._html = html
         self._git = git
@@ -22588,8 +22594,8 @@ class Contenttree_entries__links(ResponseBase):
 ##
 ##
 class Contenttree_entries(ResponseBase):
-    def __init__(self, _links:dict, download_url:str, html_url:str, git_url:str, url:str, sha:str, path:str, name:str, size:int, type:str, content:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, _links:dict, download_url:str, html_url:str, git_url:str, url:str, sha:str, path:str, name:str, size:int, type:str, content:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self.__links = _links
         self._download_url = download_url
         self._html_url = html_url
@@ -22688,8 +22694,8 @@ class Contenttree_entries(ResponseBase):
 ##
 ##
 class Contenttree__links(ResponseBase):
-    def __init__(self, Self:str, html:str, git:str):
-        ResponseBase.__init__(self)
+    def __init__(self, Self:str, html:str, git:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._Self = Self
         self._html = html
         self._git = git
@@ -22736,8 +22742,8 @@ class Contenttree__links(ResponseBase):
 ##
 class ContentTree(ResponseBase):
     """Content Tree """
-    def __init__(self, _links:dict, download_url:str, html_url:str, git_url:str, url:str, sha:str, path:str, name:str, size:int, type:str, entries:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, _links:dict, download_url:str, html_url:str, git_url:str, url:str, sha:str, path:str, name:str, size:int, type:str, entries:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self.__links = _links
         self._download_url = download_url
         self._html_url = html_url
@@ -22836,8 +22842,8 @@ class ContentTree(ResponseBase):
 ##
 ##
 class Contentdirectory__links(ResponseBase):
-    def __init__(self, Self:str, html:str, git:str):
-        ResponseBase.__init__(self)
+    def __init__(self, Self:str, html:str, git:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._Self = Self
         self._html = html
         self._git = git
@@ -22883,8 +22889,8 @@ class Contentdirectory__links(ResponseBase):
 ##
 ##
 class Contentdirectory(ResponseBase):
-    def __init__(self, _links:dict, download_url:str, html_url:str, git_url:str, url:str, sha:str, path:str, name:str, size:int, type:str, content:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, _links:dict, download_url:str, html_url:str, git_url:str, url:str, sha:str, path:str, name:str, size:int, type:str, content:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self.__links = _links
         self._download_url = download_url
         self._html_url = html_url
@@ -22983,8 +22989,8 @@ class Contentdirectory(ResponseBase):
 ##
 ##
 class Contentfile__links(ResponseBase):
-    def __init__(self, Self:str, html:str, git:str):
-        ResponseBase.__init__(self)
+    def __init__(self, Self:str, html:str, git:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._Self = Self
         self._html = html
         self._git = git
@@ -23031,8 +23037,8 @@ class Contentfile__links(ResponseBase):
 ##
 class ContentFile(ResponseBase):
     """Content File """
-    def __init__(self, _links:dict, download_url:str, html_url:str, git_url:str, url:str, sha:str, content:str, path:str, name:str, size:int, encoding:str, type:str, target:str=None, submodule_git_url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, _links:dict, download_url:str, html_url:str, git_url:str, url:str, sha:str, content:str, path:str, name:str, size:int, encoding:str, type:str, target:str=None, submodule_git_url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self.__links = _links
         self._download_url = download_url
         self._html_url = html_url
@@ -23155,8 +23161,8 @@ class ContentFile(ResponseBase):
 ##
 ##
 class Symlinkcontent__links(ResponseBase):
-    def __init__(self, Self:str, html:str, git:str):
-        ResponseBase.__init__(self)
+    def __init__(self, Self:str, html:str, git:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._Self = Self
         self._html = html
         self._git = git
@@ -23203,8 +23209,8 @@ class Symlinkcontent__links(ResponseBase):
 ##
 class SymlinkContent(ResponseBase):
     """An object describing a symlink """
-    def __init__(self, _links:dict, download_url:str, html_url:str, git_url:str, url:str, sha:str, path:str, name:str, size:int, target:str, type:str):
-        ResponseBase.__init__(self)
+    def __init__(self, _links:dict, download_url:str, html_url:str, git_url:str, url:str, sha:str, path:str, name:str, size:int, target:str, type:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self.__links = _links
         self._download_url = download_url
         self._html_url = html_url
@@ -23304,8 +23310,8 @@ class SymlinkContent(ResponseBase):
 ##
 class SymlinkContent(ResponseBase):
     """An object describing a symlink """
-    def __init__(self, _links:dict, download_url:str, html_url:str, git_url:str, url:str, sha:str, path:str, name:str, size:int, submodule_git_url:str, type:str):
-        ResponseBase.__init__(self)
+    def __init__(self, _links:dict, download_url:str, html_url:str, git_url:str, url:str, sha:str, path:str, name:str, size:int, submodule_git_url:str, type:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self.__links = _links
         self._download_url = download_url
         self._html_url = html_url
@@ -23404,8 +23410,8 @@ class SymlinkContent(ResponseBase):
 ##
 ##
 class Filecommit_content__links(ResponseBase):
-    def __init__(self, Self:str=None, git:str=None, html:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, Self:str=None, git:str=None, html:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._Self = Self
         self._git = git
         self._html = html
@@ -23451,8 +23457,8 @@ class Filecommit_content__links(ResponseBase):
 ##
 ##
 class Filecommit_content(ResponseBase):
-    def __init__(self, name:str=None, path:str=None, sha:str=None, size:int=None, url:str=None, html_url:str=None, git_url:str=None, download_url:str=None, type:str=None, _links:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, name:str=None, path:str=None, sha:str=None, size:int=None, url:str=None, html_url:str=None, git_url:str=None, download_url:str=None, type:str=None, _links:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._name = name
         self._path = path
         self._sha = sha
@@ -23543,8 +23549,8 @@ class Filecommit_content(ResponseBase):
 ##
 ##
 class Filecommit_commit_author(ResponseBase):
-    def __init__(self, date:str=None, name:str=None, email:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, date:str=None, name:str=None, email:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._date = date
         self._name = name
         self._email = email
@@ -23579,8 +23585,8 @@ class Filecommit_commit_author(ResponseBase):
 ##
 ##
 class Filecommit_commit_committer(ResponseBase):
-    def __init__(self, date:str=None, name:str=None, email:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, date:str=None, name:str=None, email:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._date = date
         self._name = name
         self._email = email
@@ -23615,8 +23621,8 @@ class Filecommit_commit_committer(ResponseBase):
 ##
 ##
 class Filecommit_commit_tree(ResponseBase):
-    def __init__(self, url:str=None, sha:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str=None, sha:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._sha = sha
         return
@@ -23643,8 +23649,8 @@ class Filecommit_commit_tree(ResponseBase):
 ##
 ##
 class Filecommit_commit_parents(ResponseBase):
-    def __init__(self, url:str=None, html_url:str=None, sha:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str=None, html_url:str=None, sha:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._html_url = html_url
         self._sha = sha
@@ -23679,8 +23685,8 @@ class Filecommit_commit_parents(ResponseBase):
 ##
 ##
 class Filecommit_commit_verification(ResponseBase):
-    def __init__(self, verified:bool=None, reason:str=None, signature:str=None, payload:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, verified:bool=None, reason:str=None, signature:str=None, payload:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._verified = verified
         self._reason = reason
         self._signature = signature
@@ -23723,8 +23729,8 @@ class Filecommit_commit_verification(ResponseBase):
 ##
 ##
 class Filecommit_commit(ResponseBase):
-    def __init__(self, sha:str=None, node_id:str=None, url:str=None, html_url:str=None, author:dict=None, committer:dict=None, message:str=None, tree:dict=None, parents:list=None, verification:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, sha:str=None, node_id:str=None, url:str=None, html_url:str=None, author:dict=None, committer:dict=None, message:str=None, tree:dict=None, parents:list=None, verification:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._sha = sha
         self._node_id = node_id
         self._url = url
@@ -23816,8 +23822,8 @@ class Filecommit_commit(ResponseBase):
 ##
 class FileCommit(ResponseBase):
     """File Commit """
-    def __init__(self, commit:dict, content:dict):
-        ResponseBase.__init__(self)
+    def __init__(self, commit:dict, content:dict, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._commit = commit
         self._content = content
         return
@@ -23845,8 +23851,8 @@ class FileCommit(ResponseBase):
 ##
 class Contributor(ResponseBase):
     """Contributor """
-    def __init__(self, contributions:int, type:str, login:str=None, id:int=None, node_id:str=None, avatar_url:str=None, gravatar_id:str=None, url:str=None, html_url:str=None, followers_url:str=None, following_url:str=None, gists_url:str=None, starred_url:str=None, subscriptions_url:str=None, organizations_url:str=None, repos_url:str=None, events_url:str=None, received_events_url:str=None, site_admin:bool=None, email:str=None, name:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, contributions:int, type:str, login:str=None, id:int=None, node_id:str=None, avatar_url:str=None, gravatar_id:str=None, url:str=None, html_url:str=None, followers_url:str=None, following_url:str=None, gists_url:str=None, starred_url:str=None, subscriptions_url:str=None, organizations_url:str=None, repos_url:str=None, events_url:str=None, received_events_url:str=None, site_admin:bool=None, email:str=None, name:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._contributions = contributions
         self._type = type
         self._login = login
@@ -24026,8 +24032,8 @@ class Contributor(ResponseBase):
 ##
 class DeploymentStatus(ResponseBase):
     """The status of a deployment. """
-    def __init__(self, repository_url:str, deployment_url:str, updated_at:datetime, created_at:datetime, creator:dict, state:str, node_id:str, id:int, url:str, description:str='""', environment:str='""', target_url:str='""', environment_url:str='""', log_url:str='""', performed_via_github_app:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, repository_url:str, deployment_url:str, updated_at:datetime, created_at:datetime, creator:dict, state:str, node_id:str, id:int, url:str, description:str='""', environment:str='""', target_url:str='""', environment_url:str='""', log_url:str='""', performed_via_github_app:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._repository_url = repository_url
         self._deployment_url = deployment_url
         self._updated_at = updated_at
@@ -24159,8 +24165,8 @@ class DeploymentStatus(ResponseBase):
 ##
 class Deployment_branch_policy(ResponseBase):
     """The type of deployment branch policy for this environment. To allow all branches to deploy, set to `null`. """
-    def __init__(self, custom_branch_policies:bool, protected_branches:bool):
-        ResponseBase.__init__(self)
+    def __init__(self, custom_branch_policies:bool, protected_branches:bool, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._custom_branch_policies = custom_branch_policies
         self._protected_branches = protected_branches
         return
@@ -24187,8 +24193,8 @@ class Deployment_branch_policy(ResponseBase):
 ##
 ##
 class Environment_protection_rules(ResponseBase):
-    def __init__(self, type:str, node_id:str, id:int):
-        ResponseBase.__init__(self)
+    def __init__(self, type:str, node_id:str, id:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._type = type
         self._node_id = node_id
         self._id = id
@@ -24223,8 +24229,8 @@ class Environment_protection_rules(ResponseBase):
 ##
 ##
 class Environment_protection_rules_reviewers(ResponseBase):
-    def __init__(self, type:str=None, reviewer=None):
-        ResponseBase.__init__(self)
+    def __init__(self, type:str=None, reviewer=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._type = type
         self._reviewer = reviewer
         return
@@ -24252,8 +24258,8 @@ class Environment_protection_rules_reviewers(ResponseBase):
 ##
 class Environment(ResponseBase):
     """Details of a deployment environment """
-    def __init__(self, updated_at:datetime, created_at:datetime, html_url:str, url:str, name:str, node_id:str, id:int, protection_rules=None, deployment_branch_policy:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, updated_at:datetime, created_at:datetime, html_url:str, url:str, name:str, node_id:str, id:int, protection_rules=None, deployment_branch_policy:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._updated_at = updated_at
         self._created_at = created_at
         self._html_url = html_url
@@ -24337,8 +24343,8 @@ class Environment(ResponseBase):
 ##
 class ShortBlob(ResponseBase):
     """Short Blob """
-    def __init__(self, sha:str, url:str):
-        ResponseBase.__init__(self)
+    def __init__(self, sha:str, url:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._sha = sha
         self._url = url
         return
@@ -24366,8 +24372,8 @@ class ShortBlob(ResponseBase):
 ##
 class Blob(ResponseBase):
     """Blob """
-    def __init__(self, node_id:str, size:int, sha:str, url:str, encoding:str, content:str, highlighted_content:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, node_id:str, size:int, sha:str, url:str, encoding:str, content:str, highlighted_content:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._node_id = node_id
         self._size = size
         self._sha = sha
@@ -24435,8 +24441,8 @@ class Blob(ResponseBase):
 ##
 class Gitcommit_author(ResponseBase):
     """Identifying information for the git-user """
-    def __init__(self, name:str, email:str, date:datetime):
-        ResponseBase.__init__(self)
+    def __init__(self, name:str, email:str, date:datetime, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._name = name
         self._email = email
         self._date = date
@@ -24472,8 +24478,8 @@ class Gitcommit_author(ResponseBase):
 ##
 class Gitcommit_committer(ResponseBase):
     """Identifying information for the git-user """
-    def __init__(self, name:str, email:str, date:datetime):
-        ResponseBase.__init__(self)
+    def __init__(self, name:str, email:str, date:datetime, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._name = name
         self._email = email
         self._date = date
@@ -24508,8 +24514,8 @@ class Gitcommit_committer(ResponseBase):
 ##
 ##
 class Gitcommit_tree(ResponseBase):
-    def __init__(self, url:str, sha:str):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str, sha:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._sha = sha
         return
@@ -24536,8 +24542,8 @@ class Gitcommit_tree(ResponseBase):
 ##
 ##
 class Gitcommit_parents(ResponseBase):
-    def __init__(self, html_url:str, url:str, sha:str):
-        ResponseBase.__init__(self)
+    def __init__(self, html_url:str, url:str, sha:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._html_url = html_url
         self._url = url
         self._sha = sha
@@ -24572,8 +24578,8 @@ class Gitcommit_parents(ResponseBase):
 ##
 ##
 class Gitcommit_verification(ResponseBase):
-    def __init__(self, payload:str, signature:str, reason:str, verified:bool):
-        ResponseBase.__init__(self)
+    def __init__(self, payload:str, signature:str, reason:str, verified:bool, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._payload = payload
         self._signature = signature
         self._reason = reason
@@ -24617,8 +24623,8 @@ class Gitcommit_verification(ResponseBase):
 ##
 class GitCommit(ResponseBase):
     """Low-level Git commit operations within a repository """
-    def __init__(self, html_url:str, verification:dict, parents:list, tree:dict, message:str, committer:dict, author:dict, url:str, node_id:str, sha:str):
-        ResponseBase.__init__(self)
+    def __init__(self, html_url:str, verification:dict, parents:list, tree:dict, message:str, committer:dict, author:dict, url:str, node_id:str, sha:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._html_url = html_url
         self._verification = verification
         self._parents = parents
@@ -24709,8 +24715,8 @@ class GitCommit(ResponseBase):
 ##
 ##
 class Gitreference_object(ResponseBase):
-    def __init__(self, url:str, sha:str, type:str):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str, sha:str, type:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._sha = sha
         self._type = type
@@ -24746,8 +24752,8 @@ class Gitreference_object(ResponseBase):
 ##
 class GitReference(ResponseBase):
     """Git references within a repository """
-    def __init__(self, object:dict, url:str, node_id:str, ref:str):
-        ResponseBase.__init__(self)
+    def __init__(self, object:dict, url:str, node_id:str, ref:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._object = object
         self._url = url
         self._node_id = node_id
@@ -24790,8 +24796,8 @@ class GitReference(ResponseBase):
 ##
 ##
 class Gittag_tagger(ResponseBase):
-    def __init__(self, name:str, email:str, date:str):
-        ResponseBase.__init__(self)
+    def __init__(self, name:str, email:str, date:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._name = name
         self._email = email
         self._date = date
@@ -24826,8 +24832,8 @@ class Gittag_tagger(ResponseBase):
 ##
 ##
 class Gittag_object(ResponseBase):
-    def __init__(self, url:str, type:str, sha:str):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str, type:str, sha:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._type = type
         self._sha = sha
@@ -24863,8 +24869,8 @@ class Gittag_object(ResponseBase):
 ##
 class GitTag(ResponseBase):
     """Metadata for a Git tag """
-    def __init__(self, object:dict, tagger:dict, message:str, url:str, sha:str, tag:str, node_id:str, verification:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, object:dict, tagger:dict, message:str, url:str, sha:str, tag:str, node_id:str, verification:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._object = object
         self._tagger = tagger
         self._message = message
@@ -24939,8 +24945,8 @@ class GitTag(ResponseBase):
 ##
 ##
 class Gittree_tree(ResponseBase):
-    def __init__(self, path:str=None, mode:str=None, type:str=None, sha:str=None, size:int=None, url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, path:str=None, mode:str=None, type:str=None, sha:str=None, size:int=None, url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._path = path
         self._mode = mode
         self._type = type
@@ -25000,8 +25006,8 @@ class Gittree_tree(ResponseBase):
 ##
 class GitTree(ResponseBase):
     """The hierarchy between files in a Git repository. """
-    def __init__(self, tree:list, truncated:bool, url:str, sha:str):
-        ResponseBase.__init__(self)
+    def __init__(self, tree:list, truncated:bool, url:str, sha:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._tree = tree
         self._truncated = truncated
         self._url = url
@@ -25044,8 +25050,8 @@ class GitTree(ResponseBase):
 ##
 ##
 class HookResponse(ResponseBase):
-    def __init__(self, message:str, status:str, code:int):
-        ResponseBase.__init__(self)
+    def __init__(self, message:str, status:str, code:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._message = message
         self._status = status
         self._code = code
@@ -25080,8 +25086,8 @@ class HookResponse(ResponseBase):
 ##
 ##
 class Webhook_config(ResponseBase):
-    def __init__(self, email:str=None, password:str=None, room:str=None, subdomain:str=None, url:str=None, insecure_ssl=None, content_type:str=None, digest:str=None, secret:str=None, token:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, email:str=None, password:str=None, room:str=None, subdomain:str=None, url:str=None, insecure_ssl=None, content_type:str=None, digest:str=None, secret:str=None, token:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._email = email
         self._password = password
         self._room = room
@@ -25173,8 +25179,8 @@ class Webhook_config(ResponseBase):
 ##
 class Webhook(ResponseBase):
     """Webhooks for repositories. """
-    def __init__(self, last_response:dict, ping_url:str, test_url:str, url:str, created_at:datetime, updated_at:datetime, config:dict, events:list, active:bool, name:str, id:int, type:str, deliveries_url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, last_response:dict, ping_url:str, test_url:str, url:str, created_at:datetime, updated_at:datetime, config:dict, events:list, active:bool, name:str, id:int, type:str, deliveries_url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._last_response = last_response
         self._ping_url = ping_url
         self._test_url = test_url
@@ -25290,8 +25296,8 @@ class Webhook(ResponseBase):
 ##
 class Issue(ResponseBase):
     """Issues are a great way to keep track of tasks, enhancements, and bugs for your projects. """
-    def __init__(self, author_association:str, updated_at:datetime, created_at:datetime, closed_at:datetime, comments:int, locked:bool, milestone:dict, assignee:dict, labels, user:dict, title:str, state:str, number:int, html_url:str, events_url:str, comments_url:str, labels_url:str, repository_url:str, url:str, node_id:str, id:int, body:str=None, assignees:list=None, active_lock_reason:str=None, pull_request:dict=None, draft:bool=None, closed_by:dict=None, body_html:str=None, body_text:str=None, timeline_url:str=None, repository:dict=None, performed_via_github_app:dict=None, reactions:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, author_association:str, updated_at:datetime, created_at:datetime, closed_at:datetime, comments:int, locked:bool, milestone:dict, assignee:dict, labels, user:dict, title:str, state:str, number:int, html_url:str, events_url:str, comments_url:str, labels_url:str, repository_url:str, url:str, node_id:str, id:int, body:str=None, assignees:list=None, active_lock_reason:str=None, pull_request:dict=None, draft:bool=None, closed_by:dict=None, body_html:str=None, body_text:str=None, timeline_url:str=None, repository:dict=None, performed_via_github_app:dict=None, reactions:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._author_association = author_association
         self._updated_at = updated_at
         self._created_at = created_at
@@ -25567,8 +25573,8 @@ class Issue(ResponseBase):
 ##
 class IssueEventLabel(ResponseBase):
     """Issue Event Label """
-    def __init__(self, color:str, name:str):
-        ResponseBase.__init__(self)
+    def __init__(self, color:str, name:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._color = color
         self._name = name
         return
@@ -25595,8 +25601,8 @@ class IssueEventLabel(ResponseBase):
 ##
 ##
 class IssueEventDismissedReview(ResponseBase):
-    def __init__(self, dismissal_message:str, review_id:int, state:str, dismissal_commit_id:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, dismissal_message:str, review_id:int, state:str, dismissal_commit_id:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._dismissal_message = dismissal_message
         self._review_id = review_id
         self._state = state
@@ -25640,8 +25646,8 @@ class IssueEventDismissedReview(ResponseBase):
 ##
 class IssueEventMilestone(ResponseBase):
     """Issue Event Milestone """
-    def __init__(self, title:str):
-        ResponseBase.__init__(self)
+    def __init__(self, title:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._title = title
         return
         
@@ -25661,8 +25667,8 @@ class IssueEventMilestone(ResponseBase):
 ##
 class IssueEventProjectCard(ResponseBase):
     """Issue Event Project Card """
-    def __init__(self, column_name:str, project_id:int, project_url:str, id:int, url:str, previous_column_name:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, column_name:str, project_id:int, project_url:str, id:int, url:str, previous_column_name:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._column_name = column_name
         self._project_id = project_id
         self._project_url = project_url
@@ -25722,8 +25728,8 @@ class IssueEventProjectCard(ResponseBase):
 ##
 class IssueEventRename(ResponseBase):
     """Issue Event Rename """
-    def __init__(self, to:str, From:str):
-        ResponseBase.__init__(self)
+    def __init__(self, to:str, From:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._to = to
         self._From = From
         return
@@ -25762,8 +25768,8 @@ class IssueEventRename(ResponseBase):
 ##
 class IssueEvent(ResponseBase):
     """Issue Event """
-    def __init__(self, created_at:datetime, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int, issue:dict=None, label:dict=None, assignee:dict=None, assigner:dict=None, review_requester:dict=None, requested_reviewer:dict=None, requested_team:dict=None, dismissed_review:dict=None, milestone:dict=None, project_card:dict=None, rename:dict=None, author_association:str=None, lock_reason:str=None, performed_via_github_app:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, created_at:datetime, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int, issue:dict=None, label:dict=None, assignee:dict=None, assigner:dict=None, review_requester:dict=None, requested_reviewer:dict=None, requested_team:dict=None, dismissed_review:dict=None, milestone:dict=None, project_card:dict=None, rename:dict=None, author_association:str=None, lock_reason:str=None, performed_via_github_app:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._created_at = created_at
         self._commit_url = commit_url
         self._commit_id = commit_id
@@ -25950,8 +25956,8 @@ class IssueEvent(ResponseBase):
 ##
 ##
 class Labeledissueevent_label(ResponseBase):
-    def __init__(self, color:str, name:str):
-        ResponseBase.__init__(self)
+    def __init__(self, color:str, name:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._color = color
         self._name = name
         return
@@ -25979,8 +25985,8 @@ class Labeledissueevent_label(ResponseBase):
 ##
 class LabeledIssueEvent(ResponseBase):
     """Labeled Issue Event """
-    def __init__(self, label:dict, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int):
-        ResponseBase.__init__(self)
+    def __init__(self, label:dict, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._label = label
         self._performed_via_github_app = performed_via_github_app
         self._created_at = created_at
@@ -26071,8 +26077,8 @@ class LabeledIssueEvent(ResponseBase):
 ##
 ##
 class Unlabeledissueevent_label(ResponseBase):
-    def __init__(self, color:str, name:str):
-        ResponseBase.__init__(self)
+    def __init__(self, color:str, name:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._color = color
         self._name = name
         return
@@ -26100,8 +26106,8 @@ class Unlabeledissueevent_label(ResponseBase):
 ##
 class UnlabeledIssueEvent(ResponseBase):
     """Unlabeled Issue Event """
-    def __init__(self, label:dict, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int):
-        ResponseBase.__init__(self)
+    def __init__(self, label:dict, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._label = label
         self._performed_via_github_app = performed_via_github_app
         self._created_at = created_at
@@ -26193,8 +26199,8 @@ class UnlabeledIssueEvent(ResponseBase):
 ##
 class AssignedIssueEvent(ResponseBase):
     """Assigned Issue Event """
-    def __init__(self, assigner:dict, assignee:dict, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int):
-        ResponseBase.__init__(self)
+    def __init__(self, assigner:dict, assignee:dict, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._assigner = assigner
         self._assignee = assignee
         self._performed_via_github_app = performed_via_github_app
@@ -26294,8 +26300,8 @@ class AssignedIssueEvent(ResponseBase):
 ##
 class UnassignedIssueEvent(ResponseBase):
     """Unassigned Issue Event """
-    def __init__(self, assigner:dict, assignee:dict, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int):
-        ResponseBase.__init__(self)
+    def __init__(self, assigner:dict, assignee:dict, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._assigner = assigner
         self._assignee = assignee
         self._performed_via_github_app = performed_via_github_app
@@ -26394,8 +26400,8 @@ class UnassignedIssueEvent(ResponseBase):
 ##
 ##
 class Milestonedissueevent_milestone(ResponseBase):
-    def __init__(self, title:str):
-        ResponseBase.__init__(self)
+    def __init__(self, title:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._title = title
         return
         
@@ -26415,8 +26421,8 @@ class Milestonedissueevent_milestone(ResponseBase):
 ##
 class MilestonedIssueEvent(ResponseBase):
     """Milestoned Issue Event """
-    def __init__(self, milestone:dict, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int):
-        ResponseBase.__init__(self)
+    def __init__(self, milestone:dict, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._milestone = milestone
         self._performed_via_github_app = performed_via_github_app
         self._created_at = created_at
@@ -26507,8 +26513,8 @@ class MilestonedIssueEvent(ResponseBase):
 ##
 ##
 class Demilestonedissueevent_milestone(ResponseBase):
-    def __init__(self, title:str):
-        ResponseBase.__init__(self)
+    def __init__(self, title:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._title = title
         return
         
@@ -26528,8 +26534,8 @@ class Demilestonedissueevent_milestone(ResponseBase):
 ##
 class DemilestonedIssueEvent(ResponseBase):
     """Demilestoned Issue Event """
-    def __init__(self, milestone:dict, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int):
-        ResponseBase.__init__(self)
+    def __init__(self, milestone:dict, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._milestone = milestone
         self._performed_via_github_app = performed_via_github_app
         self._created_at = created_at
@@ -26620,8 +26626,8 @@ class DemilestonedIssueEvent(ResponseBase):
 ##
 ##
 class Renamedissueevent_rename(ResponseBase):
-    def __init__(self, to:str, From:str):
-        ResponseBase.__init__(self)
+    def __init__(self, to:str, From:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._to = to
         self._From = From
         return
@@ -26660,8 +26666,8 @@ class Renamedissueevent_rename(ResponseBase):
 ##
 class RenamedIssueEvent(ResponseBase):
     """Renamed Issue Event """
-    def __init__(self, rename:dict, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int):
-        ResponseBase.__init__(self)
+    def __init__(self, rename:dict, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._rename = rename
         self._performed_via_github_app = performed_via_github_app
         self._created_at = created_at
@@ -26753,8 +26759,8 @@ class RenamedIssueEvent(ResponseBase):
 ##
 class ReviewRequestedIssueEvent(ResponseBase):
     """Review Requested Issue Event """
-    def __init__(self, review_requester:dict, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int, requested_team:dict=None, requested_reviewer:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, review_requester:dict, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int, requested_team:dict=None, requested_reviewer:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._review_requester = review_requester
         self._performed_via_github_app = performed_via_github_app
         self._created_at = created_at
@@ -26862,8 +26868,8 @@ class ReviewRequestedIssueEvent(ResponseBase):
 ##
 class ReviewRequestRemovedIssueEvent(ResponseBase):
     """Review Request Removed Issue Event """
-    def __init__(self, review_requester:dict, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int, requested_team:dict=None, requested_reviewer:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, review_requester:dict, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int, requested_team:dict=None, requested_reviewer:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._review_requester = review_requester
         self._performed_via_github_app = performed_via_github_app
         self._created_at = created_at
@@ -26970,8 +26976,8 @@ class ReviewRequestRemovedIssueEvent(ResponseBase):
 ##
 ##
 class Reviewdismissedissueevent_dismissed_review(ResponseBase):
-    def __init__(self, dismissal_message:str, review_id:int, state:str, dismissal_commit_id:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, dismissal_message:str, review_id:int, state:str, dismissal_commit_id:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._dismissal_message = dismissal_message
         self._review_id = review_id
         self._state = state
@@ -27015,8 +27021,8 @@ class Reviewdismissedissueevent_dismissed_review(ResponseBase):
 ##
 class ReviewDismissedIssueEvent(ResponseBase):
     """Review Dismissed Issue Event """
-    def __init__(self, dismissed_review:dict, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int):
-        ResponseBase.__init__(self)
+    def __init__(self, dismissed_review:dict, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._dismissed_review = dismissed_review
         self._performed_via_github_app = performed_via_github_app
         self._created_at = created_at
@@ -27108,8 +27114,8 @@ class ReviewDismissedIssueEvent(ResponseBase):
 ##
 class LockedIssueEvent(ResponseBase):
     """Locked Issue Event """
-    def __init__(self, lock_reason:str, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int):
-        ResponseBase.__init__(self)
+    def __init__(self, lock_reason:str, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._lock_reason = lock_reason
         self._performed_via_github_app = performed_via_github_app
         self._created_at = created_at
@@ -27200,8 +27206,8 @@ class LockedIssueEvent(ResponseBase):
 ##
 ##
 class Addedtoprojectissueevent_project_card(ResponseBase):
-    def __init__(self, column_name:str, project_url:str, project_id:int, url:str, id:int, previous_column_name:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, column_name:str, project_url:str, project_id:int, url:str, id:int, previous_column_name:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._column_name = column_name
         self._project_url = project_url
         self._project_id = project_id
@@ -27261,8 +27267,8 @@ class Addedtoprojectissueevent_project_card(ResponseBase):
 ##
 class AddedToProjectIssueEvent(ResponseBase):
     """Added to Project Issue Event """
-    def __init__(self, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int, project_card:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int, project_card:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._performed_via_github_app = performed_via_github_app
         self._created_at = created_at
         self._commit_url = commit_url
@@ -27353,8 +27359,8 @@ class AddedToProjectIssueEvent(ResponseBase):
 ##
 ##
 class Movedcolumninprojectissueevent_project_card(ResponseBase):
-    def __init__(self, column_name:str, project_url:str, project_id:int, url:str, id:int, previous_column_name:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, column_name:str, project_url:str, project_id:int, url:str, id:int, previous_column_name:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._column_name = column_name
         self._project_url = project_url
         self._project_id = project_id
@@ -27414,8 +27420,8 @@ class Movedcolumninprojectissueevent_project_card(ResponseBase):
 ##
 class MovedColumnInProjectIssueEvent(ResponseBase):
     """Moved Column in Project Issue Event """
-    def __init__(self, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int, project_card:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int, project_card:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._performed_via_github_app = performed_via_github_app
         self._created_at = created_at
         self._commit_url = commit_url
@@ -27506,8 +27512,8 @@ class MovedColumnInProjectIssueEvent(ResponseBase):
 ##
 ##
 class Removedfromprojectissueevent_project_card(ResponseBase):
-    def __init__(self, column_name:str, project_url:str, project_id:int, url:str, id:int, previous_column_name:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, column_name:str, project_url:str, project_id:int, url:str, id:int, previous_column_name:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._column_name = column_name
         self._project_url = project_url
         self._project_id = project_id
@@ -27567,8 +27573,8 @@ class Removedfromprojectissueevent_project_card(ResponseBase):
 ##
 class RemovedFromProjectIssueEvent(ResponseBase):
     """Removed from Project Issue Event """
-    def __init__(self, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int, project_card:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int, project_card:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._performed_via_github_app = performed_via_github_app
         self._created_at = created_at
         self._commit_url = commit_url
@@ -27659,8 +27665,8 @@ class RemovedFromProjectIssueEvent(ResponseBase):
 ##
 ##
 class Convertednotetoissueissueevent_project_card(ResponseBase):
-    def __init__(self, column_name:str, project_url:str, project_id:int, url:str, id:int, previous_column_name:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, column_name:str, project_url:str, project_id:int, url:str, id:int, previous_column_name:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._column_name = column_name
         self._project_url = project_url
         self._project_id = project_id
@@ -27720,8 +27726,8 @@ class Convertednotetoissueissueevent_project_card(ResponseBase):
 ##
 class ConvertedNoteToIssueIssueEvent(ResponseBase):
     """Converted Note to Issue Issue Event """
-    def __init__(self, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int, project_card:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int, project_card:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._performed_via_github_app = performed_via_github_app
         self._created_at = created_at
         self._commit_url = commit_url
@@ -27813,8 +27819,8 @@ class ConvertedNoteToIssueIssueEvent(ResponseBase):
 ##
 class Label(ResponseBase):
     """Color-coded labels help you categorize and filter your issues (just like labels in Gmail). """
-    def __init__(self, default:bool, color:str, description:str, name:str, url:str, node_id:str, id:int):
-        ResponseBase.__init__(self)
+    def __init__(self, default:bool, color:str, description:str, name:str, url:str, node_id:str, id:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._default = default
         self._color = color
         self._description = description
@@ -27882,8 +27888,8 @@ class Label(ResponseBase):
 ##
 class TimelineCommentEvent(ResponseBase):
     """Timeline Comment Event """
-    def __init__(self, author_association:str, issue_url:str, updated_at:datetime, created_at:datetime, user:dict, html_url:str, url:str, node_id:str, id:int, actor:dict, event:str, body:str=None, body_text:str=None, body_html:str=None, performed_via_github_app:dict=None, reactions:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, author_association:str, issue_url:str, updated_at:datetime, created_at:datetime, user:dict, html_url:str, url:str, node_id:str, id:int, actor:dict, event:str, body:str=None, body_text:str=None, body_html:str=None, performed_via_github_app:dict=None, reactions:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._author_association = author_association
         self._issue_url = issue_url
         self._updated_at = updated_at
@@ -28022,8 +28028,8 @@ class TimelineCommentEvent(ResponseBase):
 ##
 ##
 class Timelinecrossreferencedevent_source(ResponseBase):
-    def __init__(self, type:str=None, issue:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, type:str=None, issue:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._type = type
         self._issue = issue
         return
@@ -28051,8 +28057,8 @@ class Timelinecrossreferencedevent_source(ResponseBase):
 ##
 class TimelineCrossReferencedEvent(ResponseBase):
     """Timeline Cross Referenced Event """
-    def __init__(self, source:dict, updated_at:datetime, created_at:datetime, event:str, actor:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, source:dict, updated_at:datetime, created_at:datetime, event:str, actor:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._source = source
         self._updated_at = updated_at
         self._created_at = created_at
@@ -28104,8 +28110,8 @@ class TimelineCrossReferencedEvent(ResponseBase):
 ##
 class Timelinecommittedevent_author(ResponseBase):
     """Identifying information for the git-user """
-    def __init__(self, name:str, email:str, date:datetime):
-        ResponseBase.__init__(self)
+    def __init__(self, name:str, email:str, date:datetime, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._name = name
         self._email = email
         self._date = date
@@ -28141,8 +28147,8 @@ class Timelinecommittedevent_author(ResponseBase):
 ##
 class Timelinecommittedevent_committer(ResponseBase):
     """Identifying information for the git-user """
-    def __init__(self, name:str, email:str, date:datetime):
-        ResponseBase.__init__(self)
+    def __init__(self, name:str, email:str, date:datetime, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._name = name
         self._email = email
         self._date = date
@@ -28177,8 +28183,8 @@ class Timelinecommittedevent_committer(ResponseBase):
 ##
 ##
 class Timelinecommittedevent_tree(ResponseBase):
-    def __init__(self, url:str, sha:str):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str, sha:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._sha = sha
         return
@@ -28205,8 +28211,8 @@ class Timelinecommittedevent_tree(ResponseBase):
 ##
 ##
 class Timelinecommittedevent_parents(ResponseBase):
-    def __init__(self, html_url:str, url:str, sha:str):
-        ResponseBase.__init__(self)
+    def __init__(self, html_url:str, url:str, sha:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._html_url = html_url
         self._url = url
         self._sha = sha
@@ -28241,8 +28247,8 @@ class Timelinecommittedevent_parents(ResponseBase):
 ##
 ##
 class Timelinecommittedevent_verification(ResponseBase):
-    def __init__(self, payload:str, signature:str, reason:str, verified:bool):
-        ResponseBase.__init__(self)
+    def __init__(self, payload:str, signature:str, reason:str, verified:bool, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._payload = payload
         self._signature = signature
         self._reason = reason
@@ -28286,8 +28292,8 @@ class Timelinecommittedevent_verification(ResponseBase):
 ##
 class TimelineCommittedEvent(ResponseBase):
     """Timeline Committed Event """
-    def __init__(self, html_url:str, verification:dict, parents:list, tree:dict, message:str, committer:dict, author:dict, url:str, node_id:str, sha:str, event:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, html_url:str, verification:dict, parents:list, tree:dict, message:str, committer:dict, author:dict, url:str, node_id:str, sha:str, event:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._html_url = html_url
         self._verification = verification
         self._parents = parents
@@ -28386,8 +28392,8 @@ class TimelineCommittedEvent(ResponseBase):
 ##
 ##
 class Timelinereviewedevent__links_html(ResponseBase):
-    def __init__(self, href:str):
-        ResponseBase.__init__(self)
+    def __init__(self, href:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._href = href
         return
         
@@ -28406,8 +28412,8 @@ class Timelinereviewedevent__links_html(ResponseBase):
 ##
 ##
 class Timelinereviewedevent__links_pull_request(ResponseBase):
-    def __init__(self, href:str):
-        ResponseBase.__init__(self)
+    def __init__(self, href:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._href = href
         return
         
@@ -28426,8 +28432,8 @@ class Timelinereviewedevent__links_pull_request(ResponseBase):
 ##
 ##
 class Timelinereviewedevent__links(ResponseBase):
-    def __init__(self, pull_request:dict, html:dict):
-        ResponseBase.__init__(self)
+    def __init__(self, pull_request:dict, html:dict, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._pull_request = pull_request
         self._html = html
         return
@@ -28455,8 +28461,8 @@ class Timelinereviewedevent__links(ResponseBase):
 ##
 class TimelineReviewedEvent(ResponseBase):
     """Timeline Reviewed Event """
-    def __init__(self, author_association:str, commit_id:str, _links:dict, pull_request_url:str, html_url:str, state:str, body:str, user:dict, node_id:str, id:int, event:str, submitted_at:datetime=None, body_html:str=None, body_text:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, author_association:str, commit_id:str, _links:dict, pull_request_url:str, html_url:str, state:str, body:str, user:dict, node_id:str, id:int, event:str, submitted_at:datetime=None, body_html:str=None, body_text:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._author_association = author_association
         self._commit_id = commit_id
         self.__links = _links
@@ -28579,8 +28585,8 @@ class TimelineReviewedEvent(ResponseBase):
 ##
 ##
 class Pullrequestreviewcomment__links_self(ResponseBase):
-    def __init__(self, href:str):
-        ResponseBase.__init__(self)
+    def __init__(self, href:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._href = href
         return
         
@@ -28599,8 +28605,8 @@ class Pullrequestreviewcomment__links_self(ResponseBase):
 ##
 ##
 class Pullrequestreviewcomment__links_html(ResponseBase):
-    def __init__(self, href:str):
-        ResponseBase.__init__(self)
+    def __init__(self, href:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._href = href
         return
         
@@ -28619,8 +28625,8 @@ class Pullrequestreviewcomment__links_html(ResponseBase):
 ##
 ##
 class Pullrequestreviewcomment__links_pull_request(ResponseBase):
-    def __init__(self, href:str):
-        ResponseBase.__init__(self)
+    def __init__(self, href:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._href = href
         return
         
@@ -28639,8 +28645,8 @@ class Pullrequestreviewcomment__links_pull_request(ResponseBase):
 ##
 ##
 class Pullrequestreviewcomment__links(ResponseBase):
-    def __init__(self, pull_request:dict, html:dict, Self:dict):
-        ResponseBase.__init__(self)
+    def __init__(self, pull_request:dict, html:dict, Self:dict, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._pull_request = pull_request
         self._html = html
         self._Self = Self
@@ -28687,8 +28693,8 @@ class Pullrequestreviewcomment__links(ResponseBase):
 ##
 class PullRequestReviewComment(ResponseBase):
     """Pull Request Review Comments are comments on a portion of the Pull Request's diff. """
-    def __init__(self, _links:dict, author_association:str, pull_request_url:str, html_url:str, updated_at:datetime, created_at:datetime, body:str, user:dict, original_commit_id:str, commit_id:str, original_position:int, position:int, path:str, diff_hunk:str, node_id:str, id:int, pull_request_review_id:int, url:str, in_reply_to_id:int=None, start_line:int=None, original_start_line:int=None, start_side:str='RIGHT', line:int=None, original_line:int=None, side:str='RIGHT', reactions:dict=None, body_html:str=None, body_text:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, _links:dict, author_association:str, pull_request_url:str, html_url:str, updated_at:datetime, created_at:datetime, body:str, user:dict, original_commit_id:str, commit_id:str, original_position:int, position:int, path:str, diff_hunk:str, node_id:str, id:int, pull_request_review_id:int, url:str, in_reply_to_id:int=None, start_line:int=None, original_start_line:int=None, start_side:str='RIGHT', line:int=None, original_line:int=None, side:str='RIGHT', reactions:dict=None, body_html:str=None, body_text:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self.__links = _links
         self._author_association = author_association
         self._pull_request_url = pull_request_url
@@ -28924,8 +28930,8 @@ class PullRequestReviewComment(ResponseBase):
 ##
 class TimelineLineCommentedEvent(ResponseBase):
     """Timeline Line Commented Event """
-    def __init__(self, event:str=None, node_id:str=None, comments:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, event:str=None, node_id:str=None, comments:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._event = event
         self._node_id = node_id
         self._comments = comments
@@ -28961,8 +28967,8 @@ class TimelineLineCommentedEvent(ResponseBase):
 ##
 class TimelineCommitCommentedEvent(ResponseBase):
     """Timeline Commit Commented Event """
-    def __init__(self, event:str=None, node_id:str=None, commit_id:str=None, comments:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, event:str=None, node_id:str=None, commit_id:str=None, comments:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._event = event
         self._node_id = node_id
         self._commit_id = commit_id
@@ -29006,8 +29012,8 @@ class TimelineCommitCommentedEvent(ResponseBase):
 ##
 class TimelineAssignedIssueEvent(ResponseBase):
     """Timeline Assigned Issue Event """
-    def __init__(self, assignee:dict, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int):
-        ResponseBase.__init__(self)
+    def __init__(self, assignee:dict, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._assignee = assignee
         self._performed_via_github_app = performed_via_github_app
         self._created_at = created_at
@@ -29099,8 +29105,8 @@ class TimelineAssignedIssueEvent(ResponseBase):
 ##
 class TimelineUnassignedIssueEvent(ResponseBase):
     """Timeline Unassigned Issue Event """
-    def __init__(self, assignee:dict, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int):
-        ResponseBase.__init__(self)
+    def __init__(self, assignee:dict, performed_via_github_app:dict, created_at:str, commit_url:str, commit_id:str, event:str, actor:dict, url:str, node_id:str, id:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._assignee = assignee
         self._performed_via_github_app = performed_via_github_app
         self._created_at = created_at
@@ -29192,8 +29198,8 @@ class TimelineUnassignedIssueEvent(ResponseBase):
 ##
 class DeployKey(ResponseBase):
     """An SSH key granting access to a single repository. """
-    def __init__(self, read_only:bool, created_at:str, verified:bool, title:str, url:str, key:str, id:int):
-        ResponseBase.__init__(self)
+    def __init__(self, read_only:bool, created_at:str, verified:bool, title:str, url:str, key:str, id:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._read_only = read_only
         self._created_at = created_at
         self._verified = verified
@@ -29260,8 +29266,8 @@ class DeployKey(ResponseBase):
 ##
 ##
 class Licensecontent__links(ResponseBase):
-    def __init__(self, Self:str, html:str, git:str):
-        ResponseBase.__init__(self)
+    def __init__(self, Self:str, html:str, git:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._Self = Self
         self._html = html
         self._git = git
@@ -29308,8 +29314,8 @@ class Licensecontent__links(ResponseBase):
 ##
 class LicenseContent(ResponseBase):
     """License Content """
-    def __init__(self, license:dict, _links:dict, encoding:str, content:str, type:str, download_url:str, git_url:str, html_url:str, url:str, size:int, sha:str, path:str, name:str):
-        ResponseBase.__init__(self)
+    def __init__(self, license:dict, _links:dict, encoding:str, content:str, type:str, download_url:str, git_url:str, html_url:str, url:str, size:int, sha:str, path:str, name:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._license = license
         self.__links = _links
         self._encoding = encoding
@@ -29425,8 +29431,8 @@ class LicenseContent(ResponseBase):
 ##
 class MergedUpstream(ResponseBase):
     """Results of a successful merge upstream request """
-    def __init__(self, message:str=None, merge_type:str=None, base_branch:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, message:str=None, merge_type:str=None, base_branch:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._message = message
         self._merge_type = merge_type
         self._base_branch = base_branch
@@ -29462,8 +29468,8 @@ class MergedUpstream(ResponseBase):
 ##
 class Milestone(ResponseBase):
     """A collection of related issues and pull requests. """
-    def __init__(self, due_on:datetime, closed_at:datetime, updated_at:datetime, created_at:datetime, closed_issues:int, open_issues:int, creator:dict, description:str, title:str, number:int, node_id:str, id:int, labels_url:str, html_url:str, url:str, state:str='open'):
-        ResponseBase.__init__(self)
+    def __init__(self, due_on:datetime, closed_at:datetime, updated_at:datetime, created_at:datetime, closed_issues:int, open_issues:int, creator:dict, description:str, title:str, number:int, node_id:str, id:int, labels_url:str, html_url:str, url:str, state:str='open', **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._due_on = due_on
         self._closed_at = closed_at
         self._updated_at = updated_at
@@ -29602,8 +29608,8 @@ class Milestone(ResponseBase):
 ##
 ##
 class PagesSourceHash(ResponseBase):
-    def __init__(self, path:str, branch:str):
-        ResponseBase.__init__(self)
+    def __init__(self, path:str, branch:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._path = path
         self._branch = branch
         return
@@ -29630,8 +29636,8 @@ class PagesSourceHash(ResponseBase):
 ##
 ##
 class PagesHttpsCertificate(ResponseBase):
-    def __init__(self, domains:list, description:str, state:str, expires_at:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, domains:list, description:str, state:str, expires_at:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._domains = domains
         self._description = description
         self._state = state
@@ -29675,8 +29681,8 @@ class PagesHttpsCertificate(ResponseBase):
 ##
 class GithubPages(ResponseBase):
     """The configuration for GitHub Pages for a repository. """
-    def __init__(self, public:bool, cname:str, status:str, url:str, protected_domain_state:str=None, pending_domain_unverified_at:datetime=None, custom_404:bool=False, html_url:str=None, source:dict=None, https_certificate:dict=None, https_enforced:bool=None):
-        ResponseBase.__init__(self)
+    def __init__(self, public:bool, cname:str, status:str, url:str, protected_domain_state:str=None, pending_domain_unverified_at:datetime=None, custom_404:bool=False, html_url:str=None, source:dict=None, https_certificate:dict=None, https_enforced:bool=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._public = public
         self._cname = cname
         self._status = status
@@ -29775,8 +29781,8 @@ class GithubPages(ResponseBase):
 ##
 ##
 class Pagebuild_error(ResponseBase):
-    def __init__(self, message:str):
-        ResponseBase.__init__(self)
+    def __init__(self, message:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._message = message
         return
         
@@ -29796,8 +29802,8 @@ class Pagebuild_error(ResponseBase):
 ##
 class PageBuild(ResponseBase):
     """Page Build """
-    def __init__(self, updated_at:datetime, created_at:datetime, duration:int, commit:str, pusher:dict, error:dict, status:str, url:str):
-        ResponseBase.__init__(self)
+    def __init__(self, updated_at:datetime, created_at:datetime, duration:int, commit:str, pusher:dict, error:dict, status:str, url:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._updated_at = updated_at
         self._created_at = created_at
         self._duration = duration
@@ -29873,8 +29879,8 @@ class PageBuild(ResponseBase):
 ##
 class PageBuildStatus(ResponseBase):
     """Page Build Status """
-    def __init__(self, status:str, url:str):
-        ResponseBase.__init__(self)
+    def __init__(self, status:str, url:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._status = status
         self._url = url
         return
@@ -29901,8 +29907,8 @@ class PageBuildStatus(ResponseBase):
 ##
 ##
 class RepositoryPreReceiveHook(ResponseBase):
-    def __init__(self, id:int=None, name:str=None, enforcement:str=None, configuration_url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, id:int=None, name:str=None, enforcement:str=None, configuration_url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._id = id
         self._name = name
         self._enforcement = enforcement
@@ -29946,8 +29952,8 @@ class RepositoryPreReceiveHook(ResponseBase):
 ##
 class TeamSimple(ResponseBase):
     """Groups of organization members that gives permissions on specified repositories. """
-    def __init__(self, slug:str, repositories_url:str, html_url:str, permission:str, description:str, name:str, members_url:str, url:str, node_id:str, id:int, privacy:str=None, ldap_dn:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, slug:str, repositories_url:str, html_url:str, permission:str, description:str, name:str, members_url:str, url:str, node_id:str, id:int, privacy:str=None, ldap_dn:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._slug = slug
         self._repositories_url = repositories_url
         self._html_url = html_url
@@ -30054,8 +30060,8 @@ class TeamSimple(ResponseBase):
 ##
 ##
 class Pullrequest_labels(ResponseBase):
-    def __init__(self, default:bool, color:str, description:str, name:str, url:str, node_id:str, id:int):
-        ResponseBase.__init__(self)
+    def __init__(self, default:bool, color:str, description:str, name:str, url:str, node_id:str, id:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._default = default
         self._color = color
         self._description = description
@@ -30122,8 +30128,8 @@ class Pullrequest_labels(ResponseBase):
 ##
 ##
 class Pullrequest_head_repo_owner(ResponseBase):
-    def __init__(self, url:str, type:str, subscriptions_url:str, starred_url:str, site_admin:bool, repos_url:str, received_events_url:str, organizations_url:str, login:str, node_id:str, id:int, html_url:str, gravatar_id:str, gists_url:str, following_url:str, followers_url:str, events_url:str, avatar_url:str):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str, type:str, subscriptions_url:str, starred_url:str, site_admin:bool, repos_url:str, received_events_url:str, organizations_url:str, login:str, node_id:str, id:int, html_url:str, gravatar_id:str, gists_url:str, following_url:str, followers_url:str, events_url:str, avatar_url:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._type = type
         self._subscriptions_url = subscriptions_url
@@ -30278,8 +30284,8 @@ class Pullrequest_head_repo_owner(ResponseBase):
 ##
 ##
 class Pullrequest_head_repo_permissions(ResponseBase):
-    def __init__(self, pull:bool, push:bool, admin:bool, maintain:bool=None, triage:bool=None):
-        ResponseBase.__init__(self)
+    def __init__(self, pull:bool, push:bool, admin:bool, maintain:bool=None, triage:bool=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._pull = pull
         self._push = push
         self._admin = admin
@@ -30330,8 +30336,8 @@ class Pullrequest_head_repo_permissions(ResponseBase):
 ##
 ##
 class Pullrequest_head_repo_license(ResponseBase):
-    def __init__(self, node_id:str, spdx_id:str, url:str, name:str, key:str):
-        ResponseBase.__init__(self)
+    def __init__(self, node_id:str, spdx_id:str, url:str, name:str, key:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._node_id = node_id
         self._spdx_id = spdx_id
         self._url = url
@@ -30382,8 +30388,8 @@ class Pullrequest_head_repo_license(ResponseBase):
 ##
 ##
 class Pullrequest_head_repo(ResponseBase):
-    def __init__(self, updated_at:datetime, created_at:datetime, watchers_count:int, watchers:int, svn_url:str, stargazers_count:int, ssh_url:str, size:int, pushed_at:datetime, license:dict, open_issues_count:int, open_issues:int, mirror_url:str, disabled:bool, archived:bool, language:str, homepage:str, has_pages:bool, has_wiki:bool, has_projects:bool, has_issues:bool, has_downloads:bool, git_url:str, forks_count:int, forks:int, default_branch:str, clone_url:str, url:str, trees_url:str, teams_url:str, tags_url:str, subscription_url:str, subscribers_url:str, statuses_url:str, stargazers_url:str, releases_url:str, pulls_url:str, private:bool, owner:dict, notifications_url:str, name:str, milestones_url:str, merges_url:str, languages_url:str, labels_url:str, keys_url:str, issues_url:str, issue_events_url:str, issue_comment_url:str, node_id:str, id:int, html_url:str, hooks_url:str, git_tags_url:str, git_refs_url:str, git_commits_url:str, full_name:str, forks_url:str, fork:bool, events_url:str, downloads_url:str, description:str, deployments_url:str, contributors_url:str, contents_url:str, compare_url:str, commits_url:str, comments_url:str, collaborators_url:str, branches_url:str, blobs_url:str, assignees_url:str, archive_url:str, master_branch:str=None, visibility:str=None, permissions:dict=None, temp_clone_token:str=None, allow_merge_commit:bool=None, allow_squash_merge:bool=None, allow_rebase_merge:bool=None, topics:list=None, allow_forking:bool=None, is_template:bool=None):
-        ResponseBase.__init__(self)
+    def __init__(self, updated_at:datetime, created_at:datetime, watchers_count:int, watchers:int, svn_url:str, stargazers_count:int, ssh_url:str, size:int, pushed_at:datetime, license:dict, open_issues_count:int, open_issues:int, mirror_url:str, disabled:bool, archived:bool, language:str, homepage:str, has_pages:bool, has_wiki:bool, has_projects:bool, has_issues:bool, has_downloads:bool, git_url:str, forks_count:int, forks:int, default_branch:str, clone_url:str, url:str, trees_url:str, teams_url:str, tags_url:str, subscription_url:str, subscribers_url:str, statuses_url:str, stargazers_url:str, releases_url:str, pulls_url:str, private:bool, owner:dict, notifications_url:str, name:str, milestones_url:str, merges_url:str, languages_url:str, labels_url:str, keys_url:str, issues_url:str, issue_events_url:str, issue_comment_url:str, node_id:str, id:int, html_url:str, hooks_url:str, git_tags_url:str, git_refs_url:str, git_commits_url:str, full_name:str, forks_url:str, fork:bool, events_url:str, downloads_url:str, description:str, deployments_url:str, contributors_url:str, contents_url:str, compare_url:str, commits_url:str, comments_url:str, collaborators_url:str, branches_url:str, blobs_url:str, assignees_url:str, archive_url:str, master_branch:str=None, visibility:str=None, permissions:dict=None, temp_clone_token:str=None, allow_merge_commit:bool=None, allow_squash_merge:bool=None, allow_rebase_merge:bool=None, topics:list=None, allow_forking:bool=None, is_template:bool=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._updated_at = updated_at
         self._created_at = created_at
         self._watchers_count = watchers_count
@@ -31058,8 +31064,8 @@ class Pullrequest_head_repo(ResponseBase):
 ##
 ##
 class Pullrequest_head_user(ResponseBase):
-    def __init__(self, url:str, type:str, subscriptions_url:str, starred_url:str, site_admin:bool, repos_url:str, received_events_url:str, organizations_url:str, login:str, node_id:str, id:int, html_url:str, gravatar_id:str, gists_url:str, following_url:str, followers_url:str, events_url:str, avatar_url:str):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str, type:str, subscriptions_url:str, starred_url:str, site_admin:bool, repos_url:str, received_events_url:str, organizations_url:str, login:str, node_id:str, id:int, html_url:str, gravatar_id:str, gists_url:str, following_url:str, followers_url:str, events_url:str, avatar_url:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._type = type
         self._subscriptions_url = subscriptions_url
@@ -31214,8 +31220,8 @@ class Pullrequest_head_user(ResponseBase):
 ##
 ##
 class Pullrequest_head(ResponseBase):
-    def __init__(self, user:dict, sha:str, repo:dict, ref:str, label:str):
-        ResponseBase.__init__(self)
+    def __init__(self, user:dict, sha:str, repo:dict, ref:str, label:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._user = user
         self._sha = sha
         self._repo = repo
@@ -31266,8 +31272,8 @@ class Pullrequest_head(ResponseBase):
 ##
 ##
 class Pullrequest_base_repo_owner(ResponseBase):
-    def __init__(self, url:str, type:str, subscriptions_url:str, starred_url:str, site_admin:bool, repos_url:str, received_events_url:str, organizations_url:str, login:str, node_id:str, id:int, html_url:str, gravatar_id:str, gists_url:str, following_url:str, followers_url:str, events_url:str, avatar_url:str):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str, type:str, subscriptions_url:str, starred_url:str, site_admin:bool, repos_url:str, received_events_url:str, organizations_url:str, login:str, node_id:str, id:int, html_url:str, gravatar_id:str, gists_url:str, following_url:str, followers_url:str, events_url:str, avatar_url:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._type = type
         self._subscriptions_url = subscriptions_url
@@ -31422,8 +31428,8 @@ class Pullrequest_base_repo_owner(ResponseBase):
 ##
 ##
 class Pullrequest_base_repo_permissions(ResponseBase):
-    def __init__(self, pull:bool, push:bool, admin:bool, maintain:bool=None, triage:bool=None):
-        ResponseBase.__init__(self)
+    def __init__(self, pull:bool, push:bool, admin:bool, maintain:bool=None, triage:bool=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._pull = pull
         self._push = push
         self._admin = admin
@@ -31474,8 +31480,8 @@ class Pullrequest_base_repo_permissions(ResponseBase):
 ##
 ##
 class Pullrequest_base_repo(ResponseBase):
-    def __init__(self, updated_at:datetime, created_at:datetime, watchers_count:int, watchers:int, svn_url:str, stargazers_count:int, ssh_url:str, size:int, pushed_at:datetime, license:dict, open_issues_count:int, open_issues:int, mirror_url:str, disabled:bool, archived:bool, language:str, homepage:str, has_pages:bool, has_wiki:bool, has_projects:bool, has_issues:bool, has_downloads:bool, git_url:str, forks_count:int, forks:int, default_branch:str, clone_url:str, url:str, trees_url:str, teams_url:str, tags_url:str, subscription_url:str, subscribers_url:str, statuses_url:str, stargazers_url:str, releases_url:str, pulls_url:str, private:bool, owner:dict, notifications_url:str, name:str, milestones_url:str, merges_url:str, languages_url:str, labels_url:str, keys_url:str, issues_url:str, issue_events_url:str, issue_comment_url:str, node_id:str, id:int, html_url:str, hooks_url:str, git_tags_url:str, git_refs_url:str, git_commits_url:str, full_name:str, forks_url:str, fork:bool, events_url:str, downloads_url:str, description:str, deployments_url:str, contributors_url:str, contents_url:str, compare_url:str, commits_url:str, comments_url:str, collaborators_url:str, branches_url:str, blobs_url:str, assignees_url:str, archive_url:str, is_template:bool=None, master_branch:str=None, visibility:str=None, permissions:dict=None, temp_clone_token:str=None, allow_merge_commit:bool=None, allow_squash_merge:bool=None, allow_rebase_merge:bool=None, topics:list=None, allow_forking:bool=None):
-        ResponseBase.__init__(self)
+    def __init__(self, updated_at:datetime, created_at:datetime, watchers_count:int, watchers:int, svn_url:str, stargazers_count:int, ssh_url:str, size:int, pushed_at:datetime, license:dict, open_issues_count:int, open_issues:int, mirror_url:str, disabled:bool, archived:bool, language:str, homepage:str, has_pages:bool, has_wiki:bool, has_projects:bool, has_issues:bool, has_downloads:bool, git_url:str, forks_count:int, forks:int, default_branch:str, clone_url:str, url:str, trees_url:str, teams_url:str, tags_url:str, subscription_url:str, subscribers_url:str, statuses_url:str, stargazers_url:str, releases_url:str, pulls_url:str, private:bool, owner:dict, notifications_url:str, name:str, milestones_url:str, merges_url:str, languages_url:str, labels_url:str, keys_url:str, issues_url:str, issue_events_url:str, issue_comment_url:str, node_id:str, id:int, html_url:str, hooks_url:str, git_tags_url:str, git_refs_url:str, git_commits_url:str, full_name:str, forks_url:str, fork:bool, events_url:str, downloads_url:str, description:str, deployments_url:str, contributors_url:str, contents_url:str, compare_url:str, commits_url:str, comments_url:str, collaborators_url:str, branches_url:str, blobs_url:str, assignees_url:str, archive_url:str, is_template:bool=None, master_branch:str=None, visibility:str=None, permissions:dict=None, temp_clone_token:str=None, allow_merge_commit:bool=None, allow_squash_merge:bool=None, allow_rebase_merge:bool=None, topics:list=None, allow_forking:bool=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._updated_at = updated_at
         self._created_at = created_at
         self._watchers_count = watchers_count
@@ -32150,8 +32156,8 @@ class Pullrequest_base_repo(ResponseBase):
 ##
 ##
 class Pullrequest_base_user(ResponseBase):
-    def __init__(self, url:str, type:str, subscriptions_url:str, starred_url:str, site_admin:bool, repos_url:str, received_events_url:str, organizations_url:str, login:str, node_id:str, id:int, html_url:str, gravatar_id:str, gists_url:str, following_url:str, followers_url:str, events_url:str, avatar_url:str):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str, type:str, subscriptions_url:str, starred_url:str, site_admin:bool, repos_url:str, received_events_url:str, organizations_url:str, login:str, node_id:str, id:int, html_url:str, gravatar_id:str, gists_url:str, following_url:str, followers_url:str, events_url:str, avatar_url:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._type = type
         self._subscriptions_url = subscriptions_url
@@ -32306,8 +32312,8 @@ class Pullrequest_base_user(ResponseBase):
 ##
 ##
 class Pullrequest_base(ResponseBase):
-    def __init__(self, user:dict, sha:str, repo:dict, ref:str, label:str):
-        ResponseBase.__init__(self)
+    def __init__(self, user:dict, sha:str, repo:dict, ref:str, label:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._user = user
         self._sha = sha
         self._repo = repo
@@ -32358,8 +32364,8 @@ class Pullrequest_base(ResponseBase):
 ##
 ##
 class Pullrequest__links(ResponseBase):
-    def __init__(self, Self:dict, review_comment:dict, review_comments:dict, issue:dict, html:dict, statuses:dict, commits:dict, comments:dict):
-        ResponseBase.__init__(self)
+    def __init__(self, Self:dict, review_comment:dict, review_comments:dict, issue:dict, html:dict, statuses:dict, commits:dict, comments:dict, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._Self = Self
         self._review_comment = review_comment
         self._review_comments = review_comments
@@ -32446,8 +32452,8 @@ class Pullrequest__links(ResponseBase):
 ##
 class PullRequest(ResponseBase):
     """Pull requests let you tell others about changes you've pushed to a repository on GitHub. Once a pull request is sent, interested parties can review the set of changes, discuss potential modifications, and even push follow-up commits if necessary. """
-    def __init__(self, changed_files:int, deletions:int, additions:int, commits:int, maintainer_can_modify:bool, review_comments:int, comments:int, merged_by:dict, mergeable_state:str, mergeable:bool, merged:bool, auto_merge:dict, author_association:str, _links:dict, base:dict, head:dict, assignee:dict, merge_commit_sha:str, merged_at:datetime, closed_at:datetime, updated_at:datetime, created_at:datetime, milestone:dict, labels:list, body:str, user:dict, title:str, locked:bool, state:str, number:int, statuses_url:str, comments_url:str, review_comment_url:str, review_comments_url:str, commits_url:str, issue_url:str, patch_url:str, diff_url:str, html_url:str, node_id:str, id:int, url:str, active_lock_reason:str=None, assignees:list=None, requested_reviewers:list=None, requested_teams:list=None, draft:bool=None, rebaseable:bool=None):
-        ResponseBase.__init__(self)
+    def __init__(self, changed_files:int, deletions:int, additions:int, commits:int, maintainer_can_modify:bool, review_comments:int, comments:int, merged_by:dict, mergeable_state:str, mergeable:bool, merged:bool, auto_merge:dict, author_association:str, _links:dict, base:dict, head:dict, assignee:dict, merge_commit_sha:str, merged_at:datetime, closed_at:datetime, updated_at:datetime, created_at:datetime, milestone:dict, labels:list, body:str, user:dict, title:str, locked:bool, state:str, number:int, statuses_url:str, comments_url:str, review_comment_url:str, review_comments_url:str, commits_url:str, issue_url:str, patch_url:str, diff_url:str, html_url:str, node_id:str, id:int, url:str, active_lock_reason:str=None, assignees:list=None, requested_reviewers:list=None, requested_teams:list=None, draft:bool=None, rebaseable:bool=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._changed_files = changed_files
         self._deletions = deletions
         self._additions = additions
@@ -32843,8 +32849,8 @@ class PullRequest(ResponseBase):
 ##
 class PullRequestMergeResult(ResponseBase):
     """Pull Request Merge Result """
-    def __init__(self, message:str, merged:bool, sha:str):
-        ResponseBase.__init__(self)
+    def __init__(self, message:str, merged:bool, sha:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._message = message
         self._merged = merged
         self._sha = sha
@@ -32880,8 +32886,8 @@ class PullRequestMergeResult(ResponseBase):
 ##
 class PullRequestReviewRequest(ResponseBase):
     """Pull Request Review Request """
-    def __init__(self, teams:list, users:list):
-        ResponseBase.__init__(self)
+    def __init__(self, teams:list, users:list, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._teams = teams
         self._users = users
         return
@@ -32908,8 +32914,8 @@ class PullRequestReviewRequest(ResponseBase):
 ##
 ##
 class Pullrequestreview__links_html(ResponseBase):
-    def __init__(self, href:str):
-        ResponseBase.__init__(self)
+    def __init__(self, href:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._href = href
         return
         
@@ -32928,8 +32934,8 @@ class Pullrequestreview__links_html(ResponseBase):
 ##
 ##
 class Pullrequestreview__links_pull_request(ResponseBase):
-    def __init__(self, href:str):
-        ResponseBase.__init__(self)
+    def __init__(self, href:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._href = href
         return
         
@@ -32948,8 +32954,8 @@ class Pullrequestreview__links_pull_request(ResponseBase):
 ##
 ##
 class Pullrequestreview__links(ResponseBase):
-    def __init__(self, pull_request:dict, html:dict):
-        ResponseBase.__init__(self)
+    def __init__(self, pull_request:dict, html:dict, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._pull_request = pull_request
         self._html = html
         return
@@ -32977,8 +32983,8 @@ class Pullrequestreview__links(ResponseBase):
 ##
 class PullRequestReview(ResponseBase):
     """Pull Request Reviews are reviews on pull requests. """
-    def __init__(self, author_association:str, commit_id:str, _links:dict, pull_request_url:str, html_url:str, state:str, body:str, user:dict, node_id:str, id:int, submitted_at:datetime=None, body_html:str=None, body_text:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, author_association:str, commit_id:str, _links:dict, pull_request_url:str, html_url:str, state:str, body:str, user:dict, node_id:str, id:int, submitted_at:datetime=None, body_html:str=None, body_text:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._author_association = author_association
         self._commit_id = commit_id
         self.__links = _links
@@ -33093,8 +33099,8 @@ class PullRequestReview(ResponseBase):
 ##
 ##
 class Legacyreviewcomment__links(ResponseBase):
-    def __init__(self, pull_request:dict, html:dict, Self:dict):
-        ResponseBase.__init__(self)
+    def __init__(self, pull_request:dict, html:dict, Self:dict, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._pull_request = pull_request
         self._html = html
         self._Self = Self
@@ -33141,8 +33147,8 @@ class Legacyreviewcomment__links(ResponseBase):
 ##
 class LegacyReviewComment(ResponseBase):
     """Legacy Review Comment """
-    def __init__(self, _links:dict, author_association:str, pull_request_url:str, html_url:str, updated_at:datetime, created_at:datetime, body:str, user:dict, original_commit_id:str, commit_id:str, original_position:int, position:int, path:str, diff_hunk:str, node_id:str, id:int, pull_request_review_id:int, url:str, in_reply_to_id:int=None, body_text:str=None, body_html:str=None, reactions:dict=None, side:str='RIGHT', start_side:str='RIGHT', line:int=None, original_line:int=None, start_line:int=None, original_start_line:int=None):
-        ResponseBase.__init__(self)
+    def __init__(self, _links:dict, author_association:str, pull_request_url:str, html_url:str, updated_at:datetime, created_at:datetime, body:str, user:dict, original_commit_id:str, commit_id:str, original_position:int, position:int, path:str, diff_hunk:str, node_id:str, id:int, pull_request_review_id:int, url:str, in_reply_to_id:int=None, body_text:str=None, body_html:str=None, reactions:dict=None, side:str='RIGHT', start_side:str='RIGHT', line:int=None, original_line:int=None, start_line:int=None, original_start_line:int=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self.__links = _links
         self._author_association = author_association
         self._pull_request_url = pull_request_url
@@ -33378,8 +33384,8 @@ class LegacyReviewComment(ResponseBase):
 ##
 class ReleaseAsset(ResponseBase):
     """Data related to a release. """
-    def __init__(self, uploader:dict, updated_at:datetime, created_at:datetime, download_count:int, size:int, content_type:str, state:str, label:str, name:str, node_id:str, id:int, browser_download_url:str, url:str):
-        ResponseBase.__init__(self)
+    def __init__(self, uploader:dict, updated_at:datetime, created_at:datetime, download_count:int, size:int, content_type:str, state:str, label:str, name:str, node_id:str, id:int, browser_download_url:str, url:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._uploader = uploader
         self._updated_at = updated_at
         self._created_at = created_at
@@ -33495,8 +33501,8 @@ class ReleaseAsset(ResponseBase):
 ##
 class Release(ResponseBase):
     """A release. """
-    def __init__(self, assets:list, author:dict, published_at:datetime, created_at:datetime, prerelease:bool, draft:bool, name:str, target_commitish:str, tag_name:str, node_id:str, id:int, zipball_url:str, tarball_url:str, upload_url:str, assets_url:str, html_url:str, url:str, body:str=None, body_html:str=None, body_text:str=None, mentions_count:int=None, reactions:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, assets:list, author:dict, published_at:datetime, created_at:datetime, prerelease:bool, draft:bool, name:str, target_commitish:str, tag_name:str, node_id:str, id:int, zipball_url:str, tarball_url:str, upload_url:str, assets_url:str, html_url:str, url:str, body:str=None, body_html:str=None, body_text:str=None, mentions_count:int=None, reactions:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._assets = assets
         self._author = author
         self._published_at = published_at
@@ -33684,8 +33690,8 @@ class Release(ResponseBase):
 ##
 class GeneratedReleaseNotesContent(ResponseBase):
     """Generated name and body describing a release """
-    def __init__(self, body:str, name:str):
-        ResponseBase.__init__(self)
+    def __init__(self, body:str, name:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._body = body
         self._name = name
         return
@@ -33712,8 +33718,8 @@ class GeneratedReleaseNotesContent(ResponseBase):
 ##
 ##
 class SecretScanningAlert(ResponseBase):
-    def __init__(self, number:int=None, created_at:datetime=None, url:str=None, html_url:str=None, locations_url:str=None, state:str=None, resolution:str=None, resolved_at:datetime=None, resolved_by:dict=None, secret_type:str=None, secret:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, number:int=None, created_at:datetime=None, url:str=None, html_url:str=None, locations_url:str=None, state:str=None, resolution:str=None, resolved_at:datetime=None, resolved_by:dict=None, secret_type:str=None, secret:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._number = number
         self._created_at = created_at
         self._url = url
@@ -33813,8 +33819,8 @@ class SecretScanningAlert(ResponseBase):
 ##
 class SecretScanningLocationCommit(ResponseBase):
     """Represents a 'commit' secret scanning location type. This location type shows that a secret was detected inside a commit to a repository. """
-    def __init__(self, commit_url:str, commit_sha:str, blob_url:str, blob_sha:str, end_column:int, start_column:int, end_line:int, start_line:int, path:str):
-        ResponseBase.__init__(self)
+    def __init__(self, commit_url:str, commit_sha:str, blob_url:str, blob_sha:str, end_column:int, start_column:int, end_line:int, start_line:int, path:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._commit_url = commit_url
         self._commit_sha = commit_sha
         self._blob_url = blob_url
@@ -33897,8 +33903,8 @@ class SecretScanningLocationCommit(ResponseBase):
 ##
 ##
 class SecretScanningLocation(ResponseBase):
-    def __init__(self, details, type:str):
-        ResponseBase.__init__(self)
+    def __init__(self, details, type:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._details = details
         self._type = type
         return
@@ -33926,8 +33932,8 @@ class SecretScanningLocation(ResponseBase):
 ##
 class Stargazer(ResponseBase):
     """Stargazer """
-    def __init__(self, user:dict, starred_at:datetime):
-        ResponseBase.__init__(self)
+    def __init__(self, user:dict, starred_at:datetime, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._user = user
         self._starred_at = starred_at
         return
@@ -33955,8 +33961,8 @@ class Stargazer(ResponseBase):
 ##
 class CommitActivity(ResponseBase):
     """Commit Activity """
-    def __init__(self, week:int, total:int, days:list):
-        ResponseBase.__init__(self)
+    def __init__(self, week:int, total:int, days:list, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._week = week
         self._total = total
         self._days = days
@@ -33991,8 +33997,8 @@ class CommitActivity(ResponseBase):
 ##
 ##
 class Contributoractivity_weeks(ResponseBase):
-    def __init__(self, w:int=None, a:int=None, d:int=None, c:int=None):
-        ResponseBase.__init__(self)
+    def __init__(self, w:int=None, a:int=None, d:int=None, c:int=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._w = w
         self._a = a
         self._d = d
@@ -34036,8 +34042,8 @@ class Contributoractivity_weeks(ResponseBase):
 ##
 class ContributorActivity(ResponseBase):
     """Contributor Activity """
-    def __init__(self, weeks:list, total:int, author:dict):
-        ResponseBase.__init__(self)
+    def __init__(self, weeks:list, total:int, author:dict, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._weeks = weeks
         self._total = total
         self._author = author
@@ -34072,8 +34078,8 @@ class ContributorActivity(ResponseBase):
 ##
 ##
 class ParticipationStats(ResponseBase):
-    def __init__(self, owner:list, all:list):
-        ResponseBase.__init__(self)
+    def __init__(self, owner:list, all:list, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._owner = owner
         self._all = all
         return
@@ -34101,8 +34107,8 @@ class ParticipationStats(ResponseBase):
 ##
 class RepositoryInvitation(ResponseBase):
     """Repository invitations let you manage who you collaborate with. """
-    def __init__(self, repository_url:str, url:str, created_at:datetime, reason:str, ignored:bool, subscribed:bool):
-        ResponseBase.__init__(self)
+    def __init__(self, repository_url:str, url:str, created_at:datetime, reason:str, ignored:bool, subscribed:bool, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._repository_url = repository_url
         self._url = url
         self._created_at = created_at
@@ -34161,8 +34167,8 @@ class RepositoryInvitation(ResponseBase):
 ##
 ##
 class Tag_commit(ResponseBase):
-    def __init__(self, url:str, sha:str):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str, sha:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._sha = sha
         return
@@ -34190,8 +34196,8 @@ class Tag_commit(ResponseBase):
 ##
 class Tag(ResponseBase):
     """Tag """
-    def __init__(self, node_id:str, tarball_url:str, zipball_url:str, commit:dict, name:str):
-        ResponseBase.__init__(self)
+    def __init__(self, node_id:str, tarball_url:str, zipball_url:str, commit:dict, name:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._node_id = node_id
         self._tarball_url = tarball_url
         self._zipball_url = zipball_url
@@ -34243,8 +34249,8 @@ class Tag(ResponseBase):
 ##
 class Topic(ResponseBase):
     """A topic aggregates entities that are related to a subject. """
-    def __init__(self, names:list):
-        ResponseBase.__init__(self)
+    def __init__(self, names:list, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._names = names
         return
         
@@ -34263,8 +34269,8 @@ class Topic(ResponseBase):
 ##
 ##
 class Searchresulttextmatches_matches(ResponseBase):
-    def __init__(self, text:str=None, indices:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, text:str=None, indices:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._text = text
         self._indices = indices
         return
@@ -34291,8 +34297,8 @@ class Searchresulttextmatches_matches(ResponseBase):
 ##
 ##
 class Searchresulttextmatches(ResponseBase):
-    def __init__(self, object_url:str=None, object_type:str=None, Property:str=None, fragment:str=None, matches:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, object_url:str=None, object_type:str=None, Property:str=None, fragment:str=None, matches:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._object_url = object_url
         self._object_type = object_type
         self._Property = Property
@@ -34355,8 +34361,8 @@ class Searchresulttextmatches(ResponseBase):
 ##
 class CodeSearchResultItem(ResponseBase):
     """Code Search Result Item """
-    def __init__(self, score:int, repository:dict, html_url:str, git_url:str, url:str, sha:str, path:str, name:str, file_size:int=None, language:str=None, last_modified_at:datetime=None, line_numbers:list=None, text_matches:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, score:int, repository:dict, html_url:str, git_url:str, url:str, sha:str, path:str, name:str, file_size:int=None, language:str=None, last_modified_at:datetime=None, line_numbers:list=None, text_matches:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._score = score
         self._repository = repository
         self._html_url = html_url
@@ -34471,8 +34477,8 @@ class CodeSearchResultItem(ResponseBase):
 ##
 ##
 class Commitsearchresultitem_commit_author(ResponseBase):
-    def __init__(self, date:datetime, email:str, name:str):
-        ResponseBase.__init__(self)
+    def __init__(self, date:datetime, email:str, name:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._date = date
         self._email = email
         self._name = name
@@ -34507,8 +34513,8 @@ class Commitsearchresultitem_commit_author(ResponseBase):
 ##
 ##
 class Commitsearchresultitem_commit_tree(ResponseBase):
-    def __init__(self, url:str, sha:str):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str, sha:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._sha = sha
         return
@@ -34535,8 +34541,8 @@ class Commitsearchresultitem_commit_tree(ResponseBase):
 ##
 ##
 class Commitsearchresultitem_commit(ResponseBase):
-    def __init__(self, url:str, tree:dict, message:str, comment_count:int, committer:dict, author:dict, verification:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str, tree:dict, message:str, comment_count:int, committer:dict, author:dict, verification:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._tree = tree
         self._message = message
@@ -34603,8 +34609,8 @@ class Commitsearchresultitem_commit(ResponseBase):
 ##
 ##
 class Commitsearchresultitem_parents(ResponseBase):
-    def __init__(self, url:str=None, html_url:str=None, sha:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str=None, html_url:str=None, sha:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._html_url = html_url
         self._sha = sha
@@ -34640,8 +34646,8 @@ class Commitsearchresultitem_parents(ResponseBase):
 ##
 class CommitSearchResultItem(ResponseBase):
     """Commit Search Result Item """
-    def __init__(self, node_id:str, score:int, repository:dict, parents:list, committer:dict, author:dict, commit:dict, comments_url:str, html_url:str, sha:str, url:str, text_matches:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, node_id:str, score:int, repository:dict, parents:list, committer:dict, author:dict, commit:dict, comments_url:str, html_url:str, sha:str, url:str, text_matches:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._node_id = node_id
         self._score = score
         self._repository = repository
@@ -34748,8 +34754,8 @@ class CommitSearchResultItem(ResponseBase):
 ##
 ##
 class Issuesearchresultitem_labels(ResponseBase):
-    def __init__(self, id:int=None, node_id:str=None, url:str=None, name:str=None, color:str=None, default:bool=None, description:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, id:int=None, node_id:str=None, url:str=None, name:str=None, color:str=None, default:bool=None, description:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._id = id
         self._node_id = node_id
         self._url = url
@@ -34816,8 +34822,8 @@ class Issuesearchresultitem_labels(ResponseBase):
 ##
 ##
 class Issuesearchresultitem_pull_request(ResponseBase):
-    def __init__(self, url:str, patch_url:str, html_url:str, diff_url:str, merged_at:datetime=None):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str, patch_url:str, html_url:str, diff_url:str, merged_at:datetime=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._patch_url = patch_url
         self._html_url = html_url
@@ -34869,8 +34875,8 @@ class Issuesearchresultitem_pull_request(ResponseBase):
 ##
 class IssueSearchResultItem(ResponseBase):
     """Issue Search Result Item """
-    def __init__(self, author_association:str, score:int, closed_at:datetime, updated_at:datetime, created_at:datetime, comments:int, milestone:dict, assignee:dict, state:str, labels:list, user:dict, locked:bool, title:str, number:int, node_id:str, id:int, html_url:str, events_url:str, comments_url:str, labels_url:str, repository_url:str, url:str, active_lock_reason:str=None, assignees:list=None, text_matches:list=None, pull_request:dict=None, body:str=None, draft:bool=None, repository:dict=None, body_html:str=None, body_text:str=None, timeline_url:str=None, performed_via_github_app:dict=None, reactions:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, author_association:str, score:int, closed_at:datetime, updated_at:datetime, created_at:datetime, comments:int, milestone:dict, assignee:dict, state:str, labels:list, user:dict, locked:bool, title:str, number:int, node_id:str, id:int, html_url:str, events_url:str, comments_url:str, labels_url:str, repository_url:str, url:str, active_lock_reason:str=None, assignees:list=None, text_matches:list=None, pull_request:dict=None, body:str=None, draft:bool=None, repository:dict=None, body_html:str=None, body_text:str=None, timeline_url:str=None, performed_via_github_app:dict=None, reactions:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._author_association = author_association
         self._score = score
         self._closed_at = closed_at
@@ -35154,8 +35160,8 @@ class IssueSearchResultItem(ResponseBase):
 ##
 class LabelSearchResultItem(ResponseBase):
     """Label Search Result Item """
-    def __init__(self, score:int, description:str, default:bool, color:str, name:str, url:str, node_id:str, id:int, text_matches:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, score:int, description:str, default:bool, color:str, name:str, url:str, node_id:str, id:int, text_matches:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._score = score
         self._description = description
         self._default = default
@@ -35238,8 +35244,8 @@ class LabelSearchResultItem(ResponseBase):
 ##
 ##
 class Reposearchresultitem_permissions(ResponseBase):
-    def __init__(self, pull:bool, push:bool, admin:bool, maintain:bool=None, triage:bool=None):
-        ResponseBase.__init__(self)
+    def __init__(self, pull:bool, push:bool, admin:bool, maintain:bool=None, triage:bool=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._pull = pull
         self._push = push
         self._admin = admin
@@ -35291,8 +35297,8 @@ class Reposearchresultitem_permissions(ResponseBase):
 ##
 class RepoSearchResultItem(ResponseBase):
     """Repo Search Result Item """
-    def __init__(self, license:dict, disabled:bool, archived:bool, has_downloads:bool, has_wiki:bool, has_pages:bool, has_projects:bool, has_issues:bool, mirror_url:str, watchers:int, open_issues:int, forks:int, svn_url:str, clone_url:str, ssh_url:str, git_url:str, deployments_url:str, releases_url:str, labels_url:str, notifications_url:str, milestones_url:str, pulls_url:str, issues_url:str, downloads_url:str, archive_url:str, merges_url:str, compare_url:str, contents_url:str, issue_comment_url:str, comments_url:str, git_commits_url:str, commits_url:str, subscription_url:str, subscribers_url:str, contributors_url:str, stargazers_url:str, languages_url:str, statuses_url:str, trees_url:str, git_refs_url:str, git_tags_url:str, blobs_url:str, tags_url:str, branches_url:str, assignees_url:str, events_url:str, issue_events_url:str, hooks_url:str, teams_url:str, collaborators_url:str, keys_url:str, forks_url:str, score:int, default_branch:str, open_issues_count:int, forks_count:int, language:str, watchers_count:int, stargazers_count:int, size:int, homepage:str, pushed_at:datetime, updated_at:datetime, created_at:datetime, url:str, fork:bool, description:str, html_url:str, private:bool, owner:dict, full_name:str, name:str, node_id:str, id:int, master_branch:str=None, topics:list=None, visibility:str=None, permissions:dict=None, text_matches:list=None, temp_clone_token:str=None, allow_merge_commit:bool=None, allow_squash_merge:bool=None, allow_rebase_merge:bool=None, allow_auto_merge:bool=None, delete_branch_on_merge:bool=None, allow_forking:bool=None, is_template:bool=None):
-        ResponseBase.__init__(self)
+    def __init__(self, license:dict, disabled:bool, archived:bool, has_downloads:bool, has_wiki:bool, has_pages:bool, has_projects:bool, has_issues:bool, mirror_url:str, watchers:int, open_issues:int, forks:int, svn_url:str, clone_url:str, ssh_url:str, git_url:str, deployments_url:str, releases_url:str, labels_url:str, notifications_url:str, milestones_url:str, pulls_url:str, issues_url:str, downloads_url:str, archive_url:str, merges_url:str, compare_url:str, contents_url:str, issue_comment_url:str, comments_url:str, git_commits_url:str, commits_url:str, subscription_url:str, subscribers_url:str, contributors_url:str, stargazers_url:str, languages_url:str, statuses_url:str, trees_url:str, git_refs_url:str, git_tags_url:str, blobs_url:str, tags_url:str, branches_url:str, assignees_url:str, events_url:str, issue_events_url:str, hooks_url:str, teams_url:str, collaborators_url:str, keys_url:str, forks_url:str, score:int, default_branch:str, open_issues_count:int, forks_count:int, language:str, watchers_count:int, stargazers_count:int, size:int, homepage:str, pushed_at:datetime, updated_at:datetime, created_at:datetime, url:str, fork:bool, description:str, html_url:str, private:bool, owner:dict, full_name:str, name:str, node_id:str, id:int, master_branch:str=None, topics:list=None, visibility:str=None, permissions:dict=None, text_matches:list=None, temp_clone_token:str=None, allow_merge_commit:bool=None, allow_squash_merge:bool=None, allow_rebase_merge:bool=None, allow_auto_merge:bool=None, delete_branch_on_merge:bool=None, allow_forking:bool=None, is_template:bool=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._license = license
         self._disabled = disabled
         self._archived = archived
@@ -35999,8 +36005,8 @@ class RepoSearchResultItem(ResponseBase):
 ##
 ##
 class Topicsearchresultitem_related_topic_relation(ResponseBase):
-    def __init__(self, id:int=None, name:str=None, topic_id:int=None, relation_type:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, id:int=None, name:str=None, topic_id:int=None, relation_type:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._id = id
         self._name = name
         self._topic_id = topic_id
@@ -36043,8 +36049,8 @@ class Topicsearchresultitem_related_topic_relation(ResponseBase):
 ##
 ##
 class Topicsearchresultitem_related(ResponseBase):
-    def __init__(self, topic_relation:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, topic_relation:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._topic_relation = topic_relation
         return
         
@@ -36063,8 +36069,8 @@ class Topicsearchresultitem_related(ResponseBase):
 ##
 ##
 class Topicsearchresultitem_aliases_topic_relation(ResponseBase):
-    def __init__(self, id:int=None, name:str=None, topic_id:int=None, relation_type:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, id:int=None, name:str=None, topic_id:int=None, relation_type:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._id = id
         self._name = name
         self._topic_id = topic_id
@@ -36107,8 +36113,8 @@ class Topicsearchresultitem_aliases_topic_relation(ResponseBase):
 ##
 ##
 class Topicsearchresultitem_aliases(ResponseBase):
-    def __init__(self, topic_relation:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, topic_relation:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._topic_relation = topic_relation
         return
         
@@ -36128,8 +36134,8 @@ class Topicsearchresultitem_aliases(ResponseBase):
 ##
 class TopicSearchResultItem(ResponseBase):
     """Topic Search Result Item """
-    def __init__(self, score:int, curated:bool, featured:bool, updated_at:datetime, created_at:datetime, released:str, created_by:str, description:str, short_description:str, display_name:str, name:str, repository_count:int=None, logo_url:str=None, text_matches:list=None, related:list=None, aliases:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, score:int, curated:bool, featured:bool, updated_at:datetime, created_at:datetime, released:str, created_by:str, description:str, short_description:str, display_name:str, name:str, repository_count:int=None, logo_url:str=None, text_matches:list=None, related:list=None, aliases:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._score = score
         self._curated = curated
         self._featured = featured
@@ -36269,8 +36275,8 @@ class TopicSearchResultItem(ResponseBase):
 ##
 class UserSearchResultItem(ResponseBase):
     """User Search Result Item """
-    def __init__(self, site_admin:bool, events_url:str, starred_url:str, gists_url:str, following_url:str, score:int, type:str, received_events_url:str, repos_url:str, organizations_url:str, subscriptions_url:str, followers_url:str, html_url:str, url:str, gravatar_id:str, avatar_url:str, node_id:str, id:int, login:str, public_repos:int=None, public_gists:int=None, followers:int=None, following:int=None, created_at:datetime=None, updated_at:datetime=None, name:str=None, bio:str=None, email:str=None, location:str=None, hireable:bool=None, text_matches:list=None, blog:str=None, company:str=None, suspended_at:datetime=None):
-        ResponseBase.__init__(self)
+    def __init__(self, site_admin:bool, events_url:str, starred_url:str, gists_url:str, following_url:str, score:int, type:str, received_events_url:str, repos_url:str, organizations_url:str, subscriptions_url:str, followers_url:str, html_url:str, url:str, gravatar_id:str, avatar_url:str, node_id:str, id:int, login:str, public_repos:int=None, public_gists:int=None, followers:int=None, following:int=None, created_at:datetime=None, updated_at:datetime=None, name:str=None, bio:str=None, email:str=None, location:str=None, hireable:bool=None, text_matches:list=None, blog:str=None, company:str=None, suspended_at:datetime=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._site_admin = site_admin
         self._events_url = events_url
         self._starred_url = starred_url
@@ -36553,8 +36559,8 @@ class UserSearchResultItem(ResponseBase):
 ##
 ##
 class Configurationstatus_progress(ResponseBase):
-    def __init__(self, key:str, status:str):
-        ResponseBase.__init__(self)
+    def __init__(self, key:str, status:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._key = key
         self._status = status
         return
@@ -36581,8 +36587,8 @@ class Configurationstatus_progress(ResponseBase):
 ##
 ##
 class ConfigurationStatus(ResponseBase):
-    def __init__(self, status:str=None, progress:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, status:str=None, progress:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._status = status
         self._progress = progress
         return
@@ -36609,8 +36615,8 @@ class ConfigurationStatus(ResponseBase):
 ##
 ##
 class Maintenancestatus_connection_services(ResponseBase):
-    def __init__(self, number:int, name:str):
-        ResponseBase.__init__(self)
+    def __init__(self, number:int, name:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._number = number
         self._name = name
         return
@@ -36637,8 +36643,8 @@ class Maintenancestatus_connection_services(ResponseBase):
 ##
 ##
 class MaintenanceStatus(ResponseBase):
-    def __init__(self, status:str=None, scheduled_time:str=None, connection_services:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, status:str=None, scheduled_time:str=None, connection_services:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._status = status
         self._scheduled_time = scheduled_time
         self._connection_services = connection_services
@@ -36673,8 +36679,8 @@ class MaintenanceStatus(ResponseBase):
 ##
 ##
 class Enterprisesettings_enterprise_avatar(ResponseBase):
-    def __init__(self, enabled:bool=None, uri:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, enabled:bool=None, uri:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._enabled = enabled
         self._uri = uri
         return
@@ -36701,8 +36707,8 @@ class Enterprisesettings_enterprise_avatar(ResponseBase):
 ##
 ##
 class Enterprisesettings_enterprise_customer(ResponseBase):
-    def __init__(self, name:str=None, email:str=None, uuid:str=None, secret_key_data:str=None, public_key_data:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, name:str=None, email:str=None, uuid:str=None, secret_key_data:str=None, public_key_data:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._name = name
         self._email = email
         self._uuid = uuid
@@ -36753,8 +36759,8 @@ class Enterprisesettings_enterprise_customer(ResponseBase):
 ##
 ##
 class Enterprisesettings_enterprise_license(ResponseBase):
-    def __init__(self, seats:int=None, evaluation:bool=None, perpetual:bool=None, unlimited_seating:bool=None, support_key:str=None, ssh_allowed:bool=None, cluster_support:bool=None, expire_at:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, seats:int=None, evaluation:bool=None, perpetual:bool=None, unlimited_seating:bool=None, support_key:str=None, ssh_allowed:bool=None, cluster_support:bool=None, expire_at:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._seats = seats
         self._evaluation = evaluation
         self._perpetual = perpetual
@@ -36829,8 +36835,8 @@ class Enterprisesettings_enterprise_license(ResponseBase):
 ##
 ##
 class Enterprisesettings_enterprise_github_ssl(ResponseBase):
-    def __init__(self, enabled:bool=None, cert:str=None, key:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, enabled:bool=None, cert:str=None, key:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._enabled = enabled
         self._cert = cert
         self._key = key
@@ -36865,8 +36871,8 @@ class Enterprisesettings_enterprise_github_ssl(ResponseBase):
 ##
 ##
 class Enterprisesettings_enterprise_ldap_reconciliation(ResponseBase):
-    def __init__(self, user:str=None, org:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, user:str=None, org:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._user = user
         self._org = org
         return
@@ -36893,8 +36899,8 @@ class Enterprisesettings_enterprise_ldap_reconciliation(ResponseBase):
 ##
 ##
 class Enterprisesettings_enterprise_ldap_profile(ResponseBase):
-    def __init__(self, uid:str=None, name:str=None, mail:str=None, key:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, uid:str=None, name:str=None, mail:str=None, key:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._uid = uid
         self._name = name
         self._mail = mail
@@ -36937,8 +36943,8 @@ class Enterprisesettings_enterprise_ldap_profile(ResponseBase):
 ##
 ##
 class Enterprisesettings_enterprise_ldap(ResponseBase):
-    def __init__(self, host:str=None, port:int=None, base:list=None, uid:str=None, bind_dn:str=None, password:str=None, method:str=None, search_strategy:str=None, user_groups:list=None, admin_group:str=None, virtual_attribute_enabled:bool=None, recursive_group_search:bool=None, posix_support:bool=None, user_sync_emails:bool=None, user_sync_keys:bool=None, user_sync_interval:int=None, team_sync_interval:int=None, sync_enabled:bool=None, reconciliation:dict=None, profile:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, host:str=None, port:int=None, base:list=None, uid:str=None, bind_dn:str=None, password:str=None, method:str=None, search_strategy:str=None, user_groups:list=None, admin_group:str=None, virtual_attribute_enabled:bool=None, recursive_group_search:bool=None, posix_support:bool=None, user_sync_emails:bool=None, user_sync_keys:bool=None, user_sync_interval:int=None, team_sync_interval:int=None, sync_enabled:bool=None, reconciliation:dict=None, profile:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._host = host
         self._port = port
         self._base = base
@@ -37109,8 +37115,8 @@ class Enterprisesettings_enterprise_ldap(ResponseBase):
 ##
 ##
 class Enterprisesettings_enterprise_cas(ResponseBase):
-    def __init__(self, url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         return
         
@@ -37129,8 +37135,8 @@ class Enterprisesettings_enterprise_cas(ResponseBase):
 ##
 ##
 class Enterprisesettings_enterprise_saml(ResponseBase):
-    def __init__(self, sso_url:str=None, certificate:str=None, certificate_path:str=None, issuer:str=None, idp_initiated_sso:bool=None, disable_admin_demote:bool=None):
-        ResponseBase.__init__(self)
+    def __init__(self, sso_url:str=None, certificate:str=None, certificate_path:str=None, issuer:str=None, idp_initiated_sso:bool=None, disable_admin_demote:bool=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._sso_url = sso_url
         self._certificate = certificate
         self._certificate_path = certificate_path
@@ -37189,8 +37195,8 @@ class Enterprisesettings_enterprise_saml(ResponseBase):
 ##
 ##
 class Enterprisesettings_enterprise_github_oauth(ResponseBase):
-    def __init__(self, client_id:str=None, client_secret:str=None, organization_name:str=None, organization_team:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, client_id:str=None, client_secret:str=None, organization_name:str=None, organization_team:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._client_id = client_id
         self._client_secret = client_secret
         self._organization_name = organization_name
@@ -37233,8 +37239,8 @@ class Enterprisesettings_enterprise_github_oauth(ResponseBase):
 ##
 ##
 class Enterprisesettings_enterprise_smtp(ResponseBase):
-    def __init__(self, enabled:bool=None, address:str=None, authentication:str=None, port:str=None, domain:str=None, username:str=None, user_name:str=None, enable_starttls_auto:bool=None, password:str=None, discardtonoreplyaddress:bool=None, support_address:str=None, support_address_type:str=None, noreply_address:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, enabled:bool=None, address:str=None, authentication:str=None, port:str=None, domain:str=None, username:str=None, user_name:str=None, enable_starttls_auto:bool=None, password:str=None, discardtonoreplyaddress:bool=None, support_address:str=None, support_address_type:str=None, noreply_address:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._enabled = enabled
         self._address = address
         self._authentication = authentication
@@ -37360,8 +37366,8 @@ class Enterprisesettings_enterprise_smtp(ResponseBase):
 ##
 ##
 class Enterprisesettings_enterprise_ntp(ResponseBase):
-    def __init__(self, primary_server:str=None, secondary_server:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, primary_server:str=None, secondary_server:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._primary_server = primary_server
         self._secondary_server = secondary_server
         return
@@ -37388,8 +37394,8 @@ class Enterprisesettings_enterprise_ntp(ResponseBase):
 ##
 ##
 class Enterprisesettings_enterprise_snmp(ResponseBase):
-    def __init__(self, enabled:bool=None, community:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, enabled:bool=None, community:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._enabled = enabled
         self._community = community
         return
@@ -37416,8 +37422,8 @@ class Enterprisesettings_enterprise_snmp(ResponseBase):
 ##
 ##
 class Enterprisesettings_enterprise_syslog(ResponseBase):
-    def __init__(self, enabled:bool=None, server:str=None, protocol_name:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, enabled:bool=None, server:str=None, protocol_name:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._enabled = enabled
         self._server = server
         self._protocol_name = protocol_name
@@ -37452,8 +37458,8 @@ class Enterprisesettings_enterprise_syslog(ResponseBase):
 ##
 ##
 class Enterprisesettings_enterprise_pages(ResponseBase):
-    def __init__(self, enabled:bool=None):
-        ResponseBase.__init__(self)
+    def __init__(self, enabled:bool=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._enabled = enabled
         return
         
@@ -37472,8 +37478,8 @@ class Enterprisesettings_enterprise_pages(ResponseBase):
 ##
 ##
 class Enterprisesettings_enterprise_collectd(ResponseBase):
-    def __init__(self, enabled:bool=None, server:str=None, port:int=None, encryption:str=None, username:str=None, password:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, enabled:bool=None, server:str=None, port:int=None, encryption:str=None, username:str=None, password:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._enabled = enabled
         self._server = server
         self._port = port
@@ -37532,8 +37538,8 @@ class Enterprisesettings_enterprise_collectd(ResponseBase):
 ##
 ##
 class Enterprisesettings_enterprise_mapping(ResponseBase):
-    def __init__(self, enabled:bool=None, tileserver:str=None, basemap:str=None, token:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, enabled:bool=None, tileserver:str=None, basemap:str=None, token:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._enabled = enabled
         self._tileserver = tileserver
         self._basemap = basemap
@@ -37576,8 +37582,8 @@ class Enterprisesettings_enterprise_mapping(ResponseBase):
 ##
 ##
 class Enterprisesettings_enterprise(ResponseBase):
-    def __init__(self, private_mode:bool=None, public_pages:bool=None, subdomain_isolation:bool=None, signup_enabled:bool=None, github_hostname:str=None, identicons_host:str=None, http_proxy:str=None, auth_mode:str=None, expire_sessions:bool=None, admin_password:str=None, configuration_id:int=None, configuration_run_count:int=None, avatar:dict=None, customer:dict=None, license:dict=None, github_ssl:dict=None, ldap:dict=None, cas:dict=None, saml:dict=None, github_oauth:dict=None, smtp:dict=None, ntp:dict=None, timezone:str=None, snmp:dict=None, syslog:dict=None, assets:str=None, pages:dict=None, collectd:dict=None, mapping:dict=None, load_balancer:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, private_mode:bool=None, public_pages:bool=None, subdomain_isolation:bool=None, signup_enabled:bool=None, github_hostname:str=None, identicons_host:str=None, http_proxy:str=None, auth_mode:str=None, expire_sessions:bool=None, admin_password:str=None, configuration_id:int=None, configuration_run_count:int=None, avatar:dict=None, customer:dict=None, license:dict=None, github_ssl:dict=None, ldap:dict=None, cas:dict=None, saml:dict=None, github_oauth:dict=None, smtp:dict=None, ntp:dict=None, timezone:str=None, snmp:dict=None, syslog:dict=None, assets:str=None, pages:dict=None, collectd:dict=None, mapping:dict=None, load_balancer:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._private_mode = private_mode
         self._public_pages = public_pages
         self._subdomain_isolation = subdomain_isolation
@@ -37828,8 +37834,8 @@ class Enterprisesettings_enterprise(ResponseBase):
 ##
 ##
 class EnterpriseSettings(ResponseBase):
-    def __init__(self, enterprise:dict=None, run_list:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, enterprise:dict=None, run_list:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._enterprise = enterprise
         self._run_list = run_list
         return
@@ -37856,8 +37862,8 @@ class EnterpriseSettings(ResponseBase):
 ##
 ##
 class SshKey(ResponseBase):
-    def __init__(self, key:str=None, prettyprint:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, key:str=None, prettyprint:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._key = key
         self._prettyprint = prettyprint
         return
@@ -37895,8 +37901,8 @@ class SshKey(ResponseBase):
 ##
 ##
 class Privateuser_plan(ResponseBase):
-    def __init__(self, private_repos:int, space:int, name:str, collaborators:int):
-        ResponseBase.__init__(self)
+    def __init__(self, private_repos:int, space:int, name:str, collaborators:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._private_repos = private_repos
         self._space = space
         self._name = name
@@ -37940,8 +37946,8 @@ class Privateuser_plan(ResponseBase):
 ##
 class PrivateUser(ResponseBase):
     """Private User """
-    def __init__(self, two_factor_authentication:bool, collaborators:int, disk_usage:int, owned_private_repos:int, total_private_repos:int, private_gists:int, updated_at:datetime, created_at:datetime, following:int, followers:int, public_gists:int, public_repos:int, bio:str, hireable:bool, email:str, location:str, blog:str, company:str, name:str, site_admin:bool, type:str, received_events_url:str, events_url:str, repos_url:str, organizations_url:str, subscriptions_url:str, starred_url:str, gists_url:str, following_url:str, followers_url:str, html_url:str, url:str, gravatar_id:str, avatar_url:str, node_id:str, id:int, login:str, twitter_username:str=None, plan:dict=None, suspended_at:datetime=None, business_plus:bool=None, ldap_dn:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, two_factor_authentication:bool, collaborators:int, disk_usage:int, owned_private_repos:int, total_private_repos:int, private_gists:int, updated_at:datetime, created_at:datetime, following:int, followers:int, public_gists:int, public_repos:int, bio:str, hireable:bool, email:str, location:str, blog:str, company:str, name:str, site_admin:bool, type:str, received_events_url:str, events_url:str, repos_url:str, organizations_url:str, subscriptions_url:str, starred_url:str, gists_url:str, following_url:str, followers_url:str, html_url:str, url:str, gravatar_id:str, avatar_url:str, node_id:str, id:int, login:str, twitter_username:str=None, plan:dict=None, suspended_at:datetime=None, business_plus:bool=None, ldap_dn:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._two_factor_authentication = two_factor_authentication
         self._collaborators = collaborators
         self._disk_usage = disk_usage
@@ -38289,8 +38295,8 @@ class PrivateUser(ResponseBase):
 ##
 class Email(ResponseBase):
     """Email """
-    def __init__(self, visibility:str, verified:bool, primary:bool, email:str):
-        ResponseBase.__init__(self)
+    def __init__(self, visibility:str, verified:bool, primary:bool, email:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._visibility = visibility
         self._verified = verified
         self._primary = primary
@@ -38333,8 +38339,8 @@ class Email(ResponseBase):
 ##
 ##
 class Gpgkey_emails(ResponseBase):
-    def __init__(self, email:str=None, verified:bool=None):
-        ResponseBase.__init__(self)
+    def __init__(self, email:str=None, verified:bool=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._email = email
         self._verified = verified
         return
@@ -38361,8 +38367,8 @@ class Gpgkey_emails(ResponseBase):
 ##
 ##
 class Gpgkey_subkeys(ResponseBase):
-    def __init__(self, id:int=None, primary_key_id:int=None, key_id:str=None, public_key:str=None, emails:list=None, subkeys:list=None, can_sign:bool=None, can_encrypt_comms:bool=None, can_encrypt_storage:bool=None, can_certify:bool=None, created_at:str=None, expires_at:str=None, raw_key:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, id:int=None, primary_key_id:int=None, key_id:str=None, public_key:str=None, emails:list=None, subkeys:list=None, can_sign:bool=None, can_encrypt_comms:bool=None, can_encrypt_storage:bool=None, can_certify:bool=None, created_at:str=None, expires_at:str=None, raw_key:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._id = id
         self._primary_key_id = primary_key_id
         self._key_id = key_id
@@ -38478,8 +38484,8 @@ class Gpgkey_subkeys(ResponseBase):
 ##
 class GpgKey(ResponseBase):
     """A unique encryption key """
-    def __init__(self, raw_key:str, expires_at:datetime, created_at:datetime, can_certify:bool, can_encrypt_storage:bool, can_encrypt_comms:bool, can_sign:bool, subkeys:list, emails:list, public_key:str, key_id:str, primary_key_id:int, id:int):
-        ResponseBase.__init__(self)
+    def __init__(self, raw_key:str, expires_at:datetime, created_at:datetime, can_certify:bool, can_encrypt_storage:bool, can_encrypt_comms:bool, can_sign:bool, subkeys:list, emails:list, public_key:str, key_id:str, primary_key_id:int, id:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._raw_key = raw_key
         self._expires_at = expires_at
         self._created_at = created_at
@@ -38595,8 +38601,8 @@ class GpgKey(ResponseBase):
 ##
 class Key(ResponseBase):
     """Key """
-    def __init__(self, read_only:bool, verified:bool, created_at:datetime, title:str, url:str, id:int, key:str):
-        ResponseBase.__init__(self)
+    def __init__(self, read_only:bool, verified:bool, created_at:datetime, title:str, url:str, id:int, key:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._read_only = read_only
         self._verified = verified
         self._created_at = created_at
@@ -38664,8 +38670,8 @@ class Key(ResponseBase):
 ##
 class StarredRepository(ResponseBase):
     """Starred Repository """
-    def __init__(self, repo:dict, starred_at:datetime):
-        ResponseBase.__init__(self)
+    def __init__(self, repo:dict, starred_at:datetime, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._repo = repo
         self._starred_at = starred_at
         return
@@ -38692,8 +38698,8 @@ class StarredRepository(ResponseBase):
 ##
 ##
 class Hovercard_contexts(ResponseBase):
-    def __init__(self, octicon:str, message:str):
-        ResponseBase.__init__(self)
+    def __init__(self, octicon:str, message:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._octicon = octicon
         self._message = message
         return
@@ -38721,8 +38727,8 @@ class Hovercard_contexts(ResponseBase):
 ##
 class Hovercard(ResponseBase):
     """Hovercard """
-    def __init__(self, contexts:list):
-        ResponseBase.__init__(self)
+    def __init__(self, contexts:list, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._contexts = contexts
         return
         
@@ -38742,8 +38748,8 @@ class Hovercard(ResponseBase):
 ##
 class KeySimple(ResponseBase):
     """Key Simple """
-    def __init__(self, key:str, id:int):
-        ResponseBase.__init__(self)
+    def __init__(self, key:str, id:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._key = key
         self._id = id
         return
@@ -38770,8 +38776,8 @@ class KeySimple(ResponseBase):
 ##
 ##
 class Preview_header_missing(ResponseBase):
-    def __init__(self, documentation_url:str, message:str):
-        ResponseBase.__init__(self)
+    def __init__(self, documentation_url:str, message:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._documentation_url = documentation_url
         self._message = message
         return
@@ -38799,8 +38805,8 @@ class Preview_header_missing(ResponseBase):
 ##
 class NotModified(ResponseBase):
     """Not modified """
-    def __init__(self):
-        ResponseBase.__init__(self)
+    def __init__(self, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         return
         
     
@@ -38811,8 +38817,8 @@ class NotModified(ResponseBase):
 ##
 ##
 class Service_unavailable(ResponseBase):
-    def __init__(self, code:str=None, message:str=None, documentation_url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, code:str=None, message:str=None, documentation_url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._code = code
         self._message = message
         self._documentation_url = documentation_url
@@ -38847,8 +38853,8 @@ class Service_unavailable(ResponseBase):
 ##
 ##
 class Forbidden_gist_block(ResponseBase):
-    def __init__(self, reason:str=None, created_at:str=None, html_url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, reason:str=None, created_at:str=None, html_url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._reason = reason
         self._created_at = created_at
         self._html_url = html_url
@@ -38883,8 +38889,8 @@ class Forbidden_gist_block(ResponseBase):
 ##
 ##
 class Forbidden_gist(ResponseBase):
-    def __init__(self, block:dict=None, message:str=None, documentation_url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, block:dict=None, message:str=None, documentation_url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._block = block
         self._message = message
         self._documentation_url = documentation_url
@@ -38920,8 +38926,8 @@ class Forbidden_gist(ResponseBase):
 ##
 class Found(ResponseBase):
     """Found """
-    def __init__(self):
-        ResponseBase.__init__(self)
+    def __init__(self, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         return
         
     
@@ -38933,8 +38939,8 @@ class Found(ResponseBase):
 ##
 class NoContent(ResponseBase):
     """A header with no content is returned. """
-    def __init__(self):
-        ResponseBase.__init__(self)
+    def __init__(self, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         return
         
     
@@ -38945,8 +38951,8 @@ class NoContent(ResponseBase):
 ##
 ##
 class MetaRootSuccess(ResponseBase):
-    def __init__(self, user_search_url:str, user_repositories_url:str, user_organizations_url:str, user_url:str, starred_gists_url:str, starred_url:str, current_user_repositories_url:str, repository_search_url:str, repository_url:str, rate_limit_url:str, public_gists_url:str, organization_teams_url:str, organization_repositories_url:str, organization_url:str, notifications_url:str, label_search_url:str, keys_url:str, issues_url:str, issue_search_url:str, hub_url:str, gists_url:str, following_url:str, followers_url:str, feeds_url:str, events_url:str, emojis_url:str, emails_url:str, commit_search_url:str, code_search_url:str, authorizations_url:str, current_user_authorizations_html_url:str, current_user_url:str, topic_search_url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, user_search_url:str, user_repositories_url:str, user_organizations_url:str, user_url:str, starred_gists_url:str, starred_url:str, current_user_repositories_url:str, repository_search_url:str, repository_url:str, rate_limit_url:str, public_gists_url:str, organization_teams_url:str, organization_repositories_url:str, organization_url:str, notifications_url:str, label_search_url:str, keys_url:str, issues_url:str, issue_search_url:str, hub_url:str, gists_url:str, following_url:str, followers_url:str, feeds_url:str, events_url:str, emojis_url:str, emails_url:str, commit_search_url:str, code_search_url:str, authorizations_url:str, current_user_authorizations_html_url:str, current_user_url:str, topic_search_url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._user_search_url = user_search_url
         self._user_repositories_url = user_repositories_url
         self._user_organizations_url = user_organizations_url
@@ -39222,8 +39228,8 @@ class MetaRootSuccess(ResponseBase):
 ##
 class Enterpriseadmincreateglobalwebhook_config(ResponseBase):
     """Key/value pairs to provide settings for this webhook. """
-    def __init__(self, url:str, content_type:str=None, secret:str=None, insecure_ssl:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str, content_type:str=None, secret:str=None, insecure_ssl:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._content_type = content_type
         self._secret = secret
@@ -39267,8 +39273,8 @@ class Enterpriseadmincreateglobalwebhook_config(ResponseBase):
 ##
 class Enterpriseadminupdateglobalwebhook_config(ResponseBase):
     """Key/value pairs to provide settings for this webhook. """
-    def __init__(self, url:str, content_type:str=None, secret:str=None, insecure_ssl:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str, content_type:str=None, secret:str=None, insecure_ssl:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._content_type = content_type
         self._secret = secret
@@ -39311,8 +39317,8 @@ class Enterpriseadminupdateglobalwebhook_config(ResponseBase):
 ##
 ##
 class EnterpriseAdminSyncLdapMappingForTeamSuccess(ResponseBase):
-    def __init__(self, status:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, status:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._status = status
         return
         
@@ -39331,8 +39337,8 @@ class EnterpriseAdminSyncLdapMappingForTeamSuccess(ResponseBase):
 ##
 ##
 class EnterpriseAdminSyncLdapMappingForUserSuccess(ResponseBase):
-    def __init__(self, status:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, status:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._status = status
         return
         
@@ -39351,8 +39357,8 @@ class EnterpriseAdminSyncLdapMappingForUserSuccess(ResponseBase):
 ##
 ##
 class EnterpriseAdminUpdateOrgName202(ResponseBase):
-    def __init__(self, message:str=None, url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, message:str=None, url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._message = message
         self._url = url
         return
@@ -39379,8 +39385,8 @@ class EnterpriseAdminUpdateOrgName202(ResponseBase):
 ##
 ##
 class Errors(ResponseBase):
-    def __init__(self, code:str=None, message:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, code:str=None, message:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._code = code
         self._message = message
         return
@@ -39407,8 +39413,8 @@ class Errors(ResponseBase):
 ##
 ##
 class EnterpriseAdminUpdatePreReceiveEnvironment422(ResponseBase):
-    def __init__(self, message:str=None, errors:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, message:str=None, errors:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._message = message
         self._errors = errors
         return
@@ -39435,8 +39441,8 @@ class EnterpriseAdminUpdatePreReceiveEnvironment422(ResponseBase):
 ##
 ##
 class EnterpriseAdminDeletePreReceiveEnvironment422(ResponseBase):
-    def __init__(self, message:str=None, errors:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, message:str=None, errors:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._message = message
         self._errors = errors
         return
@@ -39463,8 +39469,8 @@ class EnterpriseAdminDeletePreReceiveEnvironment422(ResponseBase):
 ##
 ##
 class EnterpriseAdminStartPreReceiveEnvironmentDownload422(ResponseBase):
-    def __init__(self, message:str=None, errors:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, message:str=None, errors:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._message = message
         self._errors = errors
         return
@@ -39492,8 +39498,8 @@ class EnterpriseAdminStartPreReceiveEnvironmentDownload422(ResponseBase):
 ##
 class Enterpriseadmincreateprereceivehook_script_repository(ResponseBase):
     """The GitHub repository where the script is kept. """
-    def __init__(self):
-        ResponseBase.__init__(self)
+    def __init__(self, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         return
         
     
@@ -39505,8 +39511,8 @@ class Enterpriseadmincreateprereceivehook_script_repository(ResponseBase):
 ##
 class Enterpriseadmincreateprereceivehook_environment(ResponseBase):
     """The pre-receive environment where the script is executed. """
-    def __init__(self):
-        ResponseBase.__init__(self)
+    def __init__(self, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         return
         
     
@@ -39518,8 +39524,8 @@ class Enterpriseadmincreateprereceivehook_environment(ResponseBase):
 ##
 class Enterpriseadminupdateprereceivehook_script_repository(ResponseBase):
     """The GitHub repository where the script is kept. """
-    def __init__(self):
-        ResponseBase.__init__(self)
+    def __init__(self, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         return
         
     
@@ -39531,8 +39537,8 @@ class Enterpriseadminupdateprereceivehook_script_repository(ResponseBase):
 ##
 class Enterpriseadminupdateprereceivehook_environment(ResponseBase):
     """The pre-receive environment where the script is executed. """
-    def __init__(self):
-        ResponseBase.__init__(self)
+    def __init__(self, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         return
         
     
@@ -39543,8 +39549,8 @@ class Enterpriseadminupdateprereceivehook_environment(ResponseBase):
 ##
 ##
 class EnterpriseAdminUpdateUsernameForUser202(ResponseBase):
-    def __init__(self, message:str=None, url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, message:str=None, url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._message = message
         self._url = url
         return
@@ -39571,8 +39577,8 @@ class EnterpriseAdminUpdateUsernameForUser202(ResponseBase):
 ##
 ##
 class EnterpriseAdminListSelectedOrganizationsEnabledGithubActionsEnterpriseSuccess(ResponseBase):
-    def __init__(self, organizations:list, total_count:int):
-        ResponseBase.__init__(self)
+    def __init__(self, organizations:list, total_count:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._organizations = organizations
         self._total_count = total_count
         return
@@ -39599,8 +39605,8 @@ class EnterpriseAdminListSelectedOrganizationsEnabledGithubActionsEnterpriseSucc
 ##
 ##
 class EnterpriseAdminListSelfHostedRunnerGroupsForEnterpriseSuccess(ResponseBase):
-    def __init__(self, runner_groups:list, total_count:int):
-        ResponseBase.__init__(self)
+    def __init__(self, runner_groups:list, total_count:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._runner_groups = runner_groups
         self._total_count = total_count
         return
@@ -39627,8 +39633,8 @@ class EnterpriseAdminListSelfHostedRunnerGroupsForEnterpriseSuccess(ResponseBase
 ##
 ##
 class EnterpriseAdminListOrgAccessToSelfHostedRunnerGroupInEnterpriseSuccess(ResponseBase):
-    def __init__(self, organizations:list, total_count:int):
-        ResponseBase.__init__(self)
+    def __init__(self, organizations:list, total_count:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._organizations = organizations
         self._total_count = total_count
         return
@@ -39655,8 +39661,8 @@ class EnterpriseAdminListOrgAccessToSelfHostedRunnerGroupInEnterpriseSuccess(Res
 ##
 ##
 class EnterpriseAdminListSelfHostedRunnersInGroupForEnterpriseSuccess(ResponseBase):
-    def __init__(self, runners:list, total_count:int):
-        ResponseBase.__init__(self)
+    def __init__(self, runners:list, total_count:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._runners = runners
         self._total_count = total_count
         return
@@ -39683,8 +39689,8 @@ class EnterpriseAdminListSelfHostedRunnersInGroupForEnterpriseSuccess(ResponseBa
 ##
 ##
 class EnterpriseAdminListSelfHostedRunnersForEnterpriseSuccess(ResponseBase):
-    def __init__(self, total_count:int=None, runners:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, total_count:int=None, runners:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._total_count = total_count
         self._runners = runners
         return
@@ -39711,8 +39717,8 @@ class EnterpriseAdminListSelfHostedRunnersForEnterpriseSuccess(ResponseBase):
 ##
 ##
 class GistsCheckIsStarredNotFound(ResponseBase):
-    def __init__(self):
-        ResponseBase.__init__(self)
+    def __init__(self, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         return
         
     
@@ -39723,8 +39729,8 @@ class GistsCheckIsStarredNotFound(ResponseBase):
 ##
 ##
 class AppsListReposAccessibleToInstallationSuccess(ResponseBase):
-    def __init__(self, repositories:list, total_count:int, repository_selection:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, repositories:list, total_count:int, repository_selection:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._repositories = repositories
         self._total_count = total_count
         self._repository_selection = repository_selection
@@ -39759,8 +39765,8 @@ class AppsListReposAccessibleToInstallationSuccess(ResponseBase):
 ##
 ##
 class ActivityMarkNotificationsAsRead202(ResponseBase):
-    def __init__(self, message:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, message:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._message = message
         return
         
@@ -39779,8 +39785,8 @@ class ActivityMarkNotificationsAsRead202(ResponseBase):
 ##
 ##
 class ActionsListSelectedRepositoriesEnabledGithubActionsOrganizationSuccess(ResponseBase):
-    def __init__(self, repositories:list, total_count:int):
-        ResponseBase.__init__(self)
+    def __init__(self, repositories:list, total_count:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._repositories = repositories
         self._total_count = total_count
         return
@@ -39807,8 +39813,8 @@ class ActionsListSelectedRepositoriesEnabledGithubActionsOrganizationSuccess(Res
 ##
 ##
 class ActionsListSelfHostedRunnerGroupsForOrgSuccess(ResponseBase):
-    def __init__(self, runner_groups:list, total_count:int):
-        ResponseBase.__init__(self)
+    def __init__(self, runner_groups:list, total_count:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._runner_groups = runner_groups
         self._total_count = total_count
         return
@@ -39835,8 +39841,8 @@ class ActionsListSelfHostedRunnerGroupsForOrgSuccess(ResponseBase):
 ##
 ##
 class ActionsListRepoAccessToSelfHostedRunnerGroupInOrgSuccess(ResponseBase):
-    def __init__(self, repositories:list, total_count:int):
-        ResponseBase.__init__(self)
+    def __init__(self, repositories:list, total_count:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._repositories = repositories
         self._total_count = total_count
         return
@@ -39863,8 +39869,8 @@ class ActionsListRepoAccessToSelfHostedRunnerGroupInOrgSuccess(ResponseBase):
 ##
 ##
 class ActionsListSelfHostedRunnersInGroupForOrgSuccess(ResponseBase):
-    def __init__(self, runners:list, total_count:int):
-        ResponseBase.__init__(self)
+    def __init__(self, runners:list, total_count:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._runners = runners
         self._total_count = total_count
         return
@@ -39891,8 +39897,8 @@ class ActionsListSelfHostedRunnersInGroupForOrgSuccess(ResponseBase):
 ##
 ##
 class ActionsListSelfHostedRunnersForOrgSuccess(ResponseBase):
-    def __init__(self, runners:list, total_count:int):
-        ResponseBase.__init__(self)
+    def __init__(self, runners:list, total_count:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._runners = runners
         self._total_count = total_count
         return
@@ -39919,8 +39925,8 @@ class ActionsListSelfHostedRunnersForOrgSuccess(ResponseBase):
 ##
 ##
 class ActionsListOrgSecretsSuccess(ResponseBase):
-    def __init__(self, secrets:list, total_count:int):
-        ResponseBase.__init__(self)
+    def __init__(self, secrets:list, total_count:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._secrets = secrets
         self._total_count = total_count
         return
@@ -39947,8 +39953,8 @@ class ActionsListOrgSecretsSuccess(ResponseBase):
 ##
 ##
 class ActionsListSelectedReposForOrgSecretSuccess(ResponseBase):
-    def __init__(self, repositories:list, total_count:int):
-        ResponseBase.__init__(self)
+    def __init__(self, repositories:list, total_count:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._repositories = repositories
         self._total_count = total_count
         return
@@ -39976,8 +39982,8 @@ class ActionsListSelectedReposForOrgSecretSuccess(ResponseBase):
 ##
 class Orgscreatewebhook_config(ResponseBase):
     """Key/value pairs to provide settings for this webhook. [These are defined below](https://docs.github.com/enterprise-server@3.3/rest/reference/orgs#create-hook-config-params). """
-    def __init__(self, url:str, content_type:str=None, secret:str=None, insecure_ssl=None, username:str=None, password:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str, content_type:str=None, secret:str=None, insecure_ssl=None, username:str=None, password:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._content_type = content_type
         self._secret = secret
@@ -40037,8 +40043,8 @@ class Orgscreatewebhook_config(ResponseBase):
 ##
 class Orgsupdatewebhook_config(ResponseBase):
     """Key/value pairs to provide settings for this webhook. [These are defined below](https://docs.github.com/enterprise-server@3.3/rest/reference/orgs#update-hook-config-params). """
-    def __init__(self, url:str, content_type:str=None, secret:str=None, insecure_ssl=None):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str, content_type:str=None, secret:str=None, insecure_ssl=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._content_type = content_type
         self._secret = secret
@@ -40081,8 +40087,8 @@ class Orgsupdatewebhook_config(ResponseBase):
 ##
 ##
 class OrgsListAppInstallationsSuccess(ResponseBase):
-    def __init__(self, installations:list, total_count:int):
-        ResponseBase.__init__(self)
+    def __init__(self, installations:list, total_count:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._installations = installations
         self._total_count = total_count
         return
@@ -40109,8 +40115,8 @@ class OrgsListAppInstallationsSuccess(ResponseBase):
 ##
 ##
 class OrgsConvertMemberToOutsideCollaborator202(ResponseBase):
-    def __init__(self):
-        ResponseBase.__init__(self)
+    def __init__(self, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         return
         
     
@@ -40121,8 +40127,8 @@ class OrgsConvertMemberToOutsideCollaborator202(ResponseBase):
 ##
 ##
 class OrgsRemoveOutsideCollaborator422(ResponseBase):
-    def __init__(self, message:str=None, documentation_url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, message:str=None, documentation_url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._message = message
         self._documentation_url = documentation_url
         return
@@ -40149,8 +40155,8 @@ class OrgsRemoveOutsideCollaborator422(ResponseBase):
 ##
 ##
 class TeamsAddOrUpdateProjectPermissionsInOrgForbidden(ResponseBase):
-    def __init__(self, message:str=None, documentation_url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, message:str=None, documentation_url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._message = message
         self._documentation_url = documentation_url
         return
@@ -40177,8 +40183,8 @@ class TeamsAddOrUpdateProjectPermissionsInOrgForbidden(ResponseBase):
 ##
 ##
 class ProjectsDeleteCardForbidden(ResponseBase):
-    def __init__(self, message:str=None, documentation_url:str=None, errors:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, message:str=None, documentation_url:str=None, errors:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._message = message
         self._documentation_url = documentation_url
         self._errors = errors
@@ -40213,8 +40219,8 @@ class ProjectsDeleteCardForbidden(ResponseBase):
 ##
 ##
 class ProjectsMoveCardSuccess(ResponseBase):
-    def __init__(self):
-        ResponseBase.__init__(self)
+    def __init__(self, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         return
         
     
@@ -40225,8 +40231,8 @@ class ProjectsMoveCardSuccess(ResponseBase):
 ##
 ##
 class ProjectsMoveCardForbidden(ResponseBase):
-    def __init__(self, message:str=None, documentation_url:str=None, errors:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, message:str=None, documentation_url:str=None, errors:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._message = message
         self._documentation_url = documentation_url
         self._errors = errors
@@ -40261,8 +40267,8 @@ class ProjectsMoveCardForbidden(ResponseBase):
 ##
 ##
 class ProjectsMoveCard503(ResponseBase):
-    def __init__(self, code:str=None, message:str=None, documentation_url:str=None, errors:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, code:str=None, message:str=None, documentation_url:str=None, errors:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._code = code
         self._message = message
         self._documentation_url = documentation_url
@@ -40305,8 +40311,8 @@ class ProjectsMoveCard503(ResponseBase):
 ##
 ##
 class ProjectsCreateCard503(ResponseBase):
-    def __init__(self, code:str=None, message:str=None, documentation_url:str=None, errors:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, code:str=None, message:str=None, documentation_url:str=None, errors:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._code = code
         self._message = message
         self._documentation_url = documentation_url
@@ -40349,8 +40355,8 @@ class ProjectsCreateCard503(ResponseBase):
 ##
 ##
 class ProjectsMoveColumnSuccess(ResponseBase):
-    def __init__(self):
-        ResponseBase.__init__(self)
+    def __init__(self, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         return
         
     
@@ -40361,8 +40367,8 @@ class ProjectsMoveColumnSuccess(ResponseBase):
 ##
 ##
 class ProjectsUpdateForbidden(ResponseBase):
-    def __init__(self, message:str=None, documentation_url:str=None, errors:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, message:str=None, documentation_url:str=None, errors:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._message = message
         self._documentation_url = documentation_url
         self._errors = errors
@@ -40397,8 +40403,8 @@ class ProjectsUpdateForbidden(ResponseBase):
 ##
 ##
 class ProjectsDeleteForbidden(ResponseBase):
-    def __init__(self, message:str=None, documentation_url:str=None, errors:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, message:str=None, documentation_url:str=None, errors:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._message = message
         self._documentation_url = documentation_url
         self._errors = errors
@@ -40434,8 +40440,8 @@ class ProjectsDeleteForbidden(ResponseBase):
 ##
 class Reposupdate_security_and_analysis_advanced_security(ResponseBase):
     """Use the `status` property to enable or disable GitHub Advanced Security for this repository. For more information, see "[About GitHub Advanced Security](/github/getting-started-with-github/learning-about-github/about-github-advanced-security)." """
-    def __init__(self, status:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, status:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._status = status
         return
         
@@ -40455,8 +40461,8 @@ class Reposupdate_security_and_analysis_advanced_security(ResponseBase):
 ##
 class Reposupdate_security_and_analysis_secret_scanning(ResponseBase):
     """Use the `status` property to enable or disable secret scanning for this repository. For more information, see "[About secret scanning](/code-security/secret-security/about-secret-scanning)." """
-    def __init__(self, status:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, status:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._status = status
         return
         
@@ -40476,8 +40482,8 @@ class Reposupdate_security_and_analysis_secret_scanning(ResponseBase):
 ##
 class Reposupdate_security_and_analysis(ResponseBase):
     """Specify which security and analysis features to enable or disable. For example, to enable GitHub Advanced Security, use this data in the body of the PATCH request: `{"security_and_analysis": {"advanced_security": {"status": "enabled"}}}`. If you have admin permissions for a private repository covered by an Advanced Security license, you can check which security and analysis features are currently enabled by using a `GET /repos/{owner}/{repo}` request. """
-    def __init__(self, advanced_security:dict=None, secret_scanning:dict=None):
-        ResponseBase.__init__(self)
+    def __init__(self, advanced_security:dict=None, secret_scanning:dict=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._advanced_security = advanced_security
         self._secret_scanning = secret_scanning
         return
@@ -40504,8 +40510,8 @@ class Reposupdate_security_and_analysis(ResponseBase):
 ##
 ##
 class ReposDeleteForbidden(ResponseBase):
-    def __init__(self, message:str=None, documentation_url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, message:str=None, documentation_url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._message = message
         self._documentation_url = documentation_url
         return
@@ -40532,8 +40538,8 @@ class ReposDeleteForbidden(ResponseBase):
 ##
 ##
 class ActionsListArtifactsForRepoSuccess(ResponseBase):
-    def __init__(self, artifacts:list, total_count:int):
-        ResponseBase.__init__(self)
+    def __init__(self, artifacts:list, total_count:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._artifacts = artifacts
         self._total_count = total_count
         return
@@ -40560,8 +40566,8 @@ class ActionsListArtifactsForRepoSuccess(ResponseBase):
 ##
 ##
 class ActionsListSelfHostedRunnersForRepoSuccess(ResponseBase):
-    def __init__(self, runners:list, total_count:int):
-        ResponseBase.__init__(self)
+    def __init__(self, runners:list, total_count:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._runners = runners
         self._total_count = total_count
         return
@@ -40588,8 +40594,8 @@ class ActionsListSelfHostedRunnersForRepoSuccess(ResponseBase):
 ##
 ##
 class ActionsListWorkflowRunsForRepoSuccess(ResponseBase):
-    def __init__(self, workflow_runs:list, total_count:int):
-        ResponseBase.__init__(self)
+    def __init__(self, workflow_runs:list, total_count:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._workflow_runs = workflow_runs
         self._total_count = total_count
         return
@@ -40616,8 +40622,8 @@ class ActionsListWorkflowRunsForRepoSuccess(ResponseBase):
 ##
 ##
 class ActionsListWorkflowRunArtifactsSuccess(ResponseBase):
-    def __init__(self, artifacts:list, total_count:int):
-        ResponseBase.__init__(self)
+    def __init__(self, artifacts:list, total_count:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._artifacts = artifacts
         self._total_count = total_count
         return
@@ -40644,8 +40650,8 @@ class ActionsListWorkflowRunArtifactsSuccess(ResponseBase):
 ##
 ##
 class ActionsListJobsForWorkflowRunAttemptSuccess(ResponseBase):
-    def __init__(self, jobs:list, total_count:int):
-        ResponseBase.__init__(self)
+    def __init__(self, jobs:list, total_count:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._jobs = jobs
         self._total_count = total_count
         return
@@ -40672,8 +40678,8 @@ class ActionsListJobsForWorkflowRunAttemptSuccess(ResponseBase):
 ##
 ##
 class ActionsCancelWorkflowRun202(ResponseBase):
-    def __init__(self):
-        ResponseBase.__init__(self)
+    def __init__(self, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         return
         
     
@@ -40684,8 +40690,8 @@ class ActionsCancelWorkflowRun202(ResponseBase):
 ##
 ##
 class ActionsListJobsForWorkflowRunSuccess(ResponseBase):
-    def __init__(self, jobs:list, total_count:int):
-        ResponseBase.__init__(self)
+    def __init__(self, jobs:list, total_count:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._jobs = jobs
         self._total_count = total_count
         return
@@ -40712,8 +40718,8 @@ class ActionsListJobsForWorkflowRunSuccess(ResponseBase):
 ##
 ##
 class ActionsReRunWorkflowSuccess(ResponseBase):
-    def __init__(self):
-        ResponseBase.__init__(self)
+    def __init__(self, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         return
         
     
@@ -40724,8 +40730,8 @@ class ActionsReRunWorkflowSuccess(ResponseBase):
 ##
 ##
 class ActionsListRepoSecretsSuccess(ResponseBase):
-    def __init__(self, secrets:list, total_count:int):
-        ResponseBase.__init__(self)
+    def __init__(self, secrets:list, total_count:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._secrets = secrets
         self._total_count = total_count
         return
@@ -40752,8 +40758,8 @@ class ActionsListRepoSecretsSuccess(ResponseBase):
 ##
 ##
 class ActionsCreateOrUpdateRepoSecretSuccess(ResponseBase):
-    def __init__(self):
-        ResponseBase.__init__(self)
+    def __init__(self, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         return
         
     
@@ -40764,8 +40770,8 @@ class ActionsCreateOrUpdateRepoSecretSuccess(ResponseBase):
 ##
 ##
 class ActionsListRepoWorkflowsSuccess(ResponseBase):
-    def __init__(self, workflows:list, total_count:int):
-        ResponseBase.__init__(self)
+    def __init__(self, workflows:list, total_count:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._workflows = workflows
         self._total_count = total_count
         return
@@ -40792,8 +40798,8 @@ class ActionsListRepoWorkflowsSuccess(ResponseBase):
 ##
 ##
 class ActionsListWorkflowRunsSuccess(ResponseBase):
-    def __init__(self, workflow_runs:list, total_count:int):
-        ResponseBase.__init__(self)
+    def __init__(self, workflow_runs:list, total_count:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._workflow_runs = workflow_runs
         self._total_count = total_count
         return
@@ -40820,8 +40826,8 @@ class ActionsListWorkflowRunsSuccess(ResponseBase):
 ##
 ##
 class Reposupdatebranchprotection_required_status_checks_checks(ResponseBase):
-    def __init__(self, context:str, app_id:int=None):
-        ResponseBase.__init__(self)
+    def __init__(self, context:str, app_id:int=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._context = context
         self._app_id = app_id
         return
@@ -40849,8 +40855,8 @@ class Reposupdatebranchprotection_required_status_checks_checks(ResponseBase):
 ##
 class Reposupdatebranchprotection_required_status_checks(ResponseBase):
     """Require status checks to pass before merging. Set to `null` to disable. """
-    def __init__(self, contexts, strict:bool, checks:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, contexts, strict:bool, checks:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._contexts = contexts
         self._strict = strict
         self._checks = checks
@@ -40887,8 +40893,8 @@ class Reposupdatebranchprotection_required_status_checks(ResponseBase):
 ##
 class Reposupdatebranchprotection_required_pull_request_reviews_dismissal_restrictions(ResponseBase):
     """Specify which users and teams can dismiss pull request reviews. Pass an empty `dismissal_restrictions` object to disable. User and team `dismissal_restrictions` are only available for organization-owned repositories. Omit this parameter for personal repositories. """
-    def __init__(self, users:list=None, teams:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, users:list=None, teams:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._users = users
         self._teams = teams
         return
@@ -40916,8 +40922,8 @@ class Reposupdatebranchprotection_required_pull_request_reviews_dismissal_restri
 ##
 class Reposupdatebranchprotection_required_pull_request_reviews(ResponseBase):
     """Require at least one approving review on a pull request, before merging. Set to `null` to disable. """
-    def __init__(self, dismissal_restrictions:dict=None, dismiss_stale_reviews:bool=None, require_code_owner_reviews:bool=None, required_approving_review_count:int=None):
-        ResponseBase.__init__(self)
+    def __init__(self, dismissal_restrictions:dict=None, dismiss_stale_reviews:bool=None, require_code_owner_reviews:bool=None, required_approving_review_count:int=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._dismissal_restrictions = dismissal_restrictions
         self._dismiss_stale_reviews = dismiss_stale_reviews
         self._require_code_owner_reviews = require_code_owner_reviews
@@ -40961,8 +40967,8 @@ class Reposupdatebranchprotection_required_pull_request_reviews(ResponseBase):
 ##
 class Reposupdatebranchprotection_restrictions(ResponseBase):
     """Restrict who can push to the protected branch. User, app, and team `restrictions` are only available for organization-owned repositories. Set to `null` to disable. """
-    def __init__(self, teams:list, users:list, apps:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, teams:list, users:list, apps:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._teams = teams
         self._users = users
         self._apps = apps
@@ -40998,8 +41004,8 @@ class Reposupdatebranchprotection_restrictions(ResponseBase):
 ##
 class Reposupdatepullrequestreviewprotection_dismissal_restrictions(ResponseBase):
     """Specify which users and teams can dismiss pull request reviews. Pass an empty `dismissal_restrictions` object to disable. User and team `dismissal_restrictions` are only available for organization-owned repositories. Omit this parameter for personal repositories. """
-    def __init__(self, users:list=None, teams:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, users:list=None, teams:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._users = users
         self._teams = teams
         return
@@ -41026,8 +41032,8 @@ class Reposupdatepullrequestreviewprotection_dismissal_restrictions(ResponseBase
 ##
 ##
 class Checkscreate_output_annotations(ResponseBase):
-    def __init__(self, message:str, annotation_level:str, end_line:int, start_line:int, path:str, start_column:int=None, end_column:int=None, title:str=None, raw_details:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, message:str, annotation_level:str, end_line:int, start_line:int, path:str, start_column:int=None, end_column:int=None, title:str=None, raw_details:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._message = message
         self._annotation_level = annotation_level
         self._end_line = end_line
@@ -41110,8 +41116,8 @@ class Checkscreate_output_annotations(ResponseBase):
 ##
 ##
 class Checkscreate_output_images(ResponseBase):
-    def __init__(self, image_url:str, alt:str, caption:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, image_url:str, alt:str, caption:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._image_url = image_url
         self._alt = alt
         self._caption = caption
@@ -41147,8 +41153,8 @@ class Checkscreate_output_images(ResponseBase):
 ##
 class Checkscreate_output(ResponseBase):
     """Check runs can accept a variety of data in the `output` object, including a `title` and `summary` and can optionally provide descriptive details about the run. See the [`output` object](https://docs.github.com/enterprise-server@3.3/rest/reference/checks#output-object) description. """
-    def __init__(self, summary:str, title:str, text:str=None, annotations:list=None, images:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, summary:str, title:str, text:str=None, annotations:list=None, images:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._summary = summary
         self._title = title
         self._text = text
@@ -41199,8 +41205,8 @@ class Checkscreate_output(ResponseBase):
 ##
 ##
 class Checkscreate_actions(ResponseBase):
-    def __init__(self, identifier:str, description:str, label:str):
-        ResponseBase.__init__(self)
+    def __init__(self, identifier:str, description:str, label:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._identifier = identifier
         self._description = description
         self._label = label
@@ -41235,8 +41241,8 @@ class Checkscreate_actions(ResponseBase):
 ##
 ##
 class Checksupdate_output_annotations(ResponseBase):
-    def __init__(self, message:str, annotation_level:str, end_line:int, start_line:int, path:str, start_column:int=None, end_column:int=None, title:str=None, raw_details:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, message:str, annotation_level:str, end_line:int, start_line:int, path:str, start_column:int=None, end_column:int=None, title:str=None, raw_details:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._message = message
         self._annotation_level = annotation_level
         self._end_line = end_line
@@ -41319,8 +41325,8 @@ class Checksupdate_output_annotations(ResponseBase):
 ##
 ##
 class Checksupdate_output_images(ResponseBase):
-    def __init__(self, image_url:str, alt:str, caption:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, image_url:str, alt:str, caption:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._image_url = image_url
         self._alt = alt
         self._caption = caption
@@ -41356,8 +41362,8 @@ class Checksupdate_output_images(ResponseBase):
 ##
 class Checksupdate_output(ResponseBase):
     """Check runs can accept a variety of data in the `output` object, including a `title` and `summary` and can optionally provide descriptive details about the run. See the [`output` object](https://docs.github.com/enterprise-server@3.3/rest/reference/checks#output-object-1) description. """
-    def __init__(self, summary:str, title:str=None, text:str=None, annotations:list=None, images:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, summary:str, title:str=None, text:str=None, annotations:list=None, images:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._summary = summary
         self._title = title
         self._text = text
@@ -41408,8 +41414,8 @@ class Checksupdate_output(ResponseBase):
 ##
 ##
 class Checksupdate_actions(ResponseBase):
-    def __init__(self, identifier:str, description:str, label:str):
-        ResponseBase.__init__(self)
+    def __init__(self, identifier:str, description:str, label:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._identifier = identifier
         self._description = description
         self._label = label
@@ -41444,8 +41450,8 @@ class Checksupdate_actions(ResponseBase):
 ##
 ##
 class ChecksRerequestRunSuccess(ResponseBase):
-    def __init__(self):
-        ResponseBase.__init__(self)
+    def __init__(self, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         return
         
     
@@ -41456,8 +41462,8 @@ class ChecksRerequestRunSuccess(ResponseBase):
 ##
 ##
 class Checkssetsuitespreferences_auto_trigger_checks(ResponseBase):
-    def __init__(self, app_id:int, setting:bool=True):
-        ResponseBase.__init__(self)
+    def __init__(self, app_id:int, setting:bool=True, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._app_id = app_id
         self._setting = setting
         return
@@ -41484,8 +41490,8 @@ class Checkssetsuitespreferences_auto_trigger_checks(ResponseBase):
 ##
 ##
 class ChecksListForSuiteSuccess(ResponseBase):
-    def __init__(self, check_runs:list, total_count:int):
-        ResponseBase.__init__(self)
+    def __init__(self, check_runs:list, total_count:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._check_runs = check_runs
         self._total_count = total_count
         return
@@ -41512,8 +41518,8 @@ class ChecksListForSuiteSuccess(ResponseBase):
 ##
 ##
 class ChecksRerequestSuiteSuccess(ResponseBase):
-    def __init__(self):
-        ResponseBase.__init__(self)
+    def __init__(self, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         return
         
     
@@ -41524,8 +41530,8 @@ class ChecksRerequestSuiteSuccess(ResponseBase):
 ##
 ##
 class ChecksListForRefSuccess(ResponseBase):
-    def __init__(self, check_runs:list, total_count:int):
-        ResponseBase.__init__(self)
+    def __init__(self, check_runs:list, total_count:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._check_runs = check_runs
         self._total_count = total_count
         return
@@ -41552,8 +41558,8 @@ class ChecksListForRefSuccess(ResponseBase):
 ##
 ##
 class ChecksListSuitesForRefSuccess(ResponseBase):
-    def __init__(self, check_suites:list, total_count:int):
-        ResponseBase.__init__(self)
+    def __init__(self, check_suites:list, total_count:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._check_suites = check_suites
         self._total_count = total_count
         return
@@ -41581,8 +41587,8 @@ class ChecksListSuitesForRefSuccess(ResponseBase):
 ##
 class Reposcreateorupdatefilecontents_committer(ResponseBase):
     """The person that committed the file. Default: the authenticated user. """
-    def __init__(self, email:str, name:str, date:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, email:str, name:str, date:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._email = email
         self._name = name
         self._date = date
@@ -41618,8 +41624,8 @@ class Reposcreateorupdatefilecontents_committer(ResponseBase):
 ##
 class Reposcreateorupdatefilecontents_author(ResponseBase):
     """The author of the file. Default: The `committer` or the authenticated user if you omit `committer`. """
-    def __init__(self, email:str, name:str, date:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, email:str, name:str, date:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._email = email
         self._name = name
         self._date = date
@@ -41655,8 +41661,8 @@ class Reposcreateorupdatefilecontents_author(ResponseBase):
 ##
 class Reposdeletefile_committer(ResponseBase):
     """object containing information about the committer. """
-    def __init__(self, name:str=None, email:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, name:str=None, email:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._name = name
         self._email = email
         return
@@ -41684,8 +41690,8 @@ class Reposdeletefile_committer(ResponseBase):
 ##
 class Reposdeletefile_author(ResponseBase):
     """object containing information about the author. """
-    def __init__(self, name:str=None, email:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, name:str=None, email:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._name = name
         self._email = email
         return
@@ -41712,8 +41718,8 @@ class Reposdeletefile_author(ResponseBase):
 ##
 ##
 class ReposCreateDeployment202(ResponseBase):
-    def __init__(self, message:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, message:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._message = message
         return
         
@@ -41732,8 +41738,8 @@ class ReposCreateDeployment202(ResponseBase):
 ##
 ##
 class ReposGetAllEnvironmentsSuccess(ResponseBase):
-    def __init__(self, total_count:int=None, environments:list=None):
-        ResponseBase.__init__(self)
+    def __init__(self, total_count:int=None, environments:list=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._total_count = total_count
         self._environments = environments
         return
@@ -41760,8 +41766,8 @@ class ReposGetAllEnvironmentsSuccess(ResponseBase):
 ##
 ##
 class Reposcreateorupdateenvironment_reviewers(ResponseBase):
-    def __init__(self, type:str=None, id:int=None):
-        ResponseBase.__init__(self)
+    def __init__(self, type:str=None, id:int=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._type = type
         self._id = id
         return
@@ -41789,8 +41795,8 @@ class Reposcreateorupdateenvironment_reviewers(ResponseBase):
 ##
 class Gitcreatecommit_author(ResponseBase):
     """Information about the author of the commit. By default, the `author` will be the authenticated user and the current date. See the `author` and `committer` object below for details. """
-    def __init__(self, email:str, name:str, date:datetime=None):
-        ResponseBase.__init__(self)
+    def __init__(self, email:str, name:str, date:datetime=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._email = email
         self._name = name
         self._date = date
@@ -41826,8 +41832,8 @@ class Gitcreatecommit_author(ResponseBase):
 ##
 class Gitcreatecommit_committer(ResponseBase):
     """Information about the person who is making the commit. By default, `committer` will use the information set in `author`. See the `author` and `committer` object below for details. """
-    def __init__(self, name:str=None, email:str=None, date:datetime=None):
-        ResponseBase.__init__(self)
+    def __init__(self, name:str=None, email:str=None, date:datetime=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._name = name
         self._email = email
         self._date = date
@@ -41863,8 +41869,8 @@ class Gitcreatecommit_committer(ResponseBase):
 ##
 class Gitcreatetag_tagger(ResponseBase):
     """An object with information about the individual creating the tag. """
-    def __init__(self, email:str, name:str, date:datetime=None):
-        ResponseBase.__init__(self)
+    def __init__(self, email:str, name:str, date:datetime=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._email = email
         self._name = name
         self._date = date
@@ -41899,8 +41905,8 @@ class Gitcreatetag_tagger(ResponseBase):
 ##
 ##
 class Gitcreatetree_tree(ResponseBase):
-    def __init__(self, path:str=None, mode:str=None, type:str=None, sha:str=None, content:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, path:str=None, mode:str=None, type:str=None, sha:str=None, content:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._path = path
         self._mode = mode
         self._type = type
@@ -41956,8 +41962,8 @@ class Gitcreatetree_tree(ResponseBase):
 ##
 class Reposcreatewebhook_config(ResponseBase):
     """Key/value pairs to provide settings for this webhook. [These are defined below](https://docs.github.com/enterprise-server@3.3/rest/reference/repos#create-hook-config-params). """
-    def __init__(self, url:str=None, content_type:str=None, secret:str=None, insecure_ssl=None, token:str=None, digest:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str=None, content_type:str=None, secret:str=None, insecure_ssl=None, token:str=None, digest:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._content_type = content_type
         self._secret = secret
@@ -42017,8 +42023,8 @@ class Reposcreatewebhook_config(ResponseBase):
 ##
 class Reposupdatewebhook_config(ResponseBase):
     """Key/value pairs to provide settings for this webhook. [These are defined below](https://docs.github.com/enterprise-server@3.3/rest/reference/repos#create-hook-config-params). """
-    def __init__(self, url:str, content_type:str=None, secret:str=None, insecure_ssl=None, address:str=None, room:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, url:str, content_type:str=None, secret:str=None, insecure_ssl=None, address:str=None, room:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._url = url
         self._content_type = content_type
         self._secret = secret
@@ -42077,8 +42083,8 @@ class Reposupdatewebhook_config(ResponseBase):
 ##
 ##
 class Issuescreate_labels(ResponseBase):
-    def __init__(self, id:int=None, name:str=None, description:str=None, color:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, id:int=None, name:str=None, description:str=None, color:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._id = id
         self._name = name
         self._description = description
@@ -42121,8 +42127,8 @@ class Issuescreate_labels(ResponseBase):
 ##
 ##
 class Issuesupdate_labels(ResponseBase):
-    def __init__(self, id:int=None, name:str=None, description:str=None, color:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, id:int=None, name:str=None, description:str=None, color:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._id = id
         self._name = name
         self._description = description
@@ -42165,8 +42171,8 @@ class Issuesupdate_labels(ResponseBase):
 ##
 ##
 class ActivityMarkRepoNotificationsAsRead202(ResponseBase):
-    def __init__(self, message:str=None, url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, message:str=None, url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._message = message
         self._url = url
         return
@@ -42194,8 +42200,8 @@ class ActivityMarkRepoNotificationsAsRead202(ResponseBase):
 ##
 class Reposcreatepagessite_source(ResponseBase):
     """The source branch and directory used to publish your Pages site. """
-    def __init__(self, branch:str, path:str='/'):
-        ResponseBase.__init__(self)
+    def __init__(self, branch:str, path:str='/', **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._branch = branch
         self._path = path
         return
@@ -42223,8 +42229,8 @@ class Reposcreatepagessite_source(ResponseBase):
 ##
 class Reposupdateinformationaboutpagessite_source(ResponseBase):
     """Update the source for the repository. Must include the branch name and path. """
-    def __init__(self, path:str, branch:str):
-        ResponseBase.__init__(self)
+    def __init__(self, path:str, branch:str, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._path = path
         self._branch = branch
         return
@@ -42251,8 +42257,8 @@ class Reposupdateinformationaboutpagessite_source(ResponseBase):
 ##
 ##
 class PullsMerge405(ResponseBase):
-    def __init__(self, message:str=None, documentation_url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, message:str=None, documentation_url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._message = message
         self._documentation_url = documentation_url
         return
@@ -42279,8 +42285,8 @@ class PullsMerge405(ResponseBase):
 ##
 ##
 class PullsMerge409(ResponseBase):
-    def __init__(self, message:str=None, documentation_url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, message:str=None, documentation_url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._message = message
         self._documentation_url = documentation_url
         return
@@ -42307,8 +42313,8 @@ class PullsMerge409(ResponseBase):
 ##
 ##
 class Pullscreatereview_comments(ResponseBase):
-    def __init__(self, body:str, path:str, position:int=None, line:int=None, side:str=None, start_line:int=None, start_side:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, body:str, path:str, position:int=None, line:int=None, side:str=None, start_line:int=None, start_side:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._body = body
         self._path = path
         self._position = position
@@ -42375,8 +42381,8 @@ class Pullscreatereview_comments(ResponseBase):
 ##
 ##
 class PullsUpdateBranch202(ResponseBase):
-    def __init__(self, message:str=None, url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, message:str=None, url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._message = message
         self._url = url
         return
@@ -42403,8 +42409,8 @@ class PullsUpdateBranch202(ResponseBase):
 ##
 ##
 class ActionsListEnvironmentSecretsSuccess(ResponseBase):
-    def __init__(self, secrets:list, total_count:int):
-        ResponseBase.__init__(self)
+    def __init__(self, secrets:list, total_count:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._secrets = secrets
         self._total_count = total_count
         return
@@ -42431,8 +42437,8 @@ class ActionsListEnvironmentSecretsSuccess(ResponseBase):
 ##
 ##
 class SearchCodeSuccess(ResponseBase):
-    def __init__(self, items:list, incomplete_results:bool, total_count:int):
-        ResponseBase.__init__(self)
+    def __init__(self, items:list, incomplete_results:bool, total_count:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._items = items
         self._incomplete_results = incomplete_results
         self._total_count = total_count
@@ -42467,8 +42473,8 @@ class SearchCodeSuccess(ResponseBase):
 ##
 ##
 class SearchCommitsSuccess(ResponseBase):
-    def __init__(self, items:list, incomplete_results:bool, total_count:int):
-        ResponseBase.__init__(self)
+    def __init__(self, items:list, incomplete_results:bool, total_count:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._items = items
         self._incomplete_results = incomplete_results
         self._total_count = total_count
@@ -42503,8 +42509,8 @@ class SearchCommitsSuccess(ResponseBase):
 ##
 ##
 class SearchIssuesAndPullRequestsSuccess(ResponseBase):
-    def __init__(self, items:list, incomplete_results:bool, total_count:int):
-        ResponseBase.__init__(self)
+    def __init__(self, items:list, incomplete_results:bool, total_count:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._items = items
         self._incomplete_results = incomplete_results
         self._total_count = total_count
@@ -42539,8 +42545,8 @@ class SearchIssuesAndPullRequestsSuccess(ResponseBase):
 ##
 ##
 class SearchLabelsSuccess(ResponseBase):
-    def __init__(self, items:list, incomplete_results:bool, total_count:int):
-        ResponseBase.__init__(self)
+    def __init__(self, items:list, incomplete_results:bool, total_count:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._items = items
         self._incomplete_results = incomplete_results
         self._total_count = total_count
@@ -42575,8 +42581,8 @@ class SearchLabelsSuccess(ResponseBase):
 ##
 ##
 class SearchReposSuccess(ResponseBase):
-    def __init__(self, items:list, incomplete_results:bool, total_count:int):
-        ResponseBase.__init__(self)
+    def __init__(self, items:list, incomplete_results:bool, total_count:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._items = items
         self._incomplete_results = incomplete_results
         self._total_count = total_count
@@ -42611,8 +42617,8 @@ class SearchReposSuccess(ResponseBase):
 ##
 ##
 class SearchTopicsSuccess(ResponseBase):
-    def __init__(self, items:list, incomplete_results:bool, total_count:int):
-        ResponseBase.__init__(self)
+    def __init__(self, items:list, incomplete_results:bool, total_count:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._items = items
         self._incomplete_results = incomplete_results
         self._total_count = total_count
@@ -42647,8 +42653,8 @@ class SearchTopicsSuccess(ResponseBase):
 ##
 ##
 class SearchUsersSuccess(ResponseBase):
-    def __init__(self, items:list, incomplete_results:bool, total_count:int):
-        ResponseBase.__init__(self)
+    def __init__(self, items:list, incomplete_results:bool, total_count:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._items = items
         self._incomplete_results = incomplete_results
         self._total_count = total_count
@@ -42683,8 +42689,8 @@ class SearchUsersSuccess(ResponseBase):
 ##
 ##
 class TeamsAddOrUpdateProjectPermissionsLegacyForbidden(ResponseBase):
-    def __init__(self, message:str=None, documentation_url:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, message:str=None, documentation_url:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._message = message
         self._documentation_url = documentation_url
         return
@@ -42711,8 +42717,8 @@ class TeamsAddOrUpdateProjectPermissionsLegacyForbidden(ResponseBase):
 ##
 ##
 class AppsListInstallationsForAuthenticatedUserSuccess(ResponseBase):
-    def __init__(self, installations:list, total_count:int):
-        ResponseBase.__init__(self)
+    def __init__(self, installations:list, total_count:int, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._installations = installations
         self._total_count = total_count
         return
@@ -42739,8 +42745,8 @@ class AppsListInstallationsForAuthenticatedUserSuccess(ResponseBase):
 ##
 ##
 class AppsListInstallationReposForAuthenticatedUserSuccess(ResponseBase):
-    def __init__(self, repositories:list, total_count:int, repository_selection:str=None):
-        ResponseBase.__init__(self)
+    def __init__(self, repositories:list, total_count:int, repository_selection:str=None, **kwargs):
+        ResponseBase.__init__(self, kwargs)
         self._repositories = repositories
         self._total_count = total_count
         self._repository_selection = repository_selection
