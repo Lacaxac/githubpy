@@ -16,6 +16,7 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install --use-feature=in-tree-build .
+          python --version
       - name: Test
         working-directory: unittests
         env:

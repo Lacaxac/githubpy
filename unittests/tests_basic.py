@@ -8,10 +8,10 @@ from githubpy import *
 class BasicTests(unittest.TestCase):
     
     def test_create_delete_repo(self):
-        reponame = 'foobar'
+        reponame = f'foobar-py{sys.version_info.major}.{sys.version_info.minor}-{sys.platform}'
         ghc = GitHubClient(token=os.environ['GITHUB_TOKEN'])
         
-        result = ghc.ReposDelete("GitHubPyTest", "foobar")
+        result = ghc.ReposDelete("GitHubPyTest", reponame)
         self.assertTrue((isinstance(result, HttpResponse) and result.status_code == 204) or result.message == 'Not Found')
         
         
@@ -25,7 +25,7 @@ class BasicTests(unittest.TestCase):
             
         self.assertTrue(found)
             
-        result = ghc.ReposDelete("GitHubPyTest", "foobar")
+        result = ghc.ReposDelete("GitHubPyTest", reponame)
         
         return
     
