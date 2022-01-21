@@ -119,6 +119,7 @@ jobs:
         run: python -m unittest -v
 
   AllJobs:
+    runs-on: ubuntu-latest
     needs:
       - Ubuntu_py3.6
       - MacOSX_py3.6
