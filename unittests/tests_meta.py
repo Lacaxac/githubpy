@@ -63,7 +63,9 @@ class MetaTests(unittest.TestCase):
         
         ghc.MetaGetOctocat("foo")
         
-        self.assertEqual(rl.rate.remaining-1, ghc.rateLimitRemaining)
+        # we run these tests in parallel on multiple platforms any python versions
+        # as such we may see a 'race condition'
+        self.assertLessEqual(rl.rate.remaining-1, ghc.rateLimitRemaining)
         
         
         return 
