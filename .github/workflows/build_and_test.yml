@@ -2,7 +2,7 @@ name: Ubuntu, Mac, Windows
 on: [push]
 
 jobs:
-  Ubuntu:
+  Ubuntu_py3.6:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -21,7 +21,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUBPYTEST_ACCT_TOKEN }}
         run: python -m unittest -v
-  MacOSX:
+  MacOSX_py3.6:
     runs-on: macos-latest
     steps:
       - name: Check out repository
@@ -40,7 +40,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUBPYTEST_ACCT_TOKEN }}
         run: python -m unittest -v
-  Windows:
+  Windows_py3.6:
     runs-on: windows-latest
     steps:
       - name: Check out repository
@@ -59,3 +59,72 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUBPYTEST_ACCT_TOKEN }}
         run: python -m unittest -v
+
+  Ubuntu_py3.10:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.10
+      - uses: syphar/restore-virtualenv@v1
+      - name: Build
+        run: |
+          pip install --upgrade pip
+          pip install --use-feature=in-tree-build .
+      - name: Test
+        working-directory: unittests
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUBPYTEST_ACCT_TOKEN }}
+        run: python -m unittest -v
+  MacOSX_py3.10:
+    runs-on: macos-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.10
+      - uses: syphar/restore-virtualenv@v1
+      - name: Build
+        run: |
+          pip install --upgrade pip
+          pip install --use-feature=in-tree-build .
+      - name: Test
+        working-directory: unittests
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUBPYTEST_ACCT_TOKEN }}
+        run: python -m unittest -v
+  Windows_py3.10:
+    runs-on: windows-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.10
+      - uses: syphar/restore-virtualenv@v1
+      - name: Build
+        run: |
+          pip install --upgrade pip
+          pip install --use-feature=in-tree-build .
+      - name: Test
+        working-directory: unittests
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUBPYTEST_ACCT_TOKEN }}
+        run: python -m unittest -v
+
+  AllJobs:
+    needs:
+      - Ubuntu_py3.6
+      - MacOSX_py3.6
+      - Windows_py3.6
+      - Ubuntu_py3.10
+      - MacOSX_py3.10
+      - Windows_py3.10
+
+      
