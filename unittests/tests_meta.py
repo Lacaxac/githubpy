@@ -58,7 +58,7 @@ class MetaTests(unittest.TestCase):
         
         rl = ghc.RateLimitGet()
         
-        self.assertEqual(rl.rate.remaining, ghc.rateLimitRemaining)
+        self.assertLessEqual(ghc.rateLimitRemaining, rl.rate.remaining)
         self.assertEqual(datetime.fromtimestamp(rl.rate.reset), ghc.rateLimitReset)
         
         ghc.MetaGetOctocat("foo")
