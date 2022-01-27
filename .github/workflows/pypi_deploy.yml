@@ -9,18 +9,14 @@ on:
     
       versionNumber:
         description: 'Release Version Number'
-        required: false
-        default: "0.0.0"
+        required: true
 
 jobs:
   BuildAndTest:
-    if: github.event.inputs.RunBuildAndTest == true
     uses: ./.github/workflows/build_and_test.yml
     secrets:
       GITHUBPYTEST_ACCT_TOKEN: ${{ secrets.GITHUBPYTEST_ACCT_TOKEN }}
-    if: github.event.inputs.RunBuildAndTest == false
-    steps:
-      run: echo "Build and Test skipped"
+
 
   Dist:
     needs: [ BuildAndTest ]
