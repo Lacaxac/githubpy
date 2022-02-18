@@ -143,7 +143,12 @@ class ArtifactWindow(object):
         
         self._deleteAction = tb.addAction(QtGui.QIcon("data/icon+x+icon-1320183702540076171_64.png"), "Delete Check Items")
         self._deleteAction.triggered.connect(self._delete_artifacts)
-    
+        
+        tb.addSeparator()
+        
+        tb.addWidget(QLabel("token:"))
+        self._tokenInput = QLineEdit(text=token, echoMode=QLineEdit.Password)
+        tb.addWidget(self._tokenInput)        
     
         table = self._table = QTableWidget()
         table.setColumnCount(6)
@@ -250,6 +255,13 @@ class ArtifactWindow(object):
         return
         
     def _fetch_artifacts(self):
+        
+        token    = self._tokenInput.text()
+        
+        if not token:
+            QMessageBox.information(self._usernameInput, "Credentials", "Need to specify token")
+            return
+        
         self._fetchAction.setEnabled(False)
         self._stopAction.setEnabled(True)
         self._artifacts.clear()
@@ -320,7 +332,8 @@ def main():
                 w, h)
 
     
-    AW = ArtifactWindow(token=options.token, owner=options.owner, geometry=geometry)
+    AW = ArtifactWindow(token=options.token, owner=options.owner, 
+                        geometry=geometry)
     AW.show()
     sys.exit(app.exec_())
     
