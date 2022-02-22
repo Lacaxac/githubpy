@@ -22,7 +22,7 @@
 
 import sys, os
 import unittest
-import datetime
+import datetime, time
 
 from testutils import PlatformString
 
@@ -32,7 +32,7 @@ class BasicTests(unittest.TestCase):
     
     def test_create_delete_repo(self):
         reponame = f'foobar-py-{PlatformString()}'
-        ghc = GitHubClient(token=os.environ['GITHUB_TOKEN'])
+        ghc = GitHubClient(os.environ['GITHUB_TOKEN'])
         
         result = ghc.ReposDelete("GitHubPyTest", reponame)
         self.assertTrue((isinstance(result, HttpResponse) and result.status_code == 204) or result.message == 'Not Found')
@@ -41,14 +41,19 @@ class BasicTests(unittest.TestCase):
         result = ghc.ReposCreateForAuthenticatedUser(reponame, description="test repo")
         self.assertIsInstance(result, Repository)
     
-        result = ghc.ReposListForAuthenticatedUser()
         found = False
-        for repo in result:
-            found = found or repo.name==reponame
-            
+        for attempt in range(3):        
+            result = ghc.ReposListForAuthenticatedUser()
+            for repo in result:
+                found = found or repo.name==reponame
+            if found:
+                break
+            time.sleep(5) # may be some lag between the successful call and database update
+                
         self.assertTrue(found)
             
         result = ghc.ReposDelete("GitHubPyTest", reponame)
+        self.assertEqual(result.status_code, 204)
         
         return
     
