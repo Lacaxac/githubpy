@@ -4,7 +4,7 @@ import sys, requests, datetime
 class GitHubClientBase(object):
     
     
-    def __init__(self, username=None, password=None, token=None, url="https://api.github.com", usesession=False):
+    def __init__(self, token=None, username=None, password=None, url="https://api.github.com", usesession=False):
         """Git hub access token
         if token is callable it will be invoked to produce the token """
         self._username = username
@@ -149,3 +149,10 @@ class GitHubClientBase(object):
             
         return 
         
+    def _generatorForResult(self, r, chunk_size):
+        isinstance(r, requests.Response)
+        
+        for chunk in r.iter_content(chunk_size=chunk_size):
+            if not chunk:
+                continue 
+            yield chunk
