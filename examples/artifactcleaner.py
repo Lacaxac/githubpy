@@ -20,7 +20,7 @@
 ## OR OTHER DEALINGS IN THE SOFTWARE.
 ##
 
-import sys
+import sys, os
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QThread, QMutex, QWaitCondition, pyqtSignal, pyqtSlot, Qt
 from PyQt5 import QtGui
@@ -110,15 +110,15 @@ class AritfactThread(QThread):
         self._mutex.unlock()
         
     @pyqtSlot()
-    def fetchartifacts(self):        
+    def fetchartifacts(self, owner, token):   
+        self._owner = owner
+        self._token = token
         self._mutex.lock()
         self._cond.wakeAll()
         self._mutex.unlock()
 
 class ArtifactWindow(object):
     def __init__(self, token, owner, geometry=(500, 100, 600, 600)):
-        self._owner = owner
-        self._token = token
         self._artifacts = []
         self._thread = AritfactThread(owner, token)
         
@@ -130,22 +130,28 @@ class ArtifactWindow(object):
         self._mainw = mainW = QMainWindow()
         mainW.setWindowTitle("Artifact Cleaner")
             
+        baseDir = os.path.dirname(__file__)
+            
         menuBar = mainW.menuBar()
         
         tb = mainW.addToolBar("")
-        self._fetchAction = fetchAction = tb.addAction(QtGui.QIcon("data/refresh+icon-1320183705440102854_64.png"), "Fetch Artifacts")
+        self._fetchAction = fetchAction = tb.addAction(QtGui.QIcon(os.path.join(baseDir, "data/refresh+icon-1320183705440102854_64.png")), "Fetch Artifacts")
         fetchAction.triggered.connect(self._fetch_artifacts)
         
         
-        self._stopAction = tb.addAction(QtGui.QIcon("data/stop64x64.png"), "Stop Fetch")
+        self._stopAction = tb.addAction(QtGui.QIcon(os.path.join(baseDir, "data/stop64x64.png")), "Stop Fetch")
         self._stopAction.triggered.connect(self._stopFetch)
         self._stopAction.setEnabled(False)
         
-        self._deleteAction = tb.addAction(QtGui.QIcon("data/icon+x+icon-1320183702540076171_64.png"), "Delete Check Items")
+        self._deleteAction = tb.addAction(QtGui.QIcon(os.path.join(baseDir, "data/icon+x+icon-1320183702540076171_64.png")), "Delete Check Items")
         self._deleteAction.triggered.connect(self._delete_artifacts)
         
         tb.addSeparator()
         
+        tb.addWidget(QLabel("owner:"))
+        self._ownerInput = QLineEdit(text=owner)
+        tb.addWidget(self._ownerInput)        
+    
         tb.addWidget(QLabel("token:"))
         self._tokenInput = QLineEdit(text=token, echoMode=QLineEdit.Password)
         tb.addWidget(self._tokenInput)        
@@ -257,9 +263,10 @@ class ArtifactWindow(object):
     def _fetch_artifacts(self):
         
         token    = self._tokenInput.text()
+        owner    = self._ownerInput.text()
         
         if not token:
-            QMessageBox.information(self._usernameInput, "Credentials", "Need to specify token")
+            QMessageBox.information(self._tokenInput, "Credentials", "Need to specify token")
             return
         
         self._fetchAction.setEnabled(False)
@@ -273,10 +280,13 @@ class ArtifactWindow(object):
         self._tableIndex = 0
         self._totalSize = 0
         
-        self._thread.fetchartifacts()
+        self._thread.fetchartifacts(owner, token)
         
     
     def _delete_artifacts(self):
+        
+        owner = self._ownerInput.text()
+        token = self._tokenInput.text()
         
         col = 0
         n = 0
@@ -295,9 +305,9 @@ class ArtifactWindow(object):
         if result == QMessageBox.Cancel:
             return
         
-        ghc = GitHubClient(token=self._token, usesession=True)
+        ghc = GitHubClient(token=token, usesession=True)
         for reponame, artifact in toDelete:
-            result = ghc.ActionsDeleteArtifact(self._owner, reponame, artifact.id)
+            result = ghc.ActionsDeleteArtifact(owner, reponame, artifact.id)
             assert(isinstance(result, githubV3py.HttpResponse))
         
         
