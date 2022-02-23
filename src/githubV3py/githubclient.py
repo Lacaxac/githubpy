@@ -83,8 +83,8 @@ class GitHubClient(GitHubClientBase,
   Pulls,
   Search,
   Users):
-    def __init__(self, username=None, password=None, token=None, usesession=False):
-        GitHubClientBase.__init__(self, username=username, 
-        password=password, 
-        token=token, 
-        usesession=usesession)
+    def __init__(self, token=None, username=None, password=None, usesession=False):
+        GitHubClientBase.__init__(self, token,
+        username,
+        password,
+        usesession)
