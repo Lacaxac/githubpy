@@ -35,7 +35,8 @@ class BasicTests(unittest.TestCase):
         ghc = GitHubClient(os.environ['GITHUB_TOKEN'])
         
         result = ghc.ReposDelete("GitHubPyTest", reponame)
-        self.assertTrue((isinstance(result, HttpResponse) and result.status_code == 204) or result.message == 'Not Found')
+        self.assertIsInstance(result, HttpResponse)
+        self.assertTrue(result.status_code == 204 or result.message == 'Not Found')
         
         
         result = ghc.ReposCreateForAuthenticatedUser(reponame, description="test repo")
