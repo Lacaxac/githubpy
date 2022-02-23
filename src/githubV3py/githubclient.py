@@ -87,4 +87,4 @@ class GitHubClient(GitHubClientBase,
         GitHubClientBase.__init__(self, token,
         username,
         password,
-        usesession)
+        usesession=usesession)
