@@ -19,7 +19,6 @@
 ## OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 ## OR OTHER DEALINGS IN THE SOFTWARE.
 ##
-
 import sys
 from githubV3py import *
 
@@ -32,7 +31,7 @@ def main():
     parser.add_argument("-t", "--token")
     parser.add_argument("-o", "--owner")
     parser.add_argument("-r", "--repo")
-    parser.add_argument("-w", "--workflow", action='append', default=[])
+    parser.add_argument("-w", "--workflow", action='append', default=[], help="Name of the .yml file in .github/workflows")
     parser.add_argument("-b", "--branch", default='master', help="Branch or tag")
     parser.add_argument("-v", "--verbose", action='store_true')
     

@@ -22,14 +22,13 @@
 
 import sys, os
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import QThread, QMutex, QWaitCondition, pyqtSignal, pyqtSlot, Qt
+from PyQt5.QtCore import QThread, QMutex, QMutexLocker, QWaitCondition, pyqtSignal, pyqtSlot, Qt
 from PyQt5 import QtGui
 from datetime import datetime
 from operator import attrgetter
 
 import githubV3py
-from githubV3py import GitHubClient, Artifact
-    
+from githubV3py import GitHubClient, Artifact, Repository, BasicError
     
 def SizeStr(size):
     if size >= 1e12:
@@ -46,6 +45,7 @@ class AritfactThread(QThread):
     
     output = pyqtSignal(str, Artifact)
     complete = pyqtSignal(int, datetime)
+    error = pyqtSignal(str)
     running = pyqtSignal(bool)
     
     def __init__(self, owner, token, parent=None):
@@ -63,59 +63,69 @@ class AritfactThread(QThread):
         self._isRunning = False
         
         
-    def run(self):
-        self._mutex.lock()
         
-        while True:
+    def run(self):
+        
+        with QMutexLocker(self._mutex):
             
-            self._isRunning = False
-            self._runningcond.wakeAll()
-            
-            self._cond.wait(self._mutex)
-            if not self._runflag:
-                return
-            
-            self._isRunning = True
-            self._runningcond.wakeAll()            
-            
-            ghc = GitHubClient(token=self._token, usesession=True)
-            for repo in GitHubClient.generate(ghc.ReposListForAuthenticatedUser):
-                if not self._loopflag:
-                    break
+            while True:
                 
-                for artifact in GitHubClient.generate(ghc.ActionsListArtifactsForRepo, self._owner, repo.name, extractor=attrgetter('artifacts')):
+                self._isRunning = False
+                self._runningcond.wakeAll()
+                
+                self._cond.wait(self._mutex)
+                if not self._runflag:
+                    return
+                
+                self._isRunning = True
+                self._runningcond.wakeAll()            
+                
+                ghc = GitHubClient(token=self._token, usesession=True)
+                for repo in GitHubClient.generate(ghc.ReposListForAuthenticatedUser):
+                    
+                    if not isinstance(repo, Repository):
+                        if isinstance(repo, BasicError):
+                            message = repo.message
+                        else:
+                            message = f"unexpected response: {repo}"
+                        self.error.emit(message)
+                        break
                     
                     if not self._loopflag:
-                        break 
+                        break
                     
-                    if not artifact.ok and artifact.status_code == 404:
-                        break # expected if repo has no artifacts
-                    
-                    
-                    if artifact.expired:
-                        continue
-                    self.output.emit(repo.name, artifact)
-            self.complete.emit(ghc.rateLimitRemaining, ghc.rateLimitReset)
+                    for artifact in GitHubClient.generate(ghc.ActionsListArtifactsForRepo, self._owner, repo.name, extractor=attrgetter('artifacts')):
+                        
+                        if not self._loopflag:
+                            break 
+                        
+                        if not artifact.ok and artifact.status_code == 404:
+                            break # expected if repo has no artifacts
+                        
+                        
+                        if artifact.expired:
+                            continue
+                        self.output.emit(repo.name, artifact)
+                self.complete.emit(ghc.rateLimitRemaining, ghc.rateLimitReset)
                     
             
     @pyqtSlot()
     def stop(self):
         
-        self._mutex.lock()
-        self._loopflag = False
+        with QMutexLocker(self._mutex):            
+            self._loopflag = False
+            
+            while self._isRunning:
+                self._runningcond.wait(self._mutex)
         
-        while self._isRunning:
-            self._runningcond.wait(self._mutex)
-        
-        self._mutex.unlock()
         
     @pyqtSlot()
     def fetchartifacts(self, owner, token):   
         self._owner = owner
         self._token = token
-        self._mutex.lock()
-        self._cond.wakeAll()
-        self._mutex.unlock()
+        with QMutexLocker(self._mutex):
+            self._cond.wakeAll()
+        
 
 class ArtifactWindow(object):
     def __init__(self, token, owner, geometry=(500, 100, 600, 600)):
@@ -126,6 +136,7 @@ class ArtifactWindow(object):
         
         self._thread.output[str, Artifact].connect(self._addArtifact)
         self._thread.complete[int, datetime].connect(self._artifactsComplete)
+        self._thread.error[str].connect(self._error)
     
         self._mainw = mainW = QMainWindow()
         mainW.setWindowTitle("Artifact Cleaner")
@@ -212,7 +223,7 @@ class ArtifactWindow(object):
         self._fetchAction.setEnabled(True)
         self._stopAction.setEnabled(False)
         resetT = rateLimitReset.strftime("%I:%M%p")
-        self._mainw.statusBar().showMessage(f"{rateLimitRemaining} remaining  reset:  {resetT}  total={SizeStr(self._totalSize)}")
+        self._mainw.statusBar().showMessage(f"{rateLimitRemaining} requests remaining  reset:  {resetT}  total={SizeStr(self._totalSize)}")
         
     def _addArtifact(self, reponame, artifact):
         isinstance(artifact, Artifact)
@@ -314,6 +325,16 @@ class ArtifactWindow(object):
         
         self._fetch_artifacts()
         return
+    
+    def _error(self, message):
+        msgBox = QMessageBox(QMessageBox.Warning, "Error", 
+                             f"Error: {message}", 
+                             QMessageBox.Cancel)
+        
+        msgBox.exec()
+        self._fetchAction.setEnabled(True)
+        self._stopAction.setEnabled(False)
+        return 
     
     def show(self):
         self._mainw.show()
