@@ -36,26 +36,28 @@ def main():
     parser.add_argument("-n", "--count", type=int, default=1, help="Launch N times (for testing)")
     parser.add_argument("-s", "--seconds", type=int, default=15, help="time between launches")
     parser.add_argument("-v", "--verbose", action='store_true')
+    parser.add_argument("-i", "--input", action='append', default=[], help="key=value  (may be specified multiple times)   Set a github action input Ref: https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions#inputs")
     
     options = parser.parse_args()
     
     ghc = GitHubClient(token=options.token)
     
+    inputs = dict(map((lambda s: s.split('=')), options.input))
     
     for i in range(options.count):
         
-        result = ghc.ActionsCreateWorkflowDispatch(options.owner, 
-                                                   options.repo, 
-                                                   options.workflow[0], 
-                                                   options.branch, inputs={})
+        for workflow in options.workflow:            
+            result = ghc.ActionsCreateWorkflowDispatch(options.owner, 
+                                                       options.repo, 
+                                                       workflow,
+                                                       options.branch, inputs=inputs)
         
-        
-        if not isinstance(result, HttpResponse) or result.status_code != 204:
-            print(f"ERROR: {result.message}")
-            sys.exit(2)
-            
-        if options.verbose:
-            print(f"# workflow {options.workflow[0]} on {options.branch} launched successfully")
+            if not isinstance(result, HttpResponse) or result.status_code != 204:
+                print(f"ERROR: {result.message}")
+                sys.exit(2)
+                
+            if options.verbose:
+                print(f"# workflow {workflow} on {options.branch} launched successfully")
 
         if i != options.count-1:
             sleep(options.seconds)
