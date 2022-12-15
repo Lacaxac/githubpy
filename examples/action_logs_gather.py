@@ -35,8 +35,9 @@ the run you're looking for if there are many."""
 def main():
   
   parser = argparse.ArgumentParser(description=doc)
-  parser.add_argument("--token")
-  parser.add_argument("--owner")
+  parser.add_argument("-t", "--token")
+  parser.add_argument("-o", "--owner")
+  parser.add_argument("-p", "--password")
   parser.add_argument("--workflow", help="workflow name")
   parser.add_argument("--repo", help="Repo name")
   parser.add_argument("--branch", help="Regex to match branch where workflow is running.  If none, all branches")
@@ -52,7 +53,14 @@ def main():
 
   options = parser.parse_args()
   
-  ghc = githubV3py.GitHubClient(token=options.token) 
+  if options.token:
+    ghc = githubV3py.GitHubClient(token=options.token)
+  elif options.owner and options.password:
+    ghc = githubV3py.GitHubClient(username=options.owner, password=options.password)
+  else:
+    print(f"# Error:  owner/user and password  or token required", file=sys.stderr)
+    print(f"# Tokens may be acquired at:  https://github.com/settings/tokens/new")
+    exit(1)
   
   githubGenerate = githubV3py.GitHubClient.generate
   
@@ -62,6 +70,7 @@ def main():
   after = options.after and datetime.fromisoformat(options.after)
   
   done = False
+  exit_status = 0 
   for workflow in githubGenerate(ghc.ActionsListRepoWorkflows, options.owner, options.repo, 
                                                    extractor=attrgetter('workflows')):
     
@@ -99,6 +108,11 @@ def main():
           print(f"## {job.name}#{run.run_attempt} id={job.id} {job.conclusion}")
           print(f"##")
           result = ghc.ActionsDownloadJobLogsForWorkflowRun(options.owner, options.repo, job.id)
+          if not result.ok:
+            print(f"# Error: {result.message}")
+            exit_status = 1 
+            continue
+          
           content = result.decode('utf-8')
           if contentRE and contentRE.find(content):
             continue
@@ -116,6 +130,8 @@ def main():
   if options.verbose:
     print(f"Ratelimit remaining: {ghc.rateLimitRemaining} Reset: {ghc.rateLimitReset:%c}")
     return
+  
+  exit(exit_status)
 
 if __name__ == '__main__':
   main()

@@ -29,6 +29,7 @@ def main():
     parser = argparse.ArgumentParser()
     
     parser.add_argument("-t", "--token")
+    parser.add_argument("-p", "--password")
     parser.add_argument("-o", "--owner")
     parser.add_argument("-r", "--repo")
     parser.add_argument("-w", "--workflow", action='append', default=[], help="Name of the .yml file in .github/workflows")
@@ -40,7 +41,15 @@ def main():
     
     options = parser.parse_args()
     
-    ghc = GitHubClient(token=options.token)
+    if options.token:
+        ghc = GitHubClient(token=options.token)
+    elif options.owner and options.password:
+        ghc = GitHubClient(username=options.owner, password=options.password)
+    else:
+        print(f"# Error:  owner/user and password  or token required", file=sys.stderr)
+        print(f"# Tokens may be acquired at:  https://github.com/settings/tokens/new")
+        exit(1)
+
     
     inputs = dict(map((lambda s: s.split('=')), options.input))
     

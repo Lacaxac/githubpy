@@ -31,11 +31,9 @@ def main():
     parser = argparse.ArgumentParser()
     
     
-    parser.add_argument("owner")
-    parser.add_argument("repo")
+    parser.add_argument("-t", "--token")
     parser.add_argument("-u", "--username")
     parser.add_argument("-p", "--password")
-    parser.add_argument("-t", "--token")
     parser.add_argument("-a", "--assignee", default='*', help="user name")
     parser.add_argument("-s", "--state", default='all', help="open,closed,all")
     
