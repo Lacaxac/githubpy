@@ -30,7 +30,7 @@ def main():
     
     parser = argparse.ArgumentParser()
     
-    parser.add_argument("--token")
+    parser.add_argument("-t", "--token")
     
     options = parser.parse_args()
     

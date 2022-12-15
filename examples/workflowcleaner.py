@@ -29,8 +29,8 @@ import githubV3py
 def main():
   
   parser = argparse.ArgumentParser()
-  parser.add_argument("--token")
-  parser.add_argument("--owner")
+  parser.add_argument("-t", "--token")
+  parser.add_argument("-o", "--owner")
   parser.add_argument("--remove", action='store_true', help="Remove matching build")
   parser.add_argument("--list", action='store_true', help="list matching builds")
   parser.add_argument("--failed", action='store_true', help="List/remove failed builds")

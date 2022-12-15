@@ -32,11 +32,22 @@ def main():
     
     parser.add_argument('text', nargs='?', default="Hello World")
     parser.add_argument("-t", "--token", default='', help="Access Token from https://github.com/settings/tokens/new")
+    parser.add_argument("-o", "--owner")
+    parser.add_argument("-p", "--password")
     parser.add_argument("-v", "--verbose", action='store_true', help="display remaining rate-limit")
     
     options = parser.parse_args()
     
-    ghc = GitHubClient(token=options.token)
+    if options.token:
+        ghc = GitHubClient(token=options.token)
+    elif options.owner and options.password:
+        ghc = GitHubClient(username=options.owner, password=options.password)
+    else:
+        print(f"# Error:  owner/user and password  or token required", file=sys.stderr)
+        print(f"# Tokens may be acquired at:  https://github.com/settings/tokens/new")
+        exit(1)
+
+    
     response = ghc.MetaGetOctocat(options.text)
     if not response.ok:
         print(f"Bad response({response.status_code}): {response.message}", file=sys.stderr)
