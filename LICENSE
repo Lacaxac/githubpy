@@ -1,6 +1,7 @@
+python -c "import githubV3py ;  print(githubV3py.GitHubClient(token='_token_').RateLimitGet().rate.remaining)"
 MIT License
 
-Copyright (c) 2021 Andrew Ellis Page
+Copyright (c) 2024 Andrew Ellis Page
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
